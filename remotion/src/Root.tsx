@@ -18,6 +18,13 @@ export const RemotionRoot: React.FC = () => {
           accent: '#E17B3B',
           bg: '#0B0B0B',
           fg: '#FFFFFF',
+          projectId: 'maxcontrax-reel-v1',
+          clips: {
+            overwhelm: 'overwhelm_scroll.mp4',
+            ai: 'ai_matching.mp4',
+            email: 'email_alert.mp4',
+            trust: 'handshake_trust.mp4',
+          },
         }}
       />
     </>

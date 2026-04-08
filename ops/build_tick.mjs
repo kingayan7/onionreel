@@ -1026,6 +1026,17 @@ refresh();
     shipped = 'Implemented Remotion Reel30 v1 (beat-driven text cards + end card + premium styling).';
     next = 'Proceed to P13-S3 Integrate video clips into composition timeline.';
 
+  } else if (picked.step.id === 'P13-S3') {
+    // P13-S3: Integrate video clips into Remotion composition timeline.
+    const p = path.join(OR_DIR, 'remotion', 'src', 'compositions', 'Reel30.tsx');
+    const root = path.join(OR_DIR, 'remotion', 'src', 'Root.tsx');
+    if (!fs.existsSync(p) || !fs.existsSync(root)) throw new Error('missing Remotion composition/root');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Integrated Sora clips into Remotion Reel30 timeline (Video layers + readability overlay).';
+    next = 'Proceed to P13-S4 Render variants 30/15/6 via Remotion + presets.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

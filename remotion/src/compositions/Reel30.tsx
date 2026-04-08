@@ -1,5 +1,6 @@
 import React from 'react';
-import {AbsoluteFill, Sequence, useCurrentFrame, interpolate} from 'remotion';
+import {AbsoluteFill, Sequence, useCurrentFrame, interpolate, Video} from 'remotion';
+import {autoeditClip} from '../lib/paths';
 
 type Beat = { t0: number; t1: number; text: string };
 
@@ -33,12 +34,34 @@ export const Reel30: React.FC<{
   fg: string;
   accent: string;
   beats?: Beat[];
-}> = ({ title, cta, bg, fg, accent, beats = defaultBeats }) => {
+  projectId: string;
+  clips: { overwhelm: string; ai: string; email: string; trust: string };
+}> = ({ title, cta, bg, fg, accent, beats = defaultBeats, projectId, clips }) => {
   const frame = useCurrentFrame();
+
+  // 4x 4-second clips looped/cropped to cover 0-20s.
+  const sources = [
+    { from: 0, dur: 4, file: clips.overwhelm },
+    { from: 4, dur: 4, file: clips.ai },
+    { from: 8, dur: 4, file: clips.email },
+    { from: 12, dur: 8, file: clips.trust },
+  ];
 
   return (
     <AbsoluteFill style={{ backgroundColor: bg }}>
-      {/* v1 beat-driven text cards (no footage yet) */}
+      {/* footage bed */}
+      {sources.map((s, i) => (
+        <Sequence key={i} from={Math.floor(s.from * 30)} durationInFrames={Math.floor(s.dur * 30)}>
+          <Video
+            src={autoeditClip(projectId, s.file)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          {/* darken for readability */}
+          <AbsoluteFill style={{ backgroundColor: 'rgba(0,0,0,0.35)' }} />
+        </Sequence>
+      ))}
+
+      {/* beat-driven text cards */}
       {beats.map((b) => {
         const from = Math.floor(b.t0 * 30);
         const dur = Math.max(1, Math.floor((b.t1 - b.t0) * 30));

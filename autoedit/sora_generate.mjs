@@ -122,20 +122,21 @@ async function worker(){
   while (queue.length) {
     const p = queue.shift();
     const out = desiredOutPath(p);
-    let a = manifest.assets.find(x => x.id === p.id);
+    // Use a less collision-prone name than `a` (some bundlers/minifiers can trip on repeated `let a`).
+    let asset = manifest.assets.find(x => x.id === p.id);
 
     // Skip if manifest already points to an existing file.
-    if (a?.localPath) {
-      const abs = path.join(AUTO_DIR, a.localPath);
+    if (asset?.localPath) {
+      const abs = path.join(AUTO_DIR, asset.localPath);
       if (fs.existsSync(abs)) continue;
     }
 
     // Skip if desired file already exists.
     if (fs.existsSync(out)) {
-      if (!a) { a = { id: p.id, type: 'video', notes: 'sora_generated' }; manifest.assets.push(a); }
-      a.localPath = path.relative(AUTO_DIR, out);
-      a.source = 'sora';
-      a.promptHash = path.basename(out).split('__')[1]?.replace('.mp4','');
+      if (!asset) { asset = { id: p.id, type: 'video', notes: 'sora_generated' }; manifest.assets.push(asset); }
+      asset.localPath = path.relative(AUTO_DIR, out);
+      asset.source = 'sora';
+      asset.promptHash = path.basename(out).split('__')[1]?.replace('.mp4','');
       continue;
     }
 
@@ -154,7 +155,7 @@ async function worker(){
           try {
             await runSoraOnce({ model, size, seconds: p.seconds || 4, prompt: safePrompt, out });
             ok = true;
-            if (a) a.note = `retried_with_safe_prompt_due_to_error: ${lastErr}`;
+            if (asset) asset.note = `retried_with_safe_prompt_due_to_error: ${lastErr}`;
           } catch (e2) {
             lastErr = String(e2.message || e2);
           }

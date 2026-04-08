@@ -46,10 +46,21 @@
 
     <div class="row" style="margin-top:10px">
       <input id="reqProjectId" placeholder="projectId (e.g. maxcontrax-reel-v1)" style="min-width:280px" />
+      <select id="reqPackType" style="min-width:240px">
+        <option value="ad_pack">Ad Pack (30/15/6)</option>
+        <option value="hook_pack">Hook Pack (10 hooks)</option>
+        <option value="promo_pack">Promo Pack</option>
+      </select>
       <button id="reqGenerate">Generate Pack</button>
       <button class="secondary" id="reqRunAll">Run Full Chain</button>
       <button class="secondary" id="reqRunOne">Run Next Job</button>
       <button class="secondary" id="refresh">Refresh</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <input id="reqBrand" placeholder="Brand (e.g. MaxContrax)" style="min-width:240px" />
+      <input id="reqOffer" placeholder="Offer (e.g. Start free for 7 days)" style="min-width:320px" />
+      <input id="reqCta" placeholder="CTA URL (e.g. https://maxcontrax.com)" style="min-width:320px" />
     </div>
 
     <div class="row" style="margin-top:10px">
@@ -310,6 +321,11 @@ if (document.getElementById('tplCreate')) document.getElementById('tplCreate').o
 };
 document.getElementById('reqGenerate').onclick = async () => {
   const projectId = document.getElementById('reqProjectId').value.trim() || 'maxcontrax-reel-v1';
+  const packType = document.getElementById('reqPackType').value;
+  const brand = document.getElementById('reqBrand').value.trim();
+  const offer = document.getElementById('reqOffer').value.trim();
+  const ctaUrl = document.getElementById('reqCta').value.trim();
+
   const bundle = [];
   if (document.getElementById('stepSora').checked) bundle.push('sora_generate');
   if (document.getElementById('stepRemotion').checked) bundle.push('remotion_render');
@@ -317,12 +333,17 @@ document.getElementById('reqGenerate').onclick = async () => {
 
   let payload = {};
   try { payload = JSON.parse(document.getElementById('reqPayload').value || '{}'); } catch(e) { alert('Advanced payload JSON is invalid'); return; }
+  payload = { packType, brand, offer, ctaUrl, ...payload };
+
   const maxAttempts = Number(document.getElementById('reqMaxAttempts').value || 2);
 
+  // Persist a Request record as well.
+  await jpost('/api/requests', { projectId, mode:'pack_builder', note:`pack:${packType}`, bundle, payload });
   await jpost('/api/jobs/enqueue', { projectId, bundle, payload, maxAttempts });
+
   await refresh();
   await refreshJobs();
-  alert('Enqueued. Go to Jobs tab and click “Run Next Job” (or run multiple times).');
+  alert('Enqueued. Click “Run Full Chain” to generate outputs.');
 };
 
 document.getElementById('reqRunAll').onclick = async () => {

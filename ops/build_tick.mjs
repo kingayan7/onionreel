@@ -1278,6 +1278,16 @@ refresh();
     shipped = 'Shipped Templates v1: templates.jsonl persistence + /api/templates + Templates tab with Use/Create.';
     next = 'Proceed to P18-S2 Pack Builder wizard.';
 
+  } else if (picked.step.id === 'P18-S2') {
+    // P18-S2: Pack Builder wizard (Ad Pack / Hook Pack / Promo Pack)
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const ok = fs.existsSync(html) && fs.readFileSync(html,'utf8').includes('reqPackType') && fs.readFileSync(html,'utf8').includes('pack_builder');
+    if (!ok) throw new Error('Pack Builder wizard not detected in dashboard/index.html');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Pack Builder v1 (pack type + brand/offer/cta inputs → persisted request + job bundle).';
+    next = 'Proceed to P18-S3 Workflow plan view.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

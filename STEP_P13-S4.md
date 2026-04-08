@@ -1,50 +1,49 @@
-# OnionReel v1 Artifact: Render Variants via Remotion
+# OnionReel v1 Artifact: Render Variants with Remotion
 
 ## Overview
-This artifact outlines the process to render video variants at 30fps, 15fps, and 6fps using Remotion, along with encoding settings presets. This step is crucial for optimizing video delivery across different platforms and bandwidth scenarios.
+This artifact outlines the process for rendering video variants (30s, 15s, and 6s) using Remotion, along with the necessary encoding settings presets. The goal is to streamline the rendering process for different video lengths while ensuring consistent quality and performance.
 
 ## Inputs
-- **Video Source**: Original video file (e.g., MP4, MOV).
-- **Remotion Project**: Pre-configured Remotion project with necessary components.
-- **Encoding Settings**: Preset configurations for each frame rate (30fps, 15fps, 6fps).
-- **Output Directory**: Destination folder for rendered videos.
+- **Video Source**: Original video file (e.g., MP4, MOV)
+- **Remotion Project**: Pre-configured Remotion project setup for rendering
+- **Encoding Settings**: Preset configurations for video quality, bitrate, and format
+- **Variant Durations**: Target durations for rendering (30s, 15s, 6s)
 
 ## Outputs
-- **Rendered Videos**: Three variants of the video:
-  - `video_30fps.mp4`
-  - `video_15fps.mp4`
-  - `video_6fps.mp4`
-- **Log File**: A log detailing the rendering process, including any errors or warnings.
+- **Rendered Videos**: 
+  - `output_30s.mp4`
+  - `output_15s.mp4`
+  - `output_6s.mp4`
+- **Log File**: A log detailing the rendering process and any errors encountered
 
 ## Steps
-1. **Set Up Remotion Environment**:
-   - Ensure Remotion is properly installed and configured.
-   - Verify that all dependencies are up-to-date.
+1. **Set Up Remotion Project**:
+   - Ensure the Remotion project is correctly configured with the necessary components (e.g., video, audio, animations).
 
-2. **Configure Encoding Settings**:
-   - Create presets for each frame rate:
-     - **30fps**: High quality, standard bitrate.
-     - **15fps**: Medium quality, reduced bitrate.
-     - **6fps**: Low quality, minimal bitrate.
+2. **Define Encoding Settings**:
+   - Create presets for each variant:
+     - **30s**: High quality (e.g., 1080p, 8 Mbps)
+     - **15s**: Medium quality (e.g., 720p, 5 Mbps)
+     - **6s**: Low quality (e.g., 480p, 2 Mbps)
 
-3. **Render Videos**:
-   - Execute the Remotion render command for each frame rate:
-     ```bash
-     npx remotion render <YourRemotionComponent> video_30fps.mp4 --fps 30 --codec h264 --preset <30fps_preset>
-     npx remotion render <YourRemotionComponent> video_15fps.mp4 --fps 15 --codec h264 --preset <15fps_preset>
-     npx remotion render <YourRemotionComponent> video_6fps.mp4 --fps 6 --codec h264 --preset <6fps_preset>
+3. **Render Variants**:
+   - Use Remotion's rendering API to generate each variant:
+     ```javascript
+     await renderVideo('output_30s.mp4', { duration: 30, encoding: highQualityPreset });
+     await renderVideo('output_15s.mp4', { duration: 15, encoding: mediumQualityPreset });
+     await renderVideo('output_6s.mp4', { duration: 6, encoding: lowQualityPreset });
      ```
 
-4. **Verify Outputs**:
-   - Check the output directory for rendered videos.
-   - Review the log file for any issues encountered during rendering.
+4. **Log the Process**:
+   - Capture and save logs for each rendering step to track success or failure.
 
-5. **Testing**:
-   - Play each rendered video to ensure quality and performance.
-   - Test playback on various devices and platforms.
+5. **Validate Outputs**:
+   - Check the output files for integrity and quality assurance.
 
 ## Pitfalls
-- **Dependency Issues**: Ensure all Remotion dependencies are installed correctly to avoid runtime errors.
-- **Encoding Quality**: Incorrect presets may lead to poor video quality; verify settings before rendering.
-- **File Size Management**: Rendering at lower frame rates can significantly reduce file sizes, but may also impact visual fidelity; balance is key.
-- **Log Monitoring**: Failing to check the log file may result in unnoticed errors that could affect the final output. Always review logs post-rendering.
+- **Encoding Errors**: Ensure encoding settings are compatible with the video format.
+- **Performance Issues**: Rendering may take longer with high-quality settings; consider optimizing resources.
+- **File Size Management**: Monitor output file sizes to avoid exceeding storage limits.
+- **Error Handling**: Implement robust error handling to capture and address issues during rendering.
+
+This artifact serves as a concise guide to efficiently render video variants using Remotion, ensuring a smooth workflow and high-quality outputs.

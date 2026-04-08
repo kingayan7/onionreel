@@ -42,10 +42,20 @@ async function runJob(job, db){
         stdio: 'pipe',
         env: { ...process.env, ...extraEnv }
       });
+      const stdout = (r.stdout || '').toString();
+      const stderr = (r.stderr || '').toString();
+      // Always capture logs for UI/debugging.
+      job.outputs = job.outputs || {};
+      job.outputs.logs = job.outputs.logs || {};
+      job.outputs.logs[type] = {
+        ts: Date.now(),
+        stdout: stdout.slice(-20000),
+        stderr: stderr.slice(-20000),
+      };
       if (r.status !== 0) {
-        throw new Error((r.stderr||r.stdout||'').toString() || `job failed: ${type}`);
+        throw new Error((stderr || stdout || '').toString() || `job failed: ${type}`);
       }
-      return (r.stdout || '').toString().trim();
+      return stdout.trim();
     }
 
     if (type === 'sora_generate') {

@@ -1300,6 +1300,18 @@ refresh();
     shipped = 'Shipped Workflow plan view v1 (/api/workflow + dashboard pipeline panel).';
     next = 'Proceed to P18-S4 Job details panel.';
 
+  } else if (picked.step.id === 'P18-S4') {
+    // P18-S4: Job details panel: payload viewer + stdout/stderr logs + timings
+    const jr = path.join(OR_DIR, 'brain', 'job_runner.mjs');
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const ok = fs.existsSync(jr) && fs.readFileSync(jr,'utf8').includes('job.outputs.logs')
+      && fs.existsSync(html) && fs.readFileSync(html,'utf8').includes('stdout (tail)');
+    if (!ok) throw new Error('job logs viewer not detected');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Jobs detail v1: stdout/stderr capture in job_runner + View shows logs/timings.';
+    next = 'Proceed to P18-S5 Iteration actions.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

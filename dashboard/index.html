@@ -294,7 +294,15 @@ async function refreshJobs(){
         startedAt: job.startedAt,
         finishedAt: job.finishedAt,
       };
-      alert(JSON.stringify(details, null, 2));
+
+      // Prefer showing logs if present
+      const logs = job.outputs?.logs?.[job.type] || null;
+      const txt = logs
+        ? (JSON.stringify(details, null, 2)
+            + "\n\n--- stdout (tail) ---\n" + (logs.stdout || '')
+            + "\n\n--- stderr (tail) ---\n" + (logs.stderr || ''))
+        : JSON.stringify(details, null, 2);
+      alert(txt.slice(0, 20000));
     };
   });
 }

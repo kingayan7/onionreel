@@ -1,31 +1,45 @@
 # OnionReel v1 Artifact: Cost Controls (P12-S5)
 
 ## Overview
-Implement cost control mechanisms in OnionReel to manage expenses effectively. This includes setting clip length caps, limiting retries, and establishing budget guardrails to prevent overspending during video processing and editing.
+This artifact outlines the implementation of cost control features for OnionReel, focusing on clip length caps, retry limits, and budget guardrails. These features aim to optimize resource usage and prevent overspending during video processing.
 
 ## Inputs
-- **User Requirements**: Feedback on acceptable clip lengths, retry limits, and budget constraints.
-- **Technical Specifications**: Current system capabilities and limitations.
-- **Budget Data**: Historical spending data and projected costs for video processing.
+- **User Settings**: Desired clip length cap, maximum retries, and budget limits.
+- **System Metrics**: Current processing costs, clip lengths, and retry statistics.
+- **Feedback Loop**: User feedback on cost control effectiveness.
 
 ## Outputs
-- **Clip Length Cap**: Maximum allowed length for video clips.
-- **Retry Limit**: Maximum number of retries for processing failures.
-- **Budget Guardrails**: Alerts and restrictions based on budget thresholds.
+- **Clip Length Cap**: Enforced maximum length for video clips.
+- **Retry Limits**: Configurable maximum number of retries for processing failures.
+- **Budget Guardrails**: Alerts and restrictions based on user-defined budget thresholds.
 
 ## Steps
-1. **Gather Requirements**: Collect user input on acceptable clip lengths, retry limits, and budget preferences.
-2. **Define Parameters**: Set specific limits for clip lengths, retries, and budget thresholds.
-3. **Implement Logic**: 
-   - Update the video processing pipeline to enforce clip length caps.
-   - Integrate retry logic with a maximum retry count.
-   - Create budget monitoring alerts to notify users when nearing budget limits.
-4. **Testing**: Conduct unit tests and user acceptance tests to ensure the controls function as intended.
-5. **Documentation**: Update user guides and technical documentation to reflect new cost control features.
-6. **Deployment**: Release the updated version of OnionReel with cost controls.
+1. **Define User Settings**:
+   - Create a user interface for inputting clip length caps, retry limits, and budget thresholds.
+   
+2. **Implement Clip Length Cap**:
+   - Modify the video processing pipeline to enforce a maximum clip length.
+   - Validate input lengths against user-defined caps before processing.
+
+3. **Set Up Retry Logic**:
+   - Develop a retry mechanism that limits the number of processing attempts based on user settings.
+   - Log each retry attempt and its outcome for user review.
+
+4. **Establish Budget Guardrails**:
+   - Integrate a monitoring system that tracks processing costs in real-time.
+   - Implement alerts for users when approaching budget limits, with options to pause or stop processing.
+
+5. **Testing and Validation**:
+   - Conduct unit tests for each feature to ensure functionality.
+   - Gather user feedback on the effectiveness of cost controls and make adjustments as necessary.
+
+6. **Documentation**:
+   - Create user documentation outlining how to set and adjust cost control features.
 
 ## Pitfalls
-- **User Resistance**: Users may resist limits on clip lengths or retries; ensure clear communication of benefits.
-- **Over-Restriction**: Setting limits too low may hinder user creativity; balance controls with flexibility.
-- **Technical Limitations**: Ensure existing infrastructure can support new logic without performance degradation.
-- **Budget Misalignment**: Regularly review budget thresholds to match user expectations and project needs.
+- **User Confusion**: Users may not understand the implications of clip length caps or budget limits. Clear documentation is essential.
+- **Over-Restrictive Settings**: Setting caps too low may hinder user experience. Balance is key.
+- **Performance Impact**: Implementing additional checks may slow down processing. Optimize code to minimize impact.
+- **Inadequate Alerts**: Failing to provide timely alerts could lead to unexpected costs. Ensure robust notification systems are in place.
+
+By following this roadmap, OnionReel can effectively implement cost control features that enhance user experience while managing operational costs.

@@ -1,28 +1,32 @@
-# OnionReel v1 Artifact: Render Variants 30/15/6 via Remotion + Encode Settings Presets
+# OnionReel v1 Artifact: Render Variants via Remotion
 
 ## Overview
-This artifact outlines the process for rendering video variants at 30, 15, and 6 frames per second (FPS) using Remotion. It includes the necessary encoding settings presets to ensure optimal video quality and performance.
+This artifact outlines the implementation of rendering video variants (30fps, 15fps, 6fps) using Remotion, along with encoding settings presets. This step aims to provide optimized video outputs for various use cases, enhancing the user experience and performance of OnionReel.
 
 ## Inputs
 - **Video Source**: Original video file (e.g., MP4, MOV)
-- **Remotion Project**: Pre-configured Remotion project with video components
-- **Encoding Settings**: Preset configurations for each FPS variant
-- **Node.js Environment**: Required for running Remotion
+- **Remotion Configuration**: Remotion project setup
+- **Encoding Presets**: Predefined encoding settings for each variant
+- **Output Directory**: Path for saving rendered videos
 
 ## Outputs
-- **Rendered Videos**: Three output files in specified formats:
+- **Rendered Videos**: 
   - `output_30fps.mp4`
   - `output_15fps.mp4`
   - `output_6fps.mp4`
-- **Log File**: A log detailing rendering process and any errors encountered
+- **Log File**: Summary of rendering process and any errors encountered
 
 ## Steps
-1. **Set Up Environment**:
-   - Ensure Node.js and Remotion are installed.
-   - Clone the Remotion project repository.
+1. **Set Up Remotion Project**:
+   - Initialize a Remotion project if not already done.
+   - Ensure all necessary dependencies are installed.
 
-2. **Configure Encoding Settings**:
-   - Define encoding presets for each FPS variant in a configuration file:
+2. **Configure Video Rendering**:
+   - Create a rendering function that accepts the video source and desired fps.
+   - Use Remotion's `renderMedia` function to set the fps for each variant.
+
+3. **Define Encoding Settings Presets**:
+   - Create a configuration file (e.g., `encodingPresets.json`) with settings for each fps variant:
      ```json
      {
        "30fps": { "bitrate": "5000k", "codec": "h264" },
@@ -31,22 +35,17 @@ This artifact outlines the process for rendering video variants at 30, 15, and 6
      }
      ```
 
-3. **Render Videos**:
-   - Use Remotion's CLI to render each variant:
-     ```bash
-     npx remotion render <YourRemotionProject> output_30fps.mp4 --fps 30 --preset 30fps
-     npx remotion render <YourRemotionProject> output_15fps.mp4 --fps 15 --preset 15fps
-     npx remotion render <YourRemotionProject> output_6fps.mp4 --fps 6 --preset 6fps
-     ```
+4. **Render Variants**:
+   - Loop through the encoding presets and call the rendering function for each fps variant.
+   - Save the output files in the specified output directory.
 
-4. **Verify Outputs**:
-   - Check the output files for successful rendering.
-   - Review the log file for any errors or warnings.
+5. **Log Results**:
+   - Capture success or error messages during rendering and save them to a log file.
 
 ## Pitfalls
-- **Dependency Issues**: Ensure all dependencies are correctly installed and compatible with your Node.js version.
-- **File Format Compatibility**: Verify that the input video formats are supported by Remotion.
-- **Performance Concerns**: Rendering at lower FPS may lead to reduced video quality; adjust bitrate settings accordingly.
-- **Error Handling**: Implement error handling in the rendering script to capture and log issues during the rendering process.
+- **Performance Issues**: Rendering at lower fps may still consume significant resources; monitor system performance.
+- **File Size Management**: Ensure that the output file sizes are manageable and meet user expectations.
+- **Error Handling**: Implement robust error handling to manage potential issues during rendering (e.g., unsupported formats, missing files).
+- **Compatibility**: Verify that the output formats are compatible with intended playback platforms.
 
-By following these steps, you will successfully render the required video variants using Remotion, ensuring a streamlined workflow for OnionReel's v1 release.
+By following this roadmap step, OnionReel will effectively render video variants, enhancing functionality and user satisfaction.

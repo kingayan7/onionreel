@@ -1016,6 +1016,16 @@ refresh();
     shipped = 'Scaffolded Remotion render engine (onionreel/remotion) with Reel30 composition + npm scripts.';
     next = 'Proceed to P13-S2 Implement Reel composition v1.';
 
+  } else if (picked.step.id === 'P13-S2') {
+    // P13-S2: Implement Reel composition v1 (beats → text cards + end card)
+    const p = path.join(OR_DIR, 'remotion', 'src', 'compositions', 'Reel30.tsx');
+    if (!fs.existsSync(p)) throw new Error('missing Remotion composition Reel30.tsx');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented Remotion Reel30 v1 (beat-driven text cards + end card + premium styling).';
+    next = 'Proceed to P13-S3 Integrate video clips into composition timeline.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

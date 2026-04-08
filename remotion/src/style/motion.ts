@@ -32,5 +32,16 @@ export const Motion = {
     return {opacity: o, y};
   },
 
+  // Premium pop: tiny scale + fade (for end cards / CTAs)
+  popIn: (frame: number, fps: number, opts?: {fromScale?: number; delay?: number; dur?: number}) => {
+    const dur = opts?.dur ?? 12;
+    const d = opts?.delay ?? 0;
+    const t = Math.max(0, frame - d);
+    const o = interpolate(t, [0, dur], [0, 1], {extrapolateRight: 'clamp', easing: Motion.ease});
+    const s0 = opts?.fromScale ?? 0.985;
+    const s = interpolate(t, [0, dur], [s0, 1], {extrapolateRight: 'clamp', easing: Motion.ease});
+    return {opacity: o, scale: s};
+  },
+
   // springDurationFrames: could be added later; not required for v1.
 };

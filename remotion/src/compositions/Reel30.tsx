@@ -77,12 +77,7 @@ export const Reel30: React.FC<{
 
       {/* End card */}
       <Sequence from={25 * 30} durationInFrames={5 * 30}>
-        <AbsoluteFill style={{ backgroundColor: bg, justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 96, fontWeight: 800, color: fg, letterSpacing: -1 }}>{title}</div>
-            <div style={{ marginTop: 18, fontSize: 56, fontWeight: 800, color: accent }}>{cta}</div>
-          </div>
-        </AbsoluteFill>
+        <EndCard title={title} cta={cta} bg={bg} fg={fg} accent={accent} />
       </Sequence>
 
       {/* captions (native Remotion render, since ffmpeg on this host lacks subtitles filter) */}
@@ -117,10 +112,16 @@ const Captions: React.FC<{ srtPath: string; fg: string; accent: string }> = ({ s
   const cue = cues.find((c) => ms >= c.startMs && ms <= c.endMs);
   if (!cue) return null;
 
+  const startFrame = Math.floor((cue.startMs / 1000) * 30);
+  const local = Math.max(0, frame - startFrame);
+  const {opacity, y} = Motion.riseFade(local, 30, { fromY: 10, dur: 10 });
+
   return (
     <AbsoluteFill style={{ justifyContent: 'flex-end', paddingBottom: 260, paddingLeft: 80, paddingRight: 80 }}>
       <div
         style={{
+          transform: `translateY(${y}px)` ,
+          opacity,
           fontSize: 52,
           fontWeight: 900,
           color: fg,

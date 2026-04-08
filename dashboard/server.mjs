@@ -278,6 +278,26 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // POST /api/jobs/reset_stuck — requeue "running" jobs older than N minutes
+  if (req.url === '/api/jobs/reset_stuck' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const olderMinutes = Math.min(24*60, Math.max(1, Number(b.olderMinutes || 15)));
+        const cutoff = Date.now() - olderMinutes * 60_000;
+        const db = openJobsDb();
+        const rows = db.prepare("select id from jobs where status='running' and startedAt is not null and startedAt < ?").all(cutoff);
+        for (const r of rows) {
+          db.prepare("update jobs set status='queued', runAt=?, lastError='reset_stuck' where id=?").run(Date.now(), r.id);
+        }
+        appendActivity({ kind: 'jobs_reset_stuck', message: `requeued ${rows.length} running jobs older than ${olderMinutes}m`, projectId: 'system' });
+        return json(res, 200, { ok:true, requeued: rows.length, olderMinutes });
+      } catch (e) {
+        return json(res, 500, { ok:false, error: String(e) });
+      }
+    });
+  }
+
   // POST /api/jobs/:id/cancel — marks job cancelled (runner will ignore because it only claims queued)
   if (req.url?.startsWith('/api/jobs/') && req.url?.endsWith('/cancel') && req.method === 'POST') {
     const id = req.url.split('/').at(3);

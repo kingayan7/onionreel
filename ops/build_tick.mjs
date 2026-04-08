@@ -1312,6 +1312,20 @@ refresh();
     shipped = 'Shipped Jobs detail v1: stdout/stderr capture in job_runner + View shows logs/timings.';
     next = 'Proceed to P18-S5 Iteration actions.';
 
+  } else if (picked.step.id === 'P18-S5') {
+    // P18-S5: Iteration actions
+    const srv = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const s = fs.readFileSync(srv,'utf8');
+    const h = fs.readFileSync(html,'utf8');
+    const ok = s.includes('/api/iterate/regenerate_clip') && s.includes('/api/iterate/rerender') && s.includes('/api/iterate/hook_alternates')
+      && h.includes('Re-render') && h.includes('Regenerate Clip');
+    if (!ok) throw new Error('iteration actions not detected');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Iteration actions v1 (rerender, hook alternates, regenerate clip) via dashboard.';
+    next = 'Proceed to P18-S6 QC gate.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

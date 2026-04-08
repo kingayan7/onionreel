@@ -82,6 +82,13 @@
       <h3>Workflow</h3>
       <div class="muted">Pipeline view for selected project.</div>
       <div id="workflow" class="muted" style="margin-top:10px">(load a project)</div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="secondary" id="iterRerender">Re-render</button>
+        <button class="secondary" id="iterHook3">3 Hook Alternates</button>
+        <input id="iterClipId" placeholder="clipId (e.g. overwhelm_scroll)" style="min-width:260px" />
+        <button class="secondary" id="iterRegenClip">Regenerate Clip</button>
+      </div>
     </div>
 
     <div class="card" style="margin-top:12px">
@@ -399,6 +406,28 @@ document.getElementById('reqRunAll').onclick = async () => {
   await refresh();
   await refreshJobs();
   if (!r.ok) alert('run_until_empty returned non-zero. Check Jobs tab + Activity.');
+};
+
+// Iteration actions (P18-S5)
+async function iterProjectId(){
+  return (selectedProjectId || document.getElementById('reqProjectId').value.trim() || 'maxcontrax-reel-v1');
+}
+if (document.getElementById('iterRerender')) document.getElementById('iterRerender').onclick = async () => {
+  const projectId = await iterProjectId();
+  await jpost('/api/iterate/rerender', { projectId });
+  alert('Enqueued rerender + export_pack. Click Run Full Chain.');
+};
+if (document.getElementById('iterHook3')) document.getElementById('iterHook3').onclick = async () => {
+  const projectId = await iterProjectId();
+  await jpost('/api/iterate/hook_alternates', { projectId, n: 3 });
+  alert('Enqueued hook alternates rerender. Click Run Full Chain.');
+};
+if (document.getElementById('iterRegenClip')) document.getElementById('iterRegenClip').onclick = async () => {
+  const projectId = await iterProjectId();
+  const clipId = document.getElementById('iterClipId').value.trim();
+  if (!clipId) { alert('Enter clipId'); return; }
+  await jpost('/api/iterate/regenerate_clip', { projectId, clipId });
+  alert('Enqueued clip regen + rerender + export. Click Run Full Chain.');
 };
 
 document.getElementById('reqRunOne').onclick = async () => {

@@ -1341,6 +1341,19 @@ refresh();
     shipped = 'Shipped QC gate v1 (QC PASS required for export_pack; set via dashboard).';
     next = 'Proceed to P18-S7 Export Center.';
 
+  } else if (picked.step.id === 'P18-S7') {
+    // P18-S7: Export Center
+    const srv = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const s = fs.readFileSync(srv,'utf8');
+    const h = fs.readFileSync(html,'utf8');
+    const ok = s.includes('/api/export/final') && h.includes('Build Final Pack.zip');
+    if (!ok) throw new Error('Export Center not detected');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Export Center v1 (build/download final_pack.zip from dashboard).';
+    next = 'Proceed to P18-S8 Library upgrades.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

@@ -500,6 +500,59 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // POST /api/export/final
+  // Creates a final pack zip inside autoedit/exports/<projectId>/final_pack.zip
+  if (req.url === '/api/export/final' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const projectId = (b.projectId || 'default').trim().replace(/\s+/g,'-');
+
+        const rendersDir = path.join(AUTOEDIT, 'renders', projectId);
+        const exportsDir = path.join(AUTOEDIT, 'exports', projectId);
+        if (!fs.existsSync(rendersDir) || !fs.existsSync(exportsDir)) {
+          return json(res, 404, { ok:false, error: 'missing renders/exports for project', projectId });
+        }
+
+        const outZip = path.join(exportsDir, 'final_pack.zip');
+
+        // Select the most useful deliverables.
+        const candidates = [
+          path.join(rendersDir, 'remotion_master_30s.mp4'),
+          path.join(rendersDir, 'remotion_variant_15s.mp4'),
+          path.join(rendersDir, 'remotion_variant_6s.mp4'),
+          path.join(rendersDir, 'master_30s.mp4'),
+          path.join(rendersDir, 'variant_15s.mp4'),
+          path.join(rendersDir, 'variant_6s.mp4'),
+          path.join(exportsDir, 'export_pack.json'),
+          path.join(exportsDir, 'qc_report.json'),
+          path.join(AUTOEDIT, 'projects', projectId, 'script.md'),
+          path.join(AUTOEDIT, 'projects', projectId, 'captions.srt'),
+          path.join(AUTOEDIT, 'projects', projectId, 'blueprint.json'),
+        ];
+        const files = candidates.filter(p => fs.existsSync(p));
+        if (!files.length) return json(res, 400, { ok:false, error: 'no files to zip', projectId });
+
+        // Create zip (flatten paths)
+        const args = ['-j', '-q', '-o', outZip, ...files];
+        const r = spawnSync('zip', args, { stdio: 'pipe' });
+        if (r.status !== 0) {
+          return json(res, 500, { ok:false, error: (r.stderr||r.stdout||'').toString() });
+        }
+
+        appendActivity({ kind:'export_final_pack', message:`Final pack zip built: ${projectId}`, projectId });
+        return json(res, 200, {
+          ok:true,
+          projectId,
+          outZip: `/dl/autoedit/${encodeURIComponent(projectId)}/exports/${encodeURIComponent('final_pack.zip')}`,
+          count: files.length
+        });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
+
   // /dl/autoedit/<projectId>/<kind>/<filename>
   if (req.url?.startsWith('/dl/autoedit/')) {
     const parts = req.url.split('/').filter(Boolean); // dl autoedit <pid> <kind> <file>

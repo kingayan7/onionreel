@@ -95,6 +95,11 @@
         <label class="muted"><input type="checkbox" id="qcPass" /> QC PASS</label>
         <button class="secondary" id="qcSet">Set QC</button>
       </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="secondary" id="exportFinal">Build Final Pack.zip</button>
+        <span class="muted" id="exportLink"></span>
+      </div>
     </div>
 
     <div class="card" style="margin-top:12px">
@@ -443,6 +448,20 @@ if (document.getElementById('qcSet')) document.getElementById('qcSet').onclick =
   const pass = document.getElementById('qcPass').checked;
   await jpost('/api/qc/set', { projectId, score, pass });
   alert('QC updated. export_pack will be blocked unless QC PASS is set.');
+};
+
+// Export Center (P18-S7)
+if (document.getElementById('exportFinal')) document.getElementById('exportFinal').onclick = async () => {
+  const projectId = await iterProjectId();
+  const r = await jpost('/api/export/final', { projectId });
+  if (!r.ok) { alert('Export failed: ' + (r.error || 'unknown')); return; }
+  const a = document.createElement('a');
+  a.href = r.outZip;
+  a.target = '_blank';
+  a.textContent = 'Download final_pack.zip';
+  const holder = document.getElementById('exportLink');
+  holder.innerHTML = '';
+  holder.appendChild(a);
 };
 
 document.getElementById('reqRunOne').onclick = async () => {

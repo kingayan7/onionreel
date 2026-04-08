@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T14:11:40-04:00",
+  "updated": "2026-04-08T14:13:00-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -10,13 +10,15 @@
         {
           "id": "P18-S1",
           "name": "Templates system (save/load) + gallery UI",
-          "status": "doing",
-          "doingAt": "2026-04-08T13:05:12-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T13:05:12-04:00",
+          "doneAt": "2026-04-08T14:13:00-04:00"
         },
         {
           "id": "P18-S2",
           "name": "Pack Builder wizard (Ad Pack / Hook Pack / Promo Pack)",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T14:13:00-04:00"
         },
         {
           "id": "P18-S3",

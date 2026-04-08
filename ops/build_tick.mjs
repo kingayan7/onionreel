@@ -1212,6 +1212,45 @@ refresh();
     shipped = 'Added operational checklist + smoke test steps for dashboard self-serve generation.';
     next = 'All dashboard productization steps complete.';
 
+  } else if (picked.step.id === 'P17-S1') {
+    // P17-S1: Dashboard default port safe (5059) + /health
+    const srv = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    const txt = fs.readFileSync(srv,'utf8');
+    if (!txt.includes("/health") || !txt.includes('5059')) throw new Error('dashboard not hardened for safe port/health');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Dashboard hardened: default port 5059 + /health endpoint.';
+    next = 'Proceed to P17-S2 LaunchAgent to keep dashboard server running.';
+
+  } else if (picked.step.id === 'P17-S2') {
+    // P17-S2: LaunchAgent to keep dashboard server running
+    const plist = path.join(process.env.HOME || '/Users/adrianissac', 'Library', 'LaunchAgents', 'com.onionreel.dashboard.plist');
+    const script = path.join(OR_DIR, 'ops', 'dashboard_server.mjs');
+    if (!fs.existsSync(plist) || !fs.existsSync(script)) throw new Error('missing dashboard launchd artifacts');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Added com.onionreel.dashboard LaunchAgent + ops/dashboard_server.mjs keepalive wrapper.';
+    next = 'Proceed to P17-S3 Dashboard smoke test script.';
+
+  } else if (picked.step.id === 'P17-S3') {
+    // P17-S3: Smoke test script
+    const smoke = path.join(OR_DIR, 'dashboard', 'smoke_test.sh');
+    if (!fs.existsSync(smoke)) throw new Error('missing dashboard/smoke_test.sh');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Added curl-based dashboard smoke test (dashboard/smoke_test.sh).';
+    next = 'Proceed to P17-S4 Fix Telegram ping_send reliability or disable errors.';
+
+  } else if (picked.step.id === 'P17-S4') {
+    // P17-S4: ping_send reliability
+    const runner = path.join(OR_DIR, 'ops', 'runner.mjs');
+    const txt = fs.readFileSync(runner,'utf8');
+    if (!txt.includes('PING_NONFATAL')) throw new Error('runner not updated for nonfatal ping');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Made Telegram ping_send non-fatal (runner continues even if ping fails).';
+    next = 'All dashboard hardening steps complete.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

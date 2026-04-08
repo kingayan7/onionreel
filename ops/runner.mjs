@@ -61,7 +61,15 @@ async function main() {
     try {
       // Always: build tick first, then ping.
       await runNode(BUILD);
-      await runNode(PING);
+
+      // PING_NONFATAL: Telegram ping failures should not break the loop.
+      try {
+        await runNode(PING);
+      } catch (e) {
+        writeStamp('last_error.json', { ts: Date.now(), iso: new Date().toISOString(), error: String(e?.stack || e) });
+        log(`ping non-fatal error: ${e?.stack || e}`);
+      }
+
       consecutiveFailures = 0;
       writeStamp('last_cycle.json', { ts: Date.now(), iso: new Date().toISOString(), ok: true });
       log('cycle ok (build + ping)');

@@ -176,3 +176,28 @@ const BeatCard: React.FC<{ text: string; fg: string; accent: string }> = ({ text
     </div>
   );
 };
+
+const EndCard: React.FC<{ title: string; cta: string; bg: string; fg: string; accent: string }> = ({
+  title,
+  cta,
+  bg,
+  fg,
+  accent,
+}) => {
+  const frame = useCurrentFrame();
+  const {opacity: o1, y: y1} = Motion.riseFade(frame, 30, { fromY: 18, dur: 16 });
+  const {opacity: o2, scale: s2} = Motion.popIn(frame, 30, { delay: 8, fromScale: 0.98, dur: 14 });
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: bg, justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 96, fontWeight: 800, color: fg, letterSpacing: -1, transform: `translateY(${y1}px)`, opacity: o1 }}>
+          {title}
+        </div>
+        <div style={{ marginTop: 18, fontSize: 56, fontWeight: 900, color: accent, transform: `scale(${s2})`, opacity: o2 }}>
+          {cta}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};

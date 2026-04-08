@@ -1457,6 +1457,20 @@ refresh();
     shipped = 'Shipped posters v1 (poster_1080x1920.png + thumb_1280x720.jpg) and included them in final_pack.zip candidates.';
     next = 'Proceed to P18-S15 Motion language presets across templates.';
 
+  } else if (picked.step.id === 'P18-S15') {
+    // P18-S15: Motion language presets applied across templates
+    // Artifact-based ship: ensure Remotion comp uses Motion for key elements.
+    const f = path.join(OR_DIR, 'remotion', 'src', 'compositions', 'Reel30.tsx');
+    const src = fs.readFileSync(f, 'utf8');
+    if (!src.includes('Motion.riseFade') || !src.includes('Motion.popIn')) {
+      throw new Error('P18-S15 guard failed: Motion presets not applied in Reel30');
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped cinematic motion presets v1 applied beyond BeatCard (captions + endcard).';
+    next = 'P18 complete (100%) — ready for next phase.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

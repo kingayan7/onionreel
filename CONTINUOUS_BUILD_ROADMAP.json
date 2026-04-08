@@ -1,22 +1,50 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T03:28:34-04:00",
+  "updated": "2026-04-08T11:03:21-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
       "id": "P16",
       "name": "Dashboard becomes the product (self-serve app)",
       "steps": [
-        {"id":"P16-S1","name":"Dashboard IA + PRODUCT_SPEC.md","status":"todo"},
-        {"id":"P16-S2","name":"Requests model + persistence","status":"todo"},
-        {"id":"P16-S3","name":"Request Wizard UI (simple + advanced)","status":"todo"},
-        {"id":"P16-S4","name":"Jobs UI: queue + stdout/stderr + retry/cancel","status":"todo"},
-        {"id":"P16-S5","name":"One-click Generate Pack runs full chain (worker loop)","status":"todo"},
-        {"id":"P16-S6","name":"Library UI (artifacts browser) + downloads","status":"todo"},
-        {"id":"P16-S7","name":"Smoke tests + operational checklist","status":"todo"}
+        {
+          "id": "P16-S1",
+          "name": "Dashboard IA + PRODUCT_SPEC.md",
+          "status": "doing",
+          "doingAt": "2026-04-08T11:03:21-04:00"
+        },
+        {
+          "id": "P16-S2",
+          "name": "Requests model + persistence",
+          "status": "todo"
+        },
+        {
+          "id": "P16-S3",
+          "name": "Request Wizard UI (simple + advanced)",
+          "status": "todo"
+        },
+        {
+          "id": "P16-S4",
+          "name": "Jobs UI: queue + stdout/stderr + retry/cancel",
+          "status": "todo"
+        },
+        {
+          "id": "P16-S5",
+          "name": "One-click Generate Pack runs full chain (worker loop)",
+          "status": "todo"
+        },
+        {
+          "id": "P16-S6",
+          "name": "Library UI (artifacts browser) + downloads",
+          "status": "todo"
+        },
+        {
+          "id": "P16-S7",
+          "name": "Smoke tests + operational checklist",
+          "status": "todo"
+        }
       ]
     },
-
     {
       "id": "P1",
       "name": "Foundation (Brain + KB + Quality System skeleton)",

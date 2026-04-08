@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T17:46:35-04:00",
+  "updated": "2026-04-08T17:47:55-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -44,13 +44,15 @@
         {
           "id": "P18-S5",
           "name": "Iteration actions: regenerate clip N, generate 3 hook alternates, re-render",
-          "status": "doing",
-          "doingAt": "2026-04-08T17:30:40-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T17:30:40-04:00",
+          "doneAt": "2026-04-08T17:47:55-04:00"
         },
         {
           "id": "P18-S6",
           "name": "QC gate: scoring + block export until pass",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T17:47:55-04:00"
         },
         {
           "id": "P18-S7",

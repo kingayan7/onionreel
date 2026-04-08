@@ -79,6 +79,12 @@
     </details>
 
     <div class="card" style="margin-top:12px">
+      <h3>Workflow</h3>
+      <div class="muted">Pipeline view for selected project.</div>
+      <div id="workflow" class="muted" style="margin-top:10px">(load a project)</div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
       <h3>Latest Downloads</h3>
       <div class="muted">Selected project: <code id="sel">(none)</code></div>
       <div id="renders" class="muted" style="margin-top:10px"></div>
@@ -166,6 +172,7 @@ async function loadProjectPanel(pid){
 
   const a = await jget('/api/artifacts?projectId=' + encodeURIComponent(pid));
   const r = await jget('/api/autoedit?projectId=' + encodeURIComponent(pid));
+  const w = await jget('/api/workflow?projectId=' + encodeURIComponent(pid));
 
   const arts = (a.artifacts||[]);
   document.getElementById('artifacts').innerHTML = arts.length
@@ -190,6 +197,16 @@ async function loadProjectPanel(pid){
     : '';
 
   document.getElementById('renders').innerHTML = rr + ee;
+
+  // workflow view
+  const pipe = (w.pipeline||[]);
+  const wf = pipe.length ? '<ul>' + pipe.map(s => {
+    const st = s.job?.status || 'n/a';
+    const pill = '<span class="pill">' + esc(st) + '</span>';
+    const err = s.job?.lastError ? ('<div class="muted" style="font-size:12px">' + esc(String(s.job.lastError).slice(0,120)) + '</div>') : '';
+    return '<li>' + pill + ' <b>' + esc(s.name) + '</b>' + err + '</li>';
+  }).join('') + '</ul>' : '<div class="muted">No pipeline data.</div>';
+  document.getElementById('workflow').innerHTML = wf;
 }
 
 async function refreshTemplates(){
@@ -241,9 +258,10 @@ async function refreshJobs(){
       : (j.status === 'queued')
         ? ' <button class="secondary" data-cancel="' + esc(j.id) + '">Cancel</button>'
         : '';
+    const view = ' <button class="secondary" data-view="' + esc(j.id) + '">View</button>';
     return '<li><div class="row" style="justify-content:space-between">'
       + '<div>' + pill + ' <b>' + esc(j.type) + '</b> <span class="muted">(' + esc(j.projectId||'') + ')</span><div class="muted" style="font-size:12px">' + when + ' • ' + esc(j.id) + '</div></div>'
-      + '<div>' + btns + '</div>'
+      + '<div>' + view + btns + '</div>'
       + '</div></li>';
   }
 
@@ -256,6 +274,28 @@ async function refreshJobs(){
   });
   Array.from(document.querySelectorAll('[data-cancel]')).forEach(b => {
     b.onclick = async () => { await jpost('/api/jobs/' + b.getAttribute('data-cancel') + '/cancel', {}); await refreshJobs(); };
+  });
+  Array.from(document.querySelectorAll('[data-view]')).forEach(b => {
+    b.onclick = async () => {
+      const id = b.getAttribute('data-view');
+      const job = jobs.find(x => x.id === id);
+      if (!job) return;
+      const details = {
+        id: job.id,
+        type: job.type,
+        projectId: job.projectId,
+        status: job.status,
+        attempts: job.attempts,
+        maxAttempts: job.maxAttempts,
+        payload: job.payload,
+        outputs: job.outputs,
+        lastError: job.lastError,
+        createdAt: job.createdAt,
+        startedAt: job.startedAt,
+        finishedAt: job.finishedAt,
+      };
+      alert(JSON.stringify(details, null, 2));
+    };
   });
 }
 

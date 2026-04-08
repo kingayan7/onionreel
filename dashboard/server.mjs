@@ -131,6 +131,32 @@ const server = http.createServer((req, res) => {
     });
   }
 
+  // /api/workflow?projectId=...
+  // Returns an OnionReel pipeline status view (for the dashboard workflow graph).
+  if (req.url?.startsWith('/api/workflow') && req.method === 'GET') {
+    try {
+      const u = new URL(req.url, 'http://127.0.0.1');
+      const projectId = (u.searchParams.get('projectId') || 'default').trim().replace(/\s+/g,'-');
+      const db = openJobsDb();
+      const rows = db.prepare('select type,status,startedAt,finishedAt,lastError,createdAt from jobs where projectId=? order by createdAt desc limit 200').all(projectId);
+      const latestByType = {};
+      for (const r of rows) {
+        if (!latestByType[r.type]) latestByType[r.type] = r;
+      }
+      const pipeline = [
+        { id: 'sora_generate', name: 'Generate clips (Sora)' },
+        { id: 'remotion_render', name: 'Render video (Remotion)' },
+        { id: 'export_pack', name: 'QC + export pack' },
+      ].map(s => {
+        const j = latestByType[s.id] || null;
+        return { ...s, job: j };
+      });
+      return json(res, 200, { projectId, pipeline });
+    } catch (e) {
+      return json(res, 500, { error: String(e) });
+    }
+  }
+
   // /api/jobs?status=queued|running|done|failed|...
   if (req.url?.startsWith('/api/jobs') && req.method === 'GET') {
     try {

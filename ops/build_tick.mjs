@@ -1288,6 +1288,18 @@ refresh();
     shipped = 'Shipped Pack Builder v1 (pack type + brand/offer/cta inputs → persisted request + job bundle).';
     next = 'Proceed to P18-S3 Workflow plan view.';
 
+  } else if (picked.step.id === 'P18-S3') {
+    // P18-S3: Workflow plan view (pipeline graph like a real app)
+    const srv = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const ok = fs.existsSync(srv) && fs.readFileSync(srv,'utf8').includes('/api/workflow')
+      && fs.existsSync(html) && fs.readFileSync(html,'utf8').includes('Workflow');
+    if (!ok) throw new Error('workflow view not detected');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Workflow plan view v1 (/api/workflow + dashboard pipeline panel).';
+    next = 'Proceed to P18-S4 Job details panel.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

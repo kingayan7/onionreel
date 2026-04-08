@@ -1,6 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Sequence, useCurrentFrame, interpolate, Video} from 'remotion';
-import {autoeditClip} from '../lib/paths';
+import {AbsoluteFill, Sequence, useCurrentFrame, interpolate, Video, staticFile} from 'remotion';
 
 type Beat = { t0: number; t1: number; text: string };
 
@@ -53,7 +52,7 @@ export const Reel30: React.FC<{
       {sources.map((s, i) => (
         <Sequence key={i} from={Math.floor(s.from * 30)} durationInFrames={Math.floor(s.dur * 30)}>
           <Video
-            src={autoeditClip(projectId, s.file)}
+            src={staticFile(`clips/${projectId}/${s.file}`)}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
           {/* darken for readability */}

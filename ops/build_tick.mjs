@@ -982,6 +982,27 @@ refresh();
     shipped = 'Enabled GitHub auto-ship toggle (config/runtime.json gitAutoShip=true) + build_tick commits/pushes each ship.';
     next = 'Proceed to next roadmap step.';
 
+  } else if (picked.step.id === 'P12-S5') {
+    // P12-S5: Cost controls — caps + retries + budget guardrails.
+    const runtimePath = path.join(OR_DIR, 'config', 'runtime.json');
+    fs.mkdirSync(path.dirname(runtimePath), { recursive: true });
+    const cur = fs.existsSync(runtimePath) ? JSON.parse(fs.readFileSync(runtimePath, 'utf8')) : {};
+    const nextRuntime = {
+      ...cur,
+      costControls: {
+        soraMaxSecondsPerClip: 4,
+        soraMaxClipsPerRun: 6,
+        soraConcurrency: 2,
+        soraMaxAttemptsPerClip: 2
+      }
+    };
+    fs.writeFileSync(runtimePath, JSON.stringify(nextRuntime, null, 2) + '\n');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Enabled cost controls in config/runtime.json (clip seconds cap, clips/run cap, concurrency, max attempts).';
+    next = 'Proceed to next roadmap step.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

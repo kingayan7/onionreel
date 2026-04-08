@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T00:30:54-04:00",
+  "updated": "2026-04-08T00:32:45-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -439,8 +439,9 @@
         {
           "id": "P12-S5",
           "text": "Cost controls: clip length caps, retries, budget guardrails",
-          "status": "doing",
-          "doingAt": "2026-04-08T00:05:55-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T00:05:55-04:00",
+          "doneAt": "2026-04-08T00:32:45-04:00"
         }
       ]
     },
@@ -451,7 +452,8 @@
         {
           "id": "P13-S1",
           "text": "Scaffold Remotion project inside onionreel/remotion (composition + CLI render)",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T00:32:45-04:00"
         },
         {
           "id": "P13-S2",

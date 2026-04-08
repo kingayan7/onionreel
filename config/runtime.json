@@ -1,3 +1,9 @@
 {
-  "gitAutoShip": true
+  "gitAutoShip": true,
+  "costControls": {
+    "soraMaxSecondsPerClip": 4,
+    "soraMaxClipsPerRun": 6,
+    "soraConcurrency": 2,
+    "soraMaxAttemptsPerClip": 2
+  }
 }

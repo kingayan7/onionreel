@@ -103,8 +103,20 @@ function desiredOutPath(item){
   return path.join(outClipsDir, `${item.id}__${h}.mp4`);
 }
 
-const concurrency = Math.max(1, Math.min(3, Number(process.env.SORA_CONCURRENCY || 2)));
-const queue = prompts.map(p => ({ ...p }));
+// Runtime cost controls (optional)
+let runtime = {};
+try {
+  const rp = path.join(OR_DIR, 'config', 'runtime.json');
+  if (fs.existsSync(rp)) runtime = JSON.parse(fs.readFileSync(rp, 'utf8'));
+} catch {}
+
+const cc = runtime?.costControls || {};
+const maxSeconds = Number(process.env.SORA_MAX_SECONDS || cc.soraMaxSecondsPerClip || 4);
+const maxClips = Number(process.env.SORA_MAX_CLIPS || cc.soraMaxClipsPerRun || 6);
+const maxAttempts = Number(process.env.SORA_MAX_ATTEMPTS || cc.soraMaxAttemptsPerClip || 2);
+
+const concurrency = Math.max(1, Math.min(3, Number(process.env.SORA_CONCURRENCY || cc.soraConcurrency || 2)));
+const queue = prompts.slice(0, maxClips).map(p => ({ ...p, seconds: Math.min(maxSeconds, Number(p.seconds || 4)) }));
 
 async function worker(){
   while (queue.length) {
@@ -128,21 +140,28 @@ async function worker(){
     }
 
     let ok = false;
-    try {
-      await runSoraOnce({ model, size, seconds: p.seconds || 4, prompt: p.prompt, out });
-      ok = true;
-    } catch (e) {
-      const msg = String(e.message || e);
-      // Retry once with a safer prompt if blocked/timeouts.
-      const safePrompt = `Vertical 9:16 cinematic b-roll. Professional business office scene, clean modern lighting, premium commercial look, shallow depth of field. No text.`;
+    let lastErr = null;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        await runSoraOnce({ model, size, seconds: p.seconds || 4, prompt: safePrompt, out });
+        await runSoraOnce({ model, size, seconds: p.seconds || 4, prompt: p.prompt, out });
         ok = true;
-        if (a) a.note = `retried_with_safe_prompt_due_to_error: ${msg}`;
-      } catch {
-        if (a) a.error = `sora_failed: ${msg}`;
+        break;
+      } catch (e) {
+        lastErr = String(e.message || e);
+        // On last attempt, try safe prompt as a final fallback.
+        if (attempt === maxAttempts) {
+          const safePrompt = `Vertical 9:16 cinematic b-roll. Professional business office scene, clean modern lighting, premium commercial look, shallow depth of field. No text.`;
+          try {
+            await runSoraOnce({ model, size, seconds: p.seconds || 4, prompt: safePrompt, out });
+            ok = true;
+            if (a) a.note = `retried_with_safe_prompt_due_to_error: ${lastErr}`;
+          } catch (e2) {
+            lastErr = String(e2.message || e2);
+          }
+        }
       }
     }
+    if (!ok && a) a.error = `sora_failed: ${lastErr}`;
 
     if (ok) {
       generated++;

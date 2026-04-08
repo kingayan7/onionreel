@@ -1063,6 +1063,20 @@ refresh();
     shipped = 'Rendered Remotion variants (30s/15s/6s) into autoedit/renders/<projectId>/remotion_*.mp4';
     next = 'Proceed to P13-S5 Hook Remotion render into Brain job runner + Dashboard artifact links.';
 
+  } else if (picked.step.id === 'P13-S5') {
+    // P13-S5: Hook Remotion render into Brain job runner + Dashboard links.
+    const brainPath = path.join(OR_DIR, 'brain', 'job_runner.mjs');
+    const remScript = path.join(OR_DIR, 'remotion', 'render_variants.mjs');
+    const dashPath = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    if (!fs.existsSync(brainPath) || !fs.existsSync(remScript) || !fs.existsSync(dashPath)) {
+      throw new Error('missing brain/remotion/dashboard pieces');
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Hooked Remotion into Brain (job type remotion_render) + Dashboard downloads already exposed via /dl/autoedit.';
+    next = 'Proceed to next roadmap step.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

@@ -49,6 +49,13 @@ async function runJob(job){
       await runNode(script, [projectId], { OPENAI_API_KEY: process.env.OPENAI_API_KEY });
       job.outputs.clipDir = `autoedit/cache/${projectId}`;
 
+    } else if (type === 'remotion_render') {
+      const script = path.join(OR_DIR, 'remotion', 'render_variants.mjs');
+      await runNode(script, [projectId]);
+      job.outputs.master = `autoedit/renders/${projectId}/remotion_master_30s.mp4`;
+      job.outputs.v15 = `autoedit/renders/${projectId}/remotion_variant_15s.mp4`;
+      job.outputs.v6 = `autoedit/renders/${projectId}/remotion_variant_6s.mp4`;
+
     } else if (type === 'stock_fetch') {
       const script = path.join(OR_DIR, 'autoedit', 'stock_fetch.mjs');
       await runNode(script, [projectId]);

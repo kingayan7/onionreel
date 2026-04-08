@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T19:27:32-04:00",
+  "updated": "2026-04-08T19:28:11-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -114,8 +114,9 @@
         {
           "id": "P18-S15",
           "name": "Cinematic Premium: Motion language presets (easing/springs) applied across templates",
-          "status": "doing",
-          "doingAt": "2026-04-08T19:24:37-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T19:24:37-04:00",
+          "doneAt": "2026-04-08T19:28:11-04:00"
         }
       ]
     },

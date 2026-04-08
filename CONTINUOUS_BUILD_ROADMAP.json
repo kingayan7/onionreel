@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T18:53:58-04:00",
+  "updated": "2026-04-08T18:55:21-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -79,13 +79,15 @@
         {
           "id": "P18-S10",
           "name": "Cinematic Premium: Remotion ad pack template library (motion + typography)",
-          "status": "doing",
-          "doingAt": "2026-04-08T18:36:49-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T18:36:49-04:00",
+          "doneAt": "2026-04-08T18:55:21-04:00"
         },
         {
           "id": "P18-S11",
           "name": "Cinematic Premium: Audio mastering v2 (ducking + SFX + LUFS presets)",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T18:55:21-04:00"
         },
         {
           "id": "P18-S12",

@@ -4,6 +4,17 @@
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
+      "id": "P17",
+      "name": "Dashboard hardening (runs reliably, testable, no weird ports)",
+      "steps": [
+        {"id":"P17-S1","name":"Dashboard default port safe (5059) + /health","status":"todo"},
+        {"id":"P17-S2","name":"LaunchAgent to keep dashboard server running","status":"todo"},
+        {"id":"P17-S3","name":"Dashboard smoke test script (curl-based)","status":"todo"},
+        {"id":"P17-S4","name":"Fix Telegram ping_send reliability or disable errors","status":"todo"}
+      ]
+    },
+
+    {
       "id": "P16",
       "name": "Dashboard becomes the product (self-serve app)",
       "steps": [

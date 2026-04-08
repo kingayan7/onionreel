@@ -20,6 +20,76 @@
       "kind": "request_create",
       "message": "Request req_1775661139290 for maxcontrax-reel-v1",
       "projectId": "maxcontrax-reel-v1"
+    },
+    {
+      "id": "493466ce-0bef-4ec4-8876-facb3e74a42f",
+      "ts": "2026-04-08T15:21:02.948Z",
+      "kind": "jobs_enqueue",
+      "message": "Enqueued sora_generate, remotion_render, qc_export for maxcontrax ad thats catchy",
+      "projectId": "maxcontrax ad thats catchy"
+    },
+    {
+      "id": "22cac243-d8ff-4709-a5c9-9974be809d74",
+      "ts": "2026-04-08T15:21:13.338Z",
+      "kind": "job_runner_once",
+      "message": "job_runner exit 1",
+      "projectId": "system"
+    },
+    {
+      "id": "c60e1ab9-3d05-4c83-bc78-0017466288bd",
+      "ts": "2026-04-08T15:21:21.984Z",
+      "kind": "jobs_enqueue",
+      "message": "Enqueued sora_generate, remotion_render, qc_export for maxcontrax ad thats catchy",
+      "projectId": "maxcontrax ad thats catchy"
+    },
+    {
+      "id": "a2bfc334-46f7-40a3-936f-e183d4fea431",
+      "ts": "2026-04-08T15:21:41.664Z",
+      "kind": "job_cancel",
+      "message": "Cancel job_1775661681984_cec6a8c9dacdf_qc_export",
+      "projectId": "system"
+    },
+    {
+      "id": "f31f30c0-6c01-48d6-9779-b3ddfacd111a",
+      "ts": "2026-04-08T15:21:43.675Z",
+      "kind": "job_cancel",
+      "message": "Cancel job_1775661681983_25e2bf031540a_sora_generate",
+      "projectId": "system"
+    },
+    {
+      "id": "e6ad1192-cc21-4220-bba0-25995cea3b54",
+      "ts": "2026-04-08T15:21:44.891Z",
+      "kind": "job_cancel",
+      "message": "Cancel job_1775661681983_8fc92407925d1_remotion_render",
+      "projectId": "system"
+    },
+    {
+      "id": "beb2330a-f0d6-4bfc-8f40-83e486e782d4",
+      "ts": "2026-04-08T15:21:46.219Z",
+      "kind": "job_cancel",
+      "message": "Cancel job_1775661662946_0d8abecfb123e_remotion_render",
+      "projectId": "system"
+    },
+    {
+      "id": "3e11d54f-a4ca-4e07-b400-75b808ff7064",
+      "ts": "2026-04-08T15:26:56.671Z",
+      "kind": "request_create",
+      "message": "Request req_1775662016670 for maxcontrax-reel-v1",
+      "projectId": "maxcontrax-reel-v1"
+    },
+    {
+      "id": "ef1aefcf-21f3-45c9-b164-41e50431f26c",
+      "ts": "2026-04-08T15:26:56.735Z",
+      "kind": "jobs_enqueue",
+      "message": "Enqueued qc_export for maxcontrax-reel-v1",
+      "projectId": "maxcontrax-reel-v1"
+    },
+    {
+      "id": "f025da94-12f0-4531-ae6c-a0064c4ef01a",
+      "ts": "2026-04-08T15:26:57.156Z",
+      "kind": "job_runner_loop",
+      "message": "run_until_empty ran 3 times",
+      "projectId": "system"
     }
   ]
 }

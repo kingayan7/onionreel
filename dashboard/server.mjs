@@ -7,7 +7,8 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const PORT = process.env.PORT || 5057;
+// NOTE: Chrome blocks some ports as unsafe (ERR_UNSAFE_PORT). Use a known-safe default.
+const PORT = process.env.PORT || 5059;
 const ROOT = path.resolve(process.cwd());
 const ROADMAP = path.resolve(ROOT, '..', 'CONTINUOUS_BUILD_ROADMAP.json');
 const AUTOEDIT = path.resolve(ROOT, '..', 'autoedit');
@@ -37,6 +38,10 @@ function openJobsDb(){
 initStore();
 
 const server = http.createServer((req, res) => {
+  if (req.url === '/health') {
+    return json(res, 200, { ok: true, service: 'onionreel-dashboard', ts: Date.now() });
+  }
+
   if (req.url === '/' || req.url === '/index.html') {
     const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });

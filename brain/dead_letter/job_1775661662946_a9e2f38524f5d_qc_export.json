@@ -1,0 +1,19 @@
+{
+  "ts": "2026-04-08T15:26:56.877Z",
+  "job": {
+    "id": "job_1775661662946_a9e2f38524f5d_qc_export",
+    "type": "qc_export",
+    "projectId": "maxcontrax ad thats catchy",
+    "status": "queued",
+    "runAt": 1775661662946,
+    "attempts": 0,
+    "maxAttempts": 2,
+    "payload": {},
+    "outputs": null,
+    "lastError": null,
+    "createdAt": 1775661662946,
+    "startedAt": null,
+    "finishedAt": null
+  },
+  "error": "Error: unknown job type: qc_export\n    at runJob (file:///Users/adrianissac/.openclaw/workspace/onionreel/brain/job_runner.mjs:78:13)\n    at main (file:///Users/adrianissac/.openclaw/workspace/onionreel/brain/job_runner.mjs:109:9)\n    at file:///Users/adrianissac/.openclaw/workspace/onionreel/brain/job_runner.mjs:113:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)"
+}

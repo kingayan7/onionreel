@@ -1,47 +1,36 @@
-# OnionReel v1 Artifact: Hook Remotion Render into Brain Job Runner + Dashboard Artifact Links
+# Shippable v1 Artifact for P13-S5: Hook Remotion Render into Brain Job Runner + Dashboard Artifact Links
 
 ## Overview
-This artifact outlines the integration of Remotion rendering into the Brain job runner, along with the implementation of dashboard artifact links. This will streamline the rendering process and enhance accessibility to rendered outputs.
+This artifact outlines the integration of Remotion rendering into the Brain job runner, along with the implementation of links to rendered artifacts on the dashboard. This will streamline the rendering process and enhance user accessibility to rendered outputs.
 
 ## Inputs
-- **Remotion Configuration**: Settings for rendering videos (e.g., resolution, format).
-- **Brain Job Runner**: Existing job queue and execution framework.
-- **Dashboard Framework**: Existing dashboard setup for displaying links and statuses.
-- **Artifact Storage**: Location for storing rendered outputs (e.g., S3 bucket, local server).
+- **Remotion Configuration**: Settings for rendering videos using Remotion.
+- **Brain Job Runner**: Current implementation of the job runner that manages rendering tasks.
+- **Dashboard Framework**: Existing dashboard setup for displaying rendered artifacts.
+- **API Endpoints**: Necessary endpoints for triggering renders and fetching artifact links.
 
 ## Outputs
-- **Integrated Job Runner**: Remotion rendering jobs are queued and executed via the Brain job runner.
-- **Dashboard Links**: Rendered artifacts are accessible via clickable links on the dashboard.
-- **Status Updates**: Real-time updates on job status (e.g., queued, in progress, completed).
+- **Integrated Remotion Rendering**: Remotion rendering jobs are successfully queued and executed by the Brain job runner.
+- **Dashboard Links**: Rendered artifacts are accessible via links on the dashboard, allowing users to view or download them easily.
 
 ## Steps
-1. **Integrate Remotion with Brain Job Runner**:
-   - Modify the Brain job runner to accept Remotion rendering jobs.
-   - Define job parameters (input files, output settings).
-   - Implement error handling for rendering failures.
-
-2. **Set Up Artifact Storage**:
-   - Choose and configure a storage solution for rendered videos.
-   - Ensure proper permissions and access controls are in place.
-
-3. **Implement Dashboard Links**:
+1. **Review Remotion Documentation**: Understand the API and configuration needed for rendering.
+2. **Modify Brain Job Runner**:
+   - Integrate Remotion rendering calls within the job execution flow.
+   - Ensure proper handling of job status (queued, in-progress, completed).
+3. **Implement Artifact Linking**:
    - Update the dashboard to display links to rendered artifacts.
-   - Create a UI component for dynamic link generation based on job completion.
-   - Ensure links are user-friendly and categorized appropriately.
-
+   - Ensure links are dynamically generated based on job completion.
 4. **Testing**:
-   - Run test jobs through the Brain job runner to validate integration.
-   - Verify that rendered outputs are stored correctly and accessible via the dashboard.
-
+   - Test the integration in a staging environment.
+   - Validate that rendered videos appear correctly on the dashboard.
 5. **Documentation**:
-   - Document the integration process, including configuration settings and usage instructions.
-   - Update user guides for the dashboard to include new features.
+   - Update internal documentation to reflect the new workflow and dashboard changes.
 
 ## Pitfalls
-- **Job Queuing Conflicts**: Ensure that multiple Remotion jobs do not conflict in the job runner.
-- **Storage Limits**: Monitor storage limits to avoid failures during rendering due to lack of space.
-- **Link Expiry**: Implement a strategy for managing old links to avoid clutter on the dashboard.
-- **Error Handling**: Robust error handling is crucial to prevent job failures from affecting the user experience.
-- **Performance Bottlenecks**: Monitor performance to ensure the job runner can handle the load without significant delays.
+- **Job Queue Overload**: If too many rendering jobs are queued simultaneously, it may lead to performance issues. Implement throttling or prioritization.
+- **Error Handling**: Ensure robust error handling for failed renders, including retries and user notifications.
+- **Dashboard UI/UX**: Ensure that the addition of links does not clutter the dashboard and maintains a user-friendly interface.
+- **Version Compatibility**: Check for compatibility between Remotion, Brain job runner, and the dashboard framework to avoid integration issues.
 
-By following these guidelines, the integration of Remotion rendering into the Brain job runner and the addition of dashboard artifact links can be achieved efficiently, enhancing the overall functionality of OnionReel.
+By following this artifact, the integration of Remotion rendering into the Brain job runner and the enhancement of the dashboard will be streamlined, ensuring a smooth user experience and efficient rendering processes.

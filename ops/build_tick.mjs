@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { withLock } from './lock.mjs';
 
 const WORKSPACE = '/Users/adrianissac/.openclaw/workspace';
 const OR_DIR = path.join(WORKSPACE, 'onionreel');
@@ -144,6 +145,13 @@ function advanceRoadmap(roadmap, justCompletedId, iso){
 }
 
 async function main() {
+  // Prevent overlapping ticks (launchd runner + kick_build can collide)
+  const lockPath = path.join(OR_DIR, 'logs', 'build_tick.lock');
+  const lock = withLock(lockPath, 10 * 60 * 1000, () => null);
+  if (lock.skipped) {
+    return;
+  }
+
   fs.mkdirSync(path.join(OR_DIR, 'logs'), { recursive: true });
   const cfg = readJson(OPENCLAW_CONFIG);
   const botToken = cfg?.channels?.telegram?.botToken;
@@ -1036,6 +1044,24 @@ refresh();
     picked.step.doneAt = iso;
     shipped = 'Integrated Sora clips into Remotion Reel30 timeline (Video layers + readability overlay).';
     next = 'Proceed to P13-S4 Render variants 30/15/6 via Remotion + presets.';
+
+  } else if (picked.step.id === 'P13-S4') {
+    // P13-S4: Render variants 30/15/6 via Remotion + encode presets.
+    const projectId = 'maxcontrax-reel-v1';
+    const script = path.join(OR_DIR, 'remotion', 'render_variants.mjs');
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) throw new Error(`remotion render_variants failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+
+    const outDir = path.join(OR_DIR, 'autoedit', 'renders', projectId);
+    const must = ['remotion_master_30s.mp4','remotion_variant_15s.mp4','remotion_variant_6s.mp4']
+      .map(f => path.join(outDir, f));
+    const missing = must.filter(p => !fs.existsSync(p));
+    if (missing.length) throw new Error('missing remotion outputs: ' + missing.join(', '));
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Rendered Remotion variants (30s/15s/6s) into autoedit/renders/<projectId>/remotion_*.mp4';
+    next = 'Proceed to P13-S5 Hook Remotion render into Brain job runner + Dashboard artifact links.';
 
   } else {
     // Generic improvement: add a short note file for the step

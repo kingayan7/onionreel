@@ -139,6 +139,13 @@
       "kind": "qc_set",
       "message": "QC set pass=true score=92 for maxcontrax-reel-v1",
       "projectId": "maxcontrax-reel-v1"
+    },
+    {
+      "id": "987ffd83-c4aa-4b89-ac30-ea2e80346686",
+      "ts": "2026-04-08T22:16:23.598Z",
+      "kind": "export_final_pack",
+      "message": "Final pack zip built: maxcontrax-reel-v1",
+      "projectId": "maxcontrax-reel-v1"
     }
   ]
 }

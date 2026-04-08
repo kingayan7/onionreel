@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T00:03:01-04:00",
+  "updated": "2026-04-08T00:02:52-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -433,15 +433,13 @@
         {
           "id": "P12-S4",
           "text": "GitHub persistence: commit+push each ship (optional toggle)",
-          "status": "done",
-          "doingAt": "2026-04-07T23:50:54-04:00",
-          "doneAt": "2026-04-08T00:03:01-04:00"
+          "status": "doing",
+          "doingAt": "2026-04-07T23:50:54-04:00"
         },
         {
           "id": "P12-S5",
           "text": "Cost controls: clip length caps, retries, budget guardrails",
-          "status": "doing",
-          "doingAt": "2026-04-08T00:03:01-04:00"
+          "status": "todo"
         }
       ]
     },

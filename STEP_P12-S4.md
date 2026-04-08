@@ -1,48 +1,34 @@
 # GitHub Persistence: Commit + Push Each Ship (Optional Toggle)
 
 ## Overview
-This feature allows users to commit and push each ship to a designated GitHub repository, enabling version control and collaboration. Users can toggle this feature on or off based on their preferences.
+Implement a feature in OnionReel that allows users to commit and push each ship (release) to a specified GitHub repository. This feature will be optional and can be toggled on or off by the user. The goal is to enhance version control and collaboration by automatically saving each release to GitHub.
 
 ## Inputs
-- **GitHub Repository URL**: The URL of the repository where ships will be pushed.
-- **Commit Message**: A customizable message for each commit.
-- **Toggle Option**: A boolean option to enable or disable the commit/push feature.
+- **GitHub Repository URL**: The URL of the GitHub repository where the ships will be pushed.
+- **Commit Message**: A customizable message for the commit.
+- **Toggle Option**: A boolean flag to enable or disable the commit and push feature.
+- **Authentication**: GitHub credentials or token for authentication.
 
 ## Outputs
-- **GitHub Commit**: A new commit created in the specified repository.
-- **GitHub Push**: The latest commit pushed to the remote repository.
-- **Success/Failure Status**: Confirmation of the commit and push operation.
+- **Commit Status**: Success or failure message indicating the result of the commit and push operation.
+- **GitHub URL**: Direct link to the newly created commit in the repository.
+- **Error Logs**: Detailed logs in case of failure, including reasons for any issues encountered.
 
 ## Steps
-1. **User Configuration**:
-   - Prompt the user for the GitHub repository URL.
-   - Ask for a commit message.
-   - Provide an option to toggle the commit/push feature.
-
-2. **Check Toggle Status**:
-   - If the toggle is enabled, proceed to the next steps; if not, skip to the end.
-
-3. **Initialize Git**:
-   - Ensure the local directory is a Git repository.
-   - If not, initialize a new Git repository.
-
-4. **Stage Changes**:
-   - Add the new ship files to the staging area.
-
-5. **Create Commit**:
-   - Commit the staged changes with the provided commit message.
-
-6. **Push to GitHub**:
-   - Push the commit to the specified GitHub repository.
-
-7. **Return Status**:
-   - Provide feedback to the user on the success or failure of the operation.
+1. **User Input**: Capture the GitHub repository URL, commit message, and toggle option.
+2. **Authentication**: Validate GitHub credentials or token.
+3. **Check Toggle**: If the toggle is enabled, proceed with the following steps; otherwise, skip to the end.
+4. **Initialize Git**: Ensure the local Git repository is initialized.
+5. **Add Changes**: Stage the changes related to the current ship.
+6. **Commit Changes**: Commit the changes with the provided commit message.
+7. **Push Changes**: Push the commit to the specified branch in the GitHub repository.
+8. **Return Status**: Provide feedback on the success or failure of the commit and push operation, including the commit URL if successful.
 
 ## Pitfalls
-- **Authentication Issues**: Ensure proper GitHub authentication (e.g., SSH keys or personal access tokens).
-- **Repository URL Errors**: Validate the repository URL to avoid push failures.
-- **Local Repository State**: Ensure the local repository is clean before committing; handle uncommitted changes appropriately.
-- **Network Issues**: Handle potential network errors during the push operation gracefully.
-- **Toggle Misunderstanding**: Clearly communicate the toggle's function to avoid user confusion.
+- **Authentication Issues**: Incorrect credentials or token can prevent access to the repository.
+- **Network Connectivity**: Loss of internet connection can interrupt the push operation.
+- **Git Configuration**: Ensure that the local Git configuration is set up correctly (e.g., user name and email).
+- **Merge Conflicts**: Pushing changes may result in conflicts if the remote repository has been updated since the last pull.
+- **Toggle Misconfiguration**: Users may forget to toggle the option, leading to unexpected behavior.
 
-By following these guidelines, the GitHub persistence feature can be effectively implemented, enhancing the usability of OnionReel for version control.
+By following this roadmap step, OnionReel will enhance its version control capabilities, making it easier for users to manage their releases effectively.

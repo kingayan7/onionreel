@@ -1,27 +1,27 @@
 # OnionReel v1 Artifact: Scaffold Remotion Project
 
 ## Overview
-This artifact outlines the steps to scaffold a Remotion project within the `onionreel/remotion` directory. The goal is to set up a basic structure that allows for composition and CLI rendering, enabling users to create and render videos using Remotion.
+This artifact outlines the process for scaffolding a Remotion project within the `onionreel/remotion` directory, focusing on setting up a composition and enabling CLI rendering. This will provide the foundation for video rendering capabilities within the OnionReel application.
 
 ## Inputs
-- **Node.js**: Ensure Node.js is installed (version 14 or above).
-- **NPM/Yarn**: Package manager for managing dependencies.
-- **Remotion**: Library for creating videos using React.
-- **Git**: Version control system for managing project files.
+- **Node.js**: Ensure Node.js (v14 or later) is installed.
+- **Remotion**: The Remotion library should be included as a dependency.
+- **CLI Access**: Command Line Interface (CLI) access to run scripts and commands.
+- **Project Structure**: Existing `onionreel` repository with a `remotion` directory.
 
 ## Outputs
-- A fully scaffolded Remotion project in the `onionreel/remotion` directory.
-- Basic configuration files (`package.json`, `tsconfig.json`, etc.).
-- Sample video component and rendering script.
+- **Remotion Project Structure**: A scaffolded Remotion project with necessary files and folders.
+- **Composition File**: A basic composition file to define video scenes.
+- **Render Script**: A CLI script for rendering videos.
+- **Package.json**: Updated with Remotion dependencies and scripts.
 
 ## Steps
-1. **Create Directory**: 
+1. **Navigate to the Directory**:
    ```bash
-   mkdir -p onionreel/remotion
    cd onionreel/remotion
    ```
 
-2. **Initialize NPM**:
+2. **Initialize the Project**:
    ```bash
    npm init -y
    ```
@@ -31,80 +31,59 @@ This artifact outlines the steps to scaffold a Remotion project within the `onio
    npm install remotion
    ```
 
-4. **Set Up TypeScript (Optional)**:
-   - If using TypeScript, install TypeScript and create a `tsconfig.json`:
+4. **Create Project Structure**:
    ```bash
-   npm install typescript --save-dev
-   npx tsc --init
+   mkdir src
+   touch src/Video.tsx
    ```
 
-5. **Create Basic Video Component**:
-   - Create a new file `src/MyVideo.tsx`:
+5. **Set Up Composition**:
+   Edit `src/Video.tsx`:
    ```tsx
    import { Composition } from 'remotion';
-   import { MyVideoComponent } from './MyVideoComponent';
+   import { MyVideo } from './MyVideo';
 
-   export const RemotionVideo = () => {
-       return (
-           <Composition
-               id="MyVideo"
-               component={MyVideoComponent}
-               durationInFrames={300}
-               fps={30}
-               width={1920}
-               height={1080}
-           />
-       );
-   };
+   export const Video: React.FC = () => (
+       <Composition
+           id="MyVideo"
+           component={MyVideo}
+           durationInFrames={300}
+           fps={30}
+           width={1920}
+           height={1080}
+       />
+   );
    ```
 
-6. **Create a Sample Video Component**:
-   - Create `src/MyVideoComponent.tsx`:
+6. **Create Video Component**:
+   Create `src/MyVideo.tsx`:
    ```tsx
    import React from 'react';
 
-   export const MyVideoComponent = () => {
+   export const MyVideo: React.FC = () => {
        return <div>Hello, Remotion!</div>;
    };
    ```
 
-7. **Set Up CLI Rendering**:
-   - Create a `render.ts` script:
-   ```tsx
-   import { renderMedia } from 'remotion';
-   import { RemotionVideo } from './MyVideo';
-
-   renderMedia(<RemotionVideo />, {
-       output: 'output/video.mp4',
-       codec: 'h264',
-       // additional options
-   });
-   ```
-
-8. **Add Scripts to `package.json`**:
+7. **Add Render Script to Package.json**:
+   Update `package.json`:
    ```json
    "scripts": {
-       "start": "remotion start",
-       "build": "remotion build",
-       "render": "ts-node render.ts"
+       "render": "remotion render src/Video.tsx MyVideo out/video.mp4"
    }
    ```
 
-9. **Run the Project**:
-   - Start the Remotion server:
-   ```bash
-   npm start
-   ```
-
-   - Render the video:
+8. **Test the Setup**:
+   Run the render script:
    ```bash
    npm run render
    ```
 
 ## Pitfalls
-- **Version Compatibility**: Ensure that all installed packages are compatible with each other, especially React and Remotion.
-- **TypeScript Configuration**: If using TypeScript, ensure that `tsconfig.json` is correctly set up to avoid compilation issues.
-- **File Paths**: Double-check file paths when importing components to avoid module not found errors.
-- **CLI Permissions**: If encountering permission issues during rendering, ensure that the script has the necessary access to write files in the output directory.
+- **Node Version Compatibility**: Ensure the Node.js version is compatible with Remotion.
+- **Missing Dependencies**: Double-check all required packages are installed.
+- **File Paths**: Ensure correct paths when importing components.
+- **Rendering Issues**: Check for errors in the console during rendering; adjust settings as necessary.
+- **Environment Variables**: If using any environment-specific configurations, ensure they are set up correctly.
 
-This scaffold provides a solid foundation for further development and customization of video projects using Remotion within OnionReel.
+This artifact serves as a concise guide to scaffold a Remotion project within OnionReel, facilitating video rendering capabilities.

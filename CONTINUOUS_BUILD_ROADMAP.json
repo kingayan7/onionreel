@@ -60,6 +60,21 @@
           "id": "P18-S9",
           "name": "End-to-end dashboard-only acceptance test (no chat) + docs",
           "status": "todo"
+        },
+        {
+          "id": "P18-S10",
+          "name": "Cinematic Premium: Remotion ad pack template library (motion + typography)",
+          "status": "todo"
+        },
+        {
+          "id": "P18-S11",
+          "name": "Cinematic Premium: Audio mastering v2 (ducking + SFX + LUFS presets)",
+          "status": "todo"
+        },
+        {
+          "id": "P18-S12",
+          "name": "Cinematic Premium: Color/film look (grain/vignette/curves) presets + QC",
+          "status": "todo"
         }
       ]
     },

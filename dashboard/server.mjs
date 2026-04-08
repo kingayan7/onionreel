@@ -570,6 +570,8 @@ const server = http.createServer((req, res) => {
           path.join(AUTOEDIT, 'projects', projectId, 'script.md'),
           path.join(AUTOEDIT, 'projects', projectId, 'captions.srt'),
           path.join(AUTOEDIT, 'projects', projectId, 'blueprint.json'),
+          path.join(exportsDir, 'poster_1080x1920.png'),
+          path.join(exportsDir, 'thumb_1280x720.jpg'),
         ];
         const files = candidates.filter(p => fs.existsSync(p));
         if (!files.length) return json(res, 400, { ok:false, error: 'no files to zip', projectId });

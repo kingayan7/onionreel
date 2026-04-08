@@ -1438,6 +1438,25 @@ refresh();
     shipped = 'Shipped cut markers v1 (silence-driven cut points) → projects/<pid>/markers.json; variants snap to markers.';
     next = 'Proceed to P18-S14 Thumbnails/posters generator.';
 
+  } else if (picked.step.id === 'P18-S14') {
+    // P18-S14: Thumbnails/posters generator + export pack integration
+    const script = path.join(OR_DIR, 'autoedit', 'posters_v1.mjs');
+    if (!fs.existsSync(script)) throw new Error('missing autoedit/posters_v1.mjs');
+
+    const projectId = 'maxcontrax-reel-v1';
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) throw new Error(`posters_v1 failed: ${(r.stderr||r.stdout||'').toString()}`);
+
+    const exportsDir = path.join(OR_DIR, 'autoedit', 'exports', projectId);
+    const poster = path.join(exportsDir, 'poster_1080x1920.png');
+    const thumb = path.join(exportsDir, 'thumb_1280x720.jpg');
+    if (!fs.existsSync(poster) || !fs.existsSync(thumb)) throw new Error('poster/thumb output missing');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped posters v1 (poster_1080x1920.png + thumb_1280x720.jpg) and included them in final_pack.zip candidates.';
+    next = 'Proceed to P18-S15 Motion language presets across templates.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

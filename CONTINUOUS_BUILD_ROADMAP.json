@@ -8,6 +8,11 @@
       "name": "Creative OS v1 (best-of: templates + pack builder + iteration + QC gating)",
       "steps": [
         {
+          "id": "P18-S0",
+          "name": "OSS Scout (GitHub search + license filter) — shortlist best repos to import",
+          "status": "todo"
+        },
+        {
           "id": "P18-S1",
           "name": "Templates system (save/load) + gallery UI",
           "status": "done",

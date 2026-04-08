@@ -1,0 +1,432 @@
+{
+  "generatedAt": "2026-04-08T19:17:43Z",
+  "results": [
+    {
+      "query": "bullmq dashboard",
+      "repos": [
+        {
+          "description": "Run bull-board with one command",
+          "fullName": "pavel-voronin/bullmq-dashboard-runnable",
+          "license": {
+            "key": "isc",
+            "name": "ISC License",
+            "url": "https://api.github.com/licenses/isc"
+          },
+          "stargazersCount": 6,
+          "url": "https://github.com/pavel-voronin/bullmq-dashboard-runnable"
+        },
+        {
+          "description": "Service that can be used to monitor BullMQ by providing Prometheus metrics and a Bullmq dashboard secured behind a login wall.",
+          "fullName": "ron96g/bullmq-exporter",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 23,
+          "url": "https://github.com/ron96g/bullmq-exporter"
+        },
+        {
+          "description": "BullMQ dashboard dockerized",
+          "fullName": "patrixr/bullmq-board-docker",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/patrixr/bullmq-board-docker"
+        },
+        {
+          "description": "",
+          "fullName": "chuck-srh/bullmq-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/chuck-srh/bullmq-dashboard"
+        },
+        {
+          "description": "",
+          "fullName": "pradeep-gox/bullmq-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/pradeep-gox/bullmq-dashboard"
+        },
+        {
+          "description": "\u4e00\u4e2a\u7b80\u5355\u7684 BullMQ \u63a7\u5236\u9762\u677f\u96c6\u6210",
+          "fullName": "seekcx/bullmq-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/seekcx/bullmq-dashboard"
+        },
+        {
+          "description": "BullMQ Dashaboard",
+          "fullName": "farnaz-rashidi/bullmq-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/farnaz-rashidi/bullmq-dashboard"
+        },
+        {
+          "description": "",
+          "fullName": "bxneter/bullmq-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/bxneter/bullmq-dashboard"
+        },
+        {
+          "description": "",
+          "fullName": "rutug/bullmq-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/rutug/bullmq-dashboard"
+        },
+        {
+          "description": "",
+          "fullName": "dba18714/bullmq-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/dba18714/bullmq-dashboard"
+        }
+      ]
+    },
+    {
+      "query": "job queue dashboard",
+      "repos": [
+        {
+          "description": "Smart Job Queue Dashboard",
+          "fullName": "mush1e/taskflow",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/mush1e/taskflow"
+        },
+        {
+          "description": "Job Queue Dashboard is a UI for monitoring jobs handled by the distributed-job-queue.",
+          "fullName": "pc-1827/job-queue-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/pc-1827/job-queue-dashboard"
+        },
+        {
+          "description": "",
+          "fullName": "nicolas-guillotte/Job-Queue-Dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/nicolas-guillotte/Job-Queue-Dashboard"
+        },
+        {
+          "description": "",
+          "fullName": "PKP1411/Job-Queue-Dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/PKP1411/Job-Queue-Dashboard"
+        },
+        {
+          "description": "",
+          "fullName": "manantyagi25/picarro-job-queue-dashboard",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/manantyagi25/picarro-job-queue-dashboard"
+        },
+        {
+          "description": "A production-ready job queue dashboard built with BullMQ, Hono, and Bull Board. Features JWT-based authentication, role-based access control, and a beautiful web interface for monitoring your job queues.",
+          "fullName": "binaryroute/bullmq-hono-dashboard",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 0,
+          "url": "https://github.com/binaryroute/bullmq-hono-dashboard"
+        },
+        {
+          "description": "Job Control \u2013 App Blueprint \u2699\ufe0f\ud83d\udcca A real-time job queue dashboard to monitor jobs \ud83d\udd04, inspect logs \ud83d\udcc4, control execution \u23ef\ufe0f, retry or cancel tasks \u274c, and get instant alerts \ud83d\udea8. Built with NextJS, TypeScript & Tailwind \u26a1",
+          "fullName": "Mr-Moosa-official/Job-Control",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 1,
+          "url": "https://github.com/Mr-Moosa-official/Job-Control"
+        }
+      ]
+    },
+    {
+      "query": "reactflow",
+      "repos": [
+        {
+          "description": "SQL schema visualisation built with ReactFlow.",
+          "fullName": "sqlhabit/sql_schema_visualizer",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 271,
+          "url": "https://github.com/sqlhabit/sql_schema_visualizer"
+        },
+        {
+          "description": "A demonstration of auto-layout capabilities and Figma-like edge editing features built with ReactFlow.",
+          "fullName": "idootop/reactflow-auto-layout",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 155,
+          "url": "https://github.com/idootop/reactflow-auto-layout"
+        },
+        {
+          "description": "React Flow |\u00a0Svelte Flow - Powerful open source libraries for building node-based UIs with React (https://reactflow.dev) or Svelte (https://svelteflow.dev). Ready out-of-the-box and infinitely customizable.",
+          "fullName": "xyflow/xyflow",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 36030,
+          "url": "https://github.com/xyflow/xyflow"
+        },
+        {
+          "description": "In this Repo I have implemented React flow pro features with Free React Flow version.",
+          "fullName": "kumarabhishek008/ReactFlowProFeatures",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 92,
+          "url": "https://github.com/kumarabhishek008/ReactFlowProFeatures"
+        },
+        {
+          "description": "A node based diagram which is built by Reactflow | Reactflow example reactflow examples",
+          "fullName": "Azim-Ahmed/Node-flow-diagram",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 52,
+          "url": "https://github.com/Azim-Ahmed/Node-flow-diagram"
+        },
+        {
+          "description": "\ud83e\udea2 A reactflow base stable diffusion GUI as ComfyUI alternative interface.",
+          "fullName": "canisminor1990/kitchen-comfyui",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 243,
+          "url": "https://github.com/canisminor1990/kitchen-comfyui"
+        },
+        {
+          "description": "",
+          "fullName": "albingcj/mermaid-reactflow-editor",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 38,
+          "url": "https://github.com/albingcj/mermaid-reactflow-editor"
+        },
+        {
+          "description": "mermaidjs to reactflow converter app example",
+          "fullName": "relliv/mermaid-to-reactflow-converter",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 61,
+          "url": "https://github.com/relliv/mermaid-to-reactflow-converter"
+        },
+        {
+          "description": "reactflow + convex example",
+          "fullName": "ianmacartney/reactflow-demo",
+          "license": {
+            "key": "apache-2.0",
+            "name": "Apache License 2.0",
+            "url": "https://api.github.com/licenses/apache-2.0"
+          },
+          "stargazersCount": 28,
+          "url": "https://github.com/ianmacartney/reactflow-demo"
+        },
+        {
+          "description": "Angular wrapper of xyflow (formerly Reactflow)",
+          "fullName": "knackstedt/ngx-xyflow",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 57,
+          "url": "https://github.com/knackstedt/ngx-xyflow"
+        }
+      ]
+    },
+    {
+      "query": "digital asset management",
+      "repos": [
+        {
+          "description": "(Official) The DSpace digital asset management system that powers your Institutional Repository",
+          "fullName": "DSpace/DSpace",
+          "license": {
+            "key": "bsd-3-clause",
+            "name": "BSD 3-Clause \"New\" or \"Revised\" License",
+            "url": "https://api.github.com/licenses/bsd-3-clause"
+          },
+          "stargazersCount": 1058,
+          "url": "https://github.com/DSpace/DSpace"
+        },
+        {
+          "description": "Digital Asset Management PHP app",
+          "fullName": "alchemy-fr/Phraseanet",
+          "license": {
+            "key": "other",
+            "name": "Other",
+            "url": ""
+          },
+          "stargazersCount": 269,
+          "url": "https://github.com/alchemy-fr/Phraseanet"
+        },
+        {
+          "description": "Unopim Digital Asset Management (DAM) is a flexible solution for managing digital assets in the Unopim PIM ecosystem. Key features include file and directory management, asset upload, preview, and deletion, advanced metadata tagging, collaboration tools, and CSV/XLSX export for asset assignment.",
+          "fullName": "unopim/unopim-digital-asset-management",
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "url": "https://api.github.com/licenses/mit"
+          },
+          "stargazersCount": 18,
+          "url": "https://github.com/unopim/unopim-digital-asset-management"
+        },
+        {
+          "description": "This is the source code for the famous open source digital asset management - Razuna",
+          "fullName": "razuna/razuna",
+          "license": {
+            "key": "agpl-3.0",
+            "name": "GNU Affero General Public License v3.0",
+            "url": "https://api.github.com/licenses/agpl-3.0"
+          },
+          "stargazersCount": 176,
+          "url": "https://github.com/razuna/razuna"
+        },
+        {
+          "description": "A Scalable Digital Asset Management Solution for WordPress",
+          "fullName": "rtCamp/godam",
+          "license": {
+            "key": "gpl-2.0",
+            "name": "GNU General Public License v2.0",
+            "url": "https://api.github.com/licenses/gpl-2.0"
+          },
+          "stargazersCount": 16,
+          "url": "https://github.com/rtCamp/godam"
+        },
+        {
+          "description": "A web application for digital assets management.",
+          "fullName": "thunderbit/thunderbit",
+          "license": {
+            "key": "agpl-3.0",
+            "name": "GNU Affero General Public License v3.0",
+            "url": "https://api.github.com/licenses/agpl-3.0"
+          },
+          "stargazersCount": 56,
+          "url": "https://github.com/thunderbit/thunderbit"
+        },
+        {
+          "description": "Nuxeo Digital Asset Management",
+          "fullName": "nuxeo-archives/nuxeo-dam",
+          "license": {
+            "key": "",
+            "name": "",
+            "url": ""
+          },
+          "stargazersCount": 12,
+          "url": "https://github.com/nuxeo-archives/nuxeo-dam"
+        },
+        {
+          "description": "Digital Asset Management web application written with ASP.NET/C#/WebForms.",
+          "fullName": "rdogmartin/GalleryServer",
+          "license": {
+            "key": "gpl-3.0",
+            "name": "GNU General Public License v3.0",
+            "url": "https://api.github.com/licenses/gpl-3.0"
+          },
+          "stargazersCount": 54,
+          "url": "https://github.com/rdogmartin/GalleryServer"
+        },
+        {
+          "description": "AtroDAM is an open-source digital asset management system (DAM) of a new generation.",
+          "fullName": "atrocore/atrodam",
+          "license": {
+            "key": "gpl-3.0",
+            "name": "GNU General Public License v3.0",
+            "url": "https://api.github.com/licenses/gpl-3.0"
+          },
+          "stargazersCount": 122,
+          "url": "https://github.com/atrocore/atrodam"
+        },
+        {
+          "description": "ResourceSpace Digital Asset Management application.",
+          "fullName": "ivorypenguin/resourcespace",
+          "license": {
+            "key": "other",
+            "name": "Other",
+            "url": ""
+          },
+          "stargazersCount": 8,
+          "url": "https://github.com/ivorypenguin/resourcespace"
+        }
+      ]
+    }
+  ]
+}

@@ -1251,6 +1251,19 @@ refresh();
     shipped = 'Made Telegram ping_send non-fatal (runner continues even if ping fails).';
     next = 'All dashboard hardening steps complete.';
 
+  } else if (picked.step.id === 'P18-S0') {
+    // P18-S0: OSS Scout (GitHub search + license filter)
+    const out = path.join(OR_DIR, 'OSS_SCOUT_RESULTS.json');
+    const scout = path.join(OR_DIR, 'scripts', 'oss_scout.sh');
+    if (!fs.existsSync(scout)) throw new Error('missing scripts/oss_scout.sh');
+    // run scout
+    spawnSync('bash', [scout, out], { cwd: OR_DIR, stdio: 'pipe' });
+    if (!fs.existsSync(out)) throw new Error('OSS_SCOUT_RESULTS.json not produced');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Ran OSS Scout (GitHub search via gh) and wrote OSS_SCOUT_RESULTS.json (license + stars shortlist).';
+    next = 'Proceed to P18-S1 Templates (already shipped) then P18-S2 Pack Builder wizard.';
+
   } else if (picked.step.id === 'P18-S1') {
     // P18-S1: Templates system (save/load) + gallery UI
     const dash = path.join(OR_DIR, 'dashboard');

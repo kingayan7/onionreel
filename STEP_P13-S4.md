@@ -1,56 +1,58 @@
 # OnionReel v1 Artifact: P13-S4 - Render Variants via Remotion
 
 ## Overview
-This artifact outlines the process to render video variants (30s, 15s, and 6s) using Remotion, along with encoding settings presets. The goal is to ensure efficient rendering while maintaining quality across different video lengths.
+This artifact outlines the implementation of rendering video variants (30s, 15s, 6s) using Remotion, along with the integration of encoding settings presets. This will enhance video processing efficiency and quality for OnionReel.
 
 ## Inputs
-- **Video Source**: Original video file (e.g., MP4, MOV).
-- **Remotion Project**: Pre-configured Remotion project with necessary components.
-- **Encoding Settings**: Presets for each variant (30s, 15s, 6s).
-- **Rendering Environment**: Node.js environment with Remotion installed.
+- **Video Source**: Original video file (e.g., MP4)
+- **Remotion Project**: Pre-configured Remotion project for rendering
+- **Encoding Settings Presets**: Configuration for video encoding (resolution, bitrate, format)
+- **Render Duration**: Specifications for each variant (30s, 15s, 6s)
 
 ## Outputs
-- **Rendered Videos**: Three video files in specified formats:
-  - `output-30s.mp4`
-  - `output-15s.mp4`
-  - `output-6s.mp4`
-- **Log Files**: Render logs for troubleshooting and performance tracking.
+- **Rendered Video Files**: 
+  - `video-30s.mp4`
+  - `video-15s.mp4`
+  - `video-6s.mp4`
+- **Log Files**: Render and encoding process logs for debugging
 
 ## Steps
-1. **Set Up Environment**:
-   - Ensure Node.js and Remotion are installed.
-   - Clone the Remotion project repository.
+1. **Set Up Remotion Environment**:
+   - Ensure Remotion is installed and configured.
+   - Create a new Remotion project or use an existing one.
 
 2. **Configure Encoding Settings**:
-   - Define encoding settings for each variant in a configuration file:
-     ```json
-     {
-       "30s": { "bitrate": "1000k", "resolution": "1920x1080" },
-       "15s": { "bitrate": "800k", "resolution": "1280x720" },
-       "6s": { "bitrate": "600k", "resolution": "640x360" }
-     }
-     ```
+   - Define presets for each variant:
+     - 30s: High bitrate, Full HD
+     - 15s: Medium bitrate, HD
+     - 6s: Low bitrate, SD
 
-3. **Create Render Function**:
-   - Implement a render function in Remotion that accepts video length and encoding settings.
-   - Use Remotion’s `renderMedia` function to generate videos.
-
-4. **Run Render Process**:
-   - Execute the render function for each variant:
+3. **Implement Rendering Logic**:
+   - Write a script to automate rendering for each variant:
+     - Use Remotion's `render` function with specified duration and encoding settings.
+   - Example code snippet:
      ```javascript
-     await renderMedia('output-30s.mp4', '30s');
-     await renderMedia('output-15s.mp4', '15s');
-     await renderMedia('output-6s.mp4', '6s');
+     import { render } from 'remotion';
+
+     const renderVariants = async () => {
+       await render('video-30s', { duration: 30, encoding: 'high' });
+       await render('video-15s', { duration: 15, encoding: 'medium' });
+       await render('video-6s', { duration: 6, encoding: 'low' });
+     };
      ```
+
+4. **Execute Render Process**:
+   - Run the script to generate the video files.
+   - Monitor the process and capture logs.
 
 5. **Verify Outputs**:
-   - Check that all output files are created successfully.
-   - Review log files for any errors or warnings.
+   - Check the output files for correctness.
+   - Validate encoding settings against presets.
 
 ## Pitfalls
-- **Encoding Errors**: Incorrect encoding settings can lead to failed renders. Ensure all settings are valid.
-- **Resource Limitations**: Rendering can be resource-intensive. Monitor system performance to avoid crashes.
-- **Version Compatibility**: Ensure Remotion and Node.js versions are compatible with the project setup.
-- **File Path Issues**: Ensure correct paths are used for input and output files to avoid file not found errors.
+- **Encoding Errors**: Ensure encoding settings are compatible with the video format.
+- **Performance Issues**: Rendering may be resource-intensive; monitor system performance.
+- **File Size Management**: Be cautious of file sizes; adjust bitrate settings as necessary.
+- **Logging**: Ensure logs are comprehensive for troubleshooting.
 
-By following these steps, you will successfully implement the rendering of video variants using Remotion, ensuring a smooth workflow and high-quality outputs.
+By following these steps, you can efficiently render video variants using Remotion, ensuring high-quality outputs tailored to user needs.

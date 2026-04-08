@@ -484,13 +484,23 @@ async function loadLibrary(){
   function link(kind, f){
     return '<a href="/dl/autoedit/' + encodeURIComponent(pid) + '/' + kind + '/' + encodeURIComponent(f.name) + '" target="_blank">' + esc(f.name) + '</a>';
   }
-  const renders = (r.renders||[]);
-  const exports = (r.exports||[]);
+  let renders = (r.renders||[]);
+  let exports = (r.exports||[]);
+  if (q) {
+    renders = renders.filter(f => (f.name||'').toLowerCase().includes(q));
+    exports = exports.filter(f => (f.name||'').toLowerCase().includes(q));
+  }
   const rr = renders.length ? '<b>Renders</b><ul>' + renders.slice(0,30).map(f => '<li>' + link('renders', f) + '</li>').join('') + '</ul>' : '<div class="muted">No renders.</div>';
   const ee = exports.length ? '<b>Exports</b><ul>' + exports.slice(0,30).map(f => '<li>' + link('exports', f) + '</li>').join('') + '</ul>' : '';
   document.getElementById('library').innerHTML = rr + ee;
 }
 if (document.getElementById('libLoad')) document.getElementById('libLoad').onclick = loadLibrary;
+if (document.getElementById('libPin')) document.getElementById('libPin').onclick = async () => {
+  const projectId = document.getElementById('libProjectId').value.trim() || 'maxcontrax-reel-v1';
+  const r = await jpost('/api/pins/latest', { projectId });
+  if (!r.ok) { alert('Pin failed: ' + (r.error || 'unknown')); return; }
+  alert('Pinned: ' + r.file);
+};
 
 document.getElementById('create').onclick = async () => {
   const id = document.getElementById('pid').value.trim();

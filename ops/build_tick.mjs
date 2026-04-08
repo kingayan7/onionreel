@@ -1354,6 +1354,19 @@ refresh();
     shipped = 'Shipped Export Center v1 (build/download final_pack.zip from dashboard).';
     next = 'Proceed to P18-S8 Library upgrades.';
 
+  } else if (picked.step.id === 'P18-S8') {
+    // P18-S8: Library upgrades
+    const srv = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const s = fs.readFileSync(srv,'utf8');
+    const h = fs.readFileSync(html,'utf8');
+    const ok = s.includes('/api/pins/latest') && h.includes('search') && h.includes('Pin Latest');
+    if (!ok) throw new Error('Library upgrades not detected');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Library upgrades v1 (search filter + pin latest export pack).';
+    next = 'Proceed to P18-S9 Dashboard-only acceptance test.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

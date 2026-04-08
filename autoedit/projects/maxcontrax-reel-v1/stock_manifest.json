@@ -1,0 +1,44 @@
+{
+  "projectId": "maxcontrax-reel-v1",
+  "source": "pexels_no_key",
+  "assets": [
+    {
+      "id": "overwhelm_scroll",
+      "type": "video",
+      "notes": "business owner laptop scrolling frustrated",
+      "url": null,
+      "localPath": "cache/maxcontrax-reel-v1/overwhelm_scroll.mp4",
+      "source": "sora"
+    },
+    {
+      "id": "ai_ui_abstract",
+      "type": "video",
+      "notes": "clean abstract tech UI animation",
+      "url": null,
+      "localPath": null
+    },
+    {
+      "id": "email_alert",
+      "type": "video",
+      "notes": "phone email notification close up",
+      "url": null,
+      "localPath": "cache/maxcontrax-reel-v1/email_alert.mp4",
+      "source": "sora"
+    },
+    {
+      "id": "handshake_trust",
+      "type": "video",
+      "notes": "handshake / contract signing",
+      "url": null,
+      "localPath": "cache/maxcontrax-reel-v1/handshake_trust.mp4",
+      "source": "sora"
+    },
+    {
+      "id": "ai_matching",
+      "type": "video",
+      "notes": "sora_generated",
+      "localPath": "cache/maxcontrax-reel-v1/ai_matching.mp4",
+      "source": "sora"
+    }
+  ]
+}

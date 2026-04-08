@@ -1,0 +1,38 @@
+{
+  "projectId": "maxcontrax-reel-v1",
+  "durationSec": 30,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "beats": [
+    {"t0": 0, "t1": 2, "text": "STOP scrolling SAM.gov"},
+    {"t0": 2, "t1": 6, "text": "AI-MATCHED contracts"},
+    {"t0": 6, "t1": 10, "text": "Only what fits you"},
+    {"t0": 10, "t1": 15, "text": "DAILY alerts"},
+    {"t0": 15, "t1": 20, "text": "Less noise. More shots."},
+    {"t0": 20, "t1": 25, "text": "FREE 7-DAY TRIAL"},
+    {"t0": 25, "t1": 30, "text": "Start Free at MaxContrax.com"}
+  ],
+  "soraPrompts": [
+    {
+      "id": "overwhelm_scroll",
+      "seconds": 4,
+      "prompt": "Vertical 9:16 cinematic b-roll. Close-up of a laptop and hands rapidly scrolling through many government contract listings, multiple browser tabs, slight motion blur, modern office lighting, premium commercial look, shallow depth of field."
+    },
+    {
+      "id": "ai_matching",
+      "seconds": 4,
+      "prompt": "Vertical 9:16 cinematic b-roll. Abstract minimal AI interface visuals: clean data cards gently animating into place with subtle checkmarks, dark premium background, orange accent highlights, realistic screen reflections, modern tech commercial style."
+    },
+    {
+      "id": "email_alert",
+      "seconds": 4,
+      "prompt": "Vertical 9:16 cinematic b-roll. Smartphone close-up receiving a new email notification, modern UI, subtle glow, premium lighting, shallow depth of field, commercial product shot."
+    },
+    {
+      "id": "handshake_trust",
+      "seconds": 4,
+      "prompt": "Vertical 9:16 cinematic b-roll. Professional business handshake and contract signing moment, modern office, confident mood, premium commercial lighting, shallow depth of field."
+    }
+  ]
+}

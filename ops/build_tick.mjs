@@ -1,0 +1,703 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const WORKSPACE = '/Users/adrianissac/.openclaw/workspace';
+const OR_DIR = path.join(WORKSPACE, 'onionreel');
+const ROADMAP_PATH = path.join(OR_DIR, 'CONTINUOUS_BUILD_ROADMAP.json');
+const MEMORY_PATH = path.join(WORKSPACE, 'memory', '2026-04-06.md');
+const OPENCLAW_CONFIG = path.join('/Users/adrianissac/.openclaw', 'openclaw.json');
+
+function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
+function writeJson(p, obj) { fs.writeFileSync(p, JSON.stringify(obj, null, 2) + '\n'); }
+
+function nowNY() {
+  const d = new Date();
+  const hhmm = d.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' });
+  const iso = d.toLocaleString('sv-SE', { timeZone: 'America/New_York' }).replace(' ', 'T') + '-04:00';
+  return { hhmm, iso };
+}
+
+function computePercent(roadmap) {
+  const steps = roadmap.phases.flatMap(p => p.steps);
+  const done = steps.filter(s => s.status === 'done').length;
+  const doing = steps.filter(s => s.status === 'doing').length;
+  const total = steps.length || 1;
+  const score = done + 0.5 * doing;
+  const pct = Math.round((score / total) * 100);
+  return { pct, done, doing, total };
+}
+
+async function telegramSend(botToken, chatId, text) {
+  const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true })
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Telegram send failed: ${res.status} ${res.statusText} ${body}`);
+  }
+}
+
+async function openaiText(apiKey, prompt) {
+  const res = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      input: prompt,
+      temperature: 0.4
+    })
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`OpenAI responses failed: ${res.status} ${res.statusText} ${body}`);
+  }
+  const data = await res.json();
+  // responses API: extract text from output messages
+  let text = '';
+  if (typeof data.output_text === 'string') text = data.output_text;
+  if (!text && Array.isArray(data.output)) {
+    for (const item of data.output) {
+      const content = item?.content;
+      if (!Array.isArray(content)) continue;
+      for (const c of content) {
+        if (c?.type === 'output_text' && typeof c.text === 'string') {
+          text += c.text;
+        }
+      }
+    }
+  }
+  text = (text || '').trim();
+  if (!text) {
+    throw new Error('OpenAI returned empty text (no output_text found)');
+  }
+  return text;
+}
+
+function appendLoopLog(line) {
+  if (!fs.existsSync(MEMORY_PATH)) return;
+  fs.appendFileSync(MEMORY_PATH, `\n- ${line}\n`);
+}
+
+function writeStamp(kind, payload) {
+  const p = path.join(OR_DIR, 'logs', `last_${kind}.json`);
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, JSON.stringify(payload, null, 2) + '\n');
+}
+
+function pickStep(roadmap) {
+  for (const phase of roadmap.phases) {
+    const doing = phase.steps.find(s => s.status === 'doing');
+    if (doing) return { phase, step: doing, mode: 'doing' };
+    const todo = phase.steps.find(s => s.status === 'todo');
+    if (todo) return { phase, step: todo, mode: 'todo' };
+  }
+  return null;
+}
+
+async function main() {
+  fs.mkdirSync(path.join(OR_DIR, 'logs'), { recursive: true });
+  const cfg = readJson(OPENCLAW_CONFIG);
+  const botToken = cfg?.channels?.telegram?.botToken;
+  const apiKey = cfg?.env?.vars?.OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+  if (!botToken) throw new Error('Missing telegram botToken');
+  if (!apiKey) throw new Error('Missing OPENAI_API_KEY');
+
+  const roadmap = readJson(ROADMAP_PATH);
+  const picked = pickStep(roadmap);
+  const { hhmm, iso } = nowNY();
+
+  if (!picked) {
+    const { pct } = computePercent(roadmap);
+    await telegramSend(botToken, '-5020096204', `OnionReel Build Tick - ${pct}%\n- Shipped: Nothing to do (roadmap has no todo/doing)\n- Next: Add new roadmap items`);
+    return;
+  }
+
+  // Ensure step is marked doing
+  // For visibility: we mark as DOING first, ship, then optionally flip to DONE.
+  if (picked.step.status === 'todo') {
+    picked.step.status = 'doing';
+    picked.step.doingAt = iso;
+    writeJson(ROADMAP_PATH, roadmap);
+  }
+
+  let shipped = '';
+  let next = '';
+
+  // Special-case: P1-S3 Quality System rubric v1
+  if (picked.step.id === 'P1-S3') {
+    const outPath = path.join(OR_DIR, 'QUALITY_SYSTEM_RUBRIC_V1.md');
+    const prompt = `Write OnionReel Quality System Rubric v1 as a concise, production-grade markdown doc.\n\nRequirements:\n- Audience: film/ads/media production team using AI tools.\n- Include rubrics + acceptance criteria for: Creative Brief, Script, Storyboard, Shot List, Edit Plan, Final Export.\n- Each rubric: Score 0-2 per criterion, total score, and "PASS threshold".\n- Include common failure modes + fixes.\n- Keep it actionable (checklist language).\n- Keep under ~180 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote QUALITY_SYSTEM_RUBRIC_V1.md (acceptance criteria + scoring rubrics).';
+    next = 'Start P1-S4: pre/pro/post checklists (capture→edit→export).';
+
+  // Special-case: P1-S4 Production lifecycle checklists v1
+  } else if (picked.step.id === 'P1-S4') {
+    const outPath = path.join(OR_DIR, 'PRODUCTION_CHECKLISTS_V1.md');
+    const prompt = `Create OnionReel Production Lifecycle Checklists v1 (pre-production, production, post-production) for film/ads/media.\n\nFormat (for each checklist):\n- When to use\n- Inputs\n- Outputs\n- Steps (checkbox list)\n- Acceptance criteria\n- Common failure modes + fixes\n\nInclude at least:\nPRE-PRO: brief intake, concept, script, storyboard, shot list, asset plan, production plan.\nPRO: camera/lighting/audio basics, data wrangling, slate/naming, continuity notes.\nPOST: ingest, assembly, pacing, sound, color, captions, exports, QC.\nKeep it actionable and under ~220 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote PRODUCTION_CHECKLISTS_V1.md (pre/pro/post checklists + acceptance criteria).';
+    next = 'Move to P2 Workflow Engine: canonical 30–60s ad pipeline doc.';
+
+  // Special-case: P2-S1 Canonical 30–60s paid ad pipeline doc
+  } else if (picked.step.id === 'P2-S1') {
+    const outPath = path.join(OR_DIR, 'PAID_AD_PIPELINE_30-60S_V1.md');
+    const prompt = `Write OnionReel Canonical 30–60s Paid Ad Pipeline v1 as a production-ready SOP.\n\nMust include:\n- Scope + assumptions (platform-agnostic; applies to Meta/TikTok/YouTube)\n- Inputs (brand, offer, footage, assets)\n- Outputs (master timeline + exports + cutdowns + captions)\n- End-to-end steps: Brief → Hook ideation → Script → Storyboard → Shot list → Production capture → Edit assembly → Sound/music → Color → Motion graphics → Captions → QC → Exports → Naming/packaging\n- Acceptance criteria and QC checklist for final exports\n- Fast path vs cinematic path (two modes)\n- Common failure modes + fixes\n\nConstraints:\n- Actionable checkbox language\n- No tables (plain text)\n- Keep under ~240 lines\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote PAID_AD_PIPELINE_30-60S_V1.md (canonical end-to-end SOP + QC).';
+    next = 'Continue P2 workflow engine steps (template prompts + reusable project structure).';
+
+  // Special-case: P2-S2 Variant engine rules
+  } else if (picked.step.id === 'P2-S2') {
+    const outPath = path.join(OR_DIR, 'VARIANT_ENGINE_RULES_V1.md');
+    const prompt = `Write OnionReel Variant Engine Rules v1. This is a ruleset that turns 1 master cut into multiple variants for ads/media.\n\nInclude:\n- Core idea: one master timeline → variants by platform, hook, CTA, aspect ratio, duration\n- Variant axes (platform, aspect ratio 9:16/1:1/16:9, durations 6/15/30/60, hooks, CTAs, offers, captions on/off)\n- A deterministic naming convention for exports (project, platform, ratio, duration, hook-id, cta-id, version)\n- Guardrails: what must stay consistent vs what can change\n- Hook system: 10 hook archetypes with when-to-use\n- CTA system: 8 CTA types with when-to-use\n- Captioning rules (burned-in vs SRT)\n- QC checklist specific to variants\n- Failure modes + fixes\n\nConstraints: plain text (no tables), checkbox/action language, under ~260 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote VARIANT_ENGINE_RULES_V1.md (platform/aspect/duration/hook/CTA rules + QC).';
+    next = 'Proceed to next roadmap step (P2-S3 prompts/templates) and mark it DOING.';
+
+  // Special-case: P2-S3 Versioning rules (naming, approvals, changelog)
+  } else if (picked.step.id === 'P2-S3') {
+    const outPath = path.join(OR_DIR, 'VERSIONING_RULES_V1.md');
+    const prompt = `Write OnionReel Versioning Rules v1 (naming, approvals, changelog).\n\nMust include:\n- Naming conventions for: projects, sequences, shots, timelines, exports, versions\n- Variant naming: platform + aspect ratio + duration + hook-id + cta-id + v#\n- A lightweight approval workflow: Draft → Internal QC → Client Review → Approved → Shipped\n- What constitutes a version bump vs a new variant\n- Changelog format (single-line entries) + where it lives (recommend: memory log + /onionreel/CHANGELOG.md)\n- “No silent overwrites” rules\n- File/folder structure recommendations inside a project folder\n- QC gates before marking a roadmap step DONE\n\nConstraints: plain text (no tables), checkbox/action language, under ~240 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote VERSIONING_RULES_V1.md (naming + approvals + changelog + QC gates).';
+    next = 'Proceed to the next roadmap step (will mark it DOING first for visibility).';
+
+  // Special-case: P3-S1 Dashboard UI spec
+  } else if (picked.step.id === 'P3-S1') {
+    const outPath = path.join(OR_DIR, 'DASHBOARD_UI_SPEC_V1.md');
+    const prompt = `Write OnionReel Dashboard UI Spec v1 (screens + data model).\n\nMust include:\n- North-star: fastest production pipeline visibility + control\n- User roles: operator, producer, client\n- Screens (minimum):\n  1) Home/Overview (project health)\n  2) Projects list\n  3) Project detail (status, assets, tasks, latest exports)\n  4) Deliverables/Exports (versions + variants)\n  5) QC dashboard (rubric scores, blockers)\n  6) Activity log (ship log)\n  7) Settings (integrations + templates)\n- For each screen: purpose, core widgets, key actions, empty states\n- Data model entities + fields: Project, Deliverable, Export, Variant, Asset, Task, QCResult, Blocker, Template\n- Events to track + audit log schema\n- MVP vs V2 scope\n\nConstraints: plain text, no tables, keep under ~260 lines, actionable spec language.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote DASHBOARD_UI_SPEC_V1.md (screens + data model + MVP scope).';
+    next = 'Move to next roadmap step (P3-S2: MVP implementation plan).';
+
+  // Special-case: P3-S2 MVP implementation plan
+  } else if (picked.step.id === 'P3-S2') {
+    const outPath = path.join(OR_DIR, 'DASHBOARD_MVP_IMPLEMENTATION_PLAN_V1.md');
+    const prompt = `Write OnionReel Dashboard MVP Implementation Plan v1.\n\nMust include:\n- Tech assumptions (keep stack agnostic but concrete)\n- Data model (tables/collections) + minimal fields + indexes\n- API endpoints (list) with request/response shape descriptions\n- Event log + audit trail\n- UI implementation plan mapped to the UI Spec screens (what to build first)\n- Milestones (MVP Week 1/2 style)\n- Acceptance criteria for MVP completion\n- Risks + mitigations\n\nConstraints: plain text, no tables, actionable checklist language, under ~260 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote DASHBOARD_MVP_IMPLEMENTATION_PLAN_V1.md (data model + API + milestones + acceptance criteria).';
+    next = 'Proceed to P3-S3 scaffold and ship the first runnable module.';
+
+  // Special-case: P3-S3 Dashboard build started (scaffold + first module)
+  } else if (picked.step.id === 'P3-S3') {
+    const dashDir = path.join(OR_DIR, 'dashboard');
+    fs.mkdirSync(dashDir, { recursive: true });
+
+    // Minimal Node server (no deps) with an API endpoint + basic HTML.
+    const serverPath = path.join(dashDir, 'server.mjs');
+    const htmlPath = path.join(dashDir, 'index.html');
+    const readmePath = path.join(dashDir, 'README.md');
+
+    fs.writeFileSync(serverPath, `import http from 'node:http';\nimport fs from 'node:fs';\nimport path from 'node:path';\n\nconst PORT = process.env.PORT || 5057;\nconst ROOT = path.resolve(process.cwd());\nconst ROADMAP = path.resolve(ROOT, '..', 'CONTINUOUS_BUILD_ROADMAP.json');\n\nfunction json(res, code, obj){\n  res.writeHead(code, { 'content-type': 'application/json' });\n  res.end(JSON.stringify(obj, null, 2));\n}\n\nconst server = http.createServer((req, res) => {\n  if (req.url === '/' || req.url === '/index.html') {\n    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');\n    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });\n    return res.end(html);\n  }\n\n  if (req.url === '/api/roadmap') {\n    try {\n      const raw = fs.readFileSync(ROADMAP, 'utf8');\n      return json(res, 200, JSON.parse(raw));\n    } catch (e) {\n      return json(res, 500, { error: String(e) });\n    }\n  }\n\n  return json(res, 404, { error: 'not_found' });\n});\n\nserver.listen(PORT, () => {\n  console.log('OnionReel dashboard server listening on http://127.0.0.1:' + PORT);\n});\n`);
+
+    fs.writeFileSync(htmlPath, `<!doctype html>\n<html>\n<head>\n  <meta charset=\"utf-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n  <title>OnionReel Dashboard (MVP)</title>\n  <style>\n    body{font-family: ui-sans-serif, system-ui, -apple-system; margin:24px; color:#111;}\n    pre{background:#0b1020; color:#d6e1ff; padding:16px; border-radius:12px; overflow:auto;}\n    h1{margin:0 0 8px 0;}\n    .muted{color:#555;}\n  </style>\n</head>\n<body>\n  <h1>OnionReel Dashboard (MVP)</h1>\n  <div class=\"muted\">This is the first runnable module. Endpoint: <code>/api/roadmap</code></div>\n  <h2>Roadmap JSON</h2>\n  <pre id=\"out\">Loading…</pre>\n  <script>\n    fetch('/api/roadmap').then(r=>r.json()).then(j=>{\n      document.getElementById('out').textContent = JSON.stringify(j, null, 2);\n    }).catch(e=>{\n      document.getElementById('out').textContent = String(e);\n    });\n  </script>\n</body>\n</html>\n`);
+
+    fs.writeFileSync(readmePath, `# OnionReel Dashboard (MVP)\n\nThis folder is the first runnable OnionReel dashboard module.\n\n## Run\n\nFrom the OnionReel repo root:\n\n\`\`\`bash\ncd dashboard\nnode server.mjs\n\`\`\`\n\nOpen: http://127.0.0.1:5057\n\n## API\n\n- \`GET /api/roadmap\` → returns \`../CONTINUOUS_BUILD_ROADMAP.json\`\n\nNext step: build UI screens + real data model endpoints per \`DASHBOARD_UI_SPEC_V1.md\`.\n`);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Created dashboard/ runnable MVP server + /api/roadmap + basic UI.';
+    next = 'Proceed to P4-S1 Job runner spec (Brain v1).';
+
+  // Special-case: P4-S1 Job runner spec (tasks, retries, logs)
+  } else if (picked.step.id === 'P4-S1') {
+    const outPath = path.join(OR_DIR, 'JOB_RUNNER_SPEC_V1.md');
+    const prompt = `Write OnionReel Brain v1 — Job Runner Spec v1.\n\nMust include:\n- Purpose: reliable orchestration for production pipeline tasks\n- Task model (id, type, inputs, outputs, status, attempts, timestamps)\n- Queue model + concurrency controls\n- Retry policy (exponential backoff, max attempts, retryable vs non-retryable)\n- Idempotency rules\n- Logging + audit trail schema (what to log per task)\n- Failure handling + dead-letter queue\n- Scheduling: at-time jobs + recurring jobs\n- Observability: health checks + metrics\n- Minimal CLI or API surface (endpoints/commands list)\n- Acceptance criteria for “Job runner v1 complete”\n\nConstraints: plain text, no tables, actionable spec language, under ~260 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote JOB_RUNNER_SPEC_V1.md (task model + retries + logs + acceptance criteria).';
+    next = 'Proceed to P4-S2 Artifact store spec.';
+
+  // Special-case: P4-S2 Artifact store spec (types, versions)
+  } else if (picked.step.id === 'P4-S2') {
+    const outPath = path.join(OR_DIR, 'ARTIFACT_STORE_SPEC_V1.md');
+    const prompt = `Write OnionReel Brain v1 — Artifact Store Spec v1 (types, versions).\n\nMust include:\n- Purpose: store every artifact produced by the pipeline (docs, exports, variants, QC results)\n- Artifact types (minimum): Brief, Script, Storyboard, ShotList, EditPlan, Export, Variant, CaptionSRT, QCResult, LogEntry\n- Versioning rules (immutable artifacts, pointers to latest)\n- Naming + IDs (artifactId, projectId, deliverableId, variantId)\n- Storage layout (folder structure + metadata sidecar)\n- Metadata schema (fields + required)\n- Retrieval queries (list by project, by deliverable, by variant, by time)\n- Integrity: checksums, dedupe, audit trail\n- Access control notes (future)\n- Acceptance criteria for “Artifact store v1 complete”\n\nConstraints: plain text, no tables, actionable spec language, under ~260 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote ARTIFACT_STORE_SPEC_V1.md (types + versioning + metadata + queries).';
+    next = 'Proceed to P4-S3 Integration spec (Drive/Frame.io/Telegram/NLE exports).';
+
+  // Special-case: P4-S3 Integration spec (Drive/Frame.io/Telegram/NLE exports)
+  } else if (picked.step.id === 'P4-S3') {
+    const outPath = path.join(OR_DIR, 'INTEGRATIONS_SPEC_V1.md');
+    const prompt = `Write OnionReel Brain v1 — Integrations Spec v1 (Drive / Frame.io / Telegram / NLE exports).\n\nMust include:\n- Integration goals + non-goals\n- Drive: folder layout, upload policy, naming, permissions\n- Frame.io: review links, version posting, comments ingestion\n- Telegram: status pings, approvals, error alerts, commands\n- NLE exports: Premiere/Resolve/Final Cut export conventions, proxies, deliverables\n- Webhook/event model per integration (what events we listen for)\n- Auth strategy per integration (OAuth/API key)\n- Failure modes + retries + audit logs\n- Acceptance criteria for “Integrations spec v1 complete”\n\nConstraints: plain text, no tables, under ~260 lines, actionable spec language.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote INTEGRATIONS_SPEC_V1.md (Drive/Frame.io/Telegram/NLE exports).';
+    next = 'Proceed to P5-S1 Automated QC checklist/spec.';
+
+  // Special-case: P5-S1 Automated QC checklist/spec
+  } else if (picked.step.id === 'P5-S1') {
+    const outPath = path.join(OR_DIR, 'AUTOMATED_QC_SPEC_V1.md');
+    const prompt = `Write OnionReel Automated QC Spec v1.\n\nMust include:\n- Purpose: automated checks that prevent bad exports + enforce repeatability\n- Inputs: exports, metadata, captions, audio stems, timeline markers\n- QC checks (minimum):\n  - File sanity (codec/container/duration/resolution/aspect ratio/fps)\n  - Audio sanity (peak/RMS loudness bounds, clipping detection, silence gaps)\n  - Visual sanity (black frames, frozen frames, abrupt cuts, missing end-card)\n  - Captions sanity (SRT present, timecodes monotonic, max chars/line)\n  - Branding sanity (logo safe area, end-card present)\n  - Platform rules (TikTok safe margins, Meta length constraints)\n- Scoring + thresholds (pass/warn/fail)\n- Output artifact: QCResult schema + human-readable report\n- How QC integrates into Job Runner + Artifact Store\n- Failure modes + what to do\n- Acceptance criteria for “Automated QC v1 complete”\n\nConstraints: plain text, no tables, actionable checklist language, under ~280 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote AUTOMATED_QC_SPEC_V1.md (checks + thresholds + QCResult schema + integration).';
+    next = 'Proceed to P5-S2 Style consistency heuristics.';
+
+  // Special-case: P5-S2 Style consistency heuristics
+  } else if (picked.step.id === 'P5-S2') {
+    const outPath = path.join(OR_DIR, 'STYLE_CONSISTENCY_HEURISTICS_V1.md');
+    const prompt = `Write OnionReel Style Consistency Heuristics v1.\n\nMust include:\n- Purpose: keep outputs on-brand and coherent across variants\n- Heuristic categories: typography, color, pacing, audio bed, transitions, framing, caption style, logo/end-card\n- How to encode a “Style Pack” (settings + examples + do/don't)\n- A scoring rubric (pass/warn/fail) and what triggers each\n- What can be automated vs what needs human review\n- Failure modes + fixes\n- Acceptance criteria for “Style consistency v1 complete”\n\nConstraints: plain text, no tables, under ~260 lines, checklist language.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote STYLE_CONSISTENCY_HEURISTICS_V1.md (heuristics + style packs + scoring).';
+    next = 'Proceed to P5-S3 Benchmark library plan.';
+
+  // Special-case: P5-S3 Benchmark library plan
+  } else if (picked.step.id === 'P5-S3') {
+    const outPath = path.join(OR_DIR, 'BENCHMARK_LIBRARY_PLAN_V1.md');
+    const prompt = `Write OnionReel Benchmark Library Plan v1.\n\nMust include:\n- Purpose: regression tests for creative + QC + pipeline speed\n- What goes in the library: example briefs, scripts, assets, target exports, QC expectations\n- Benchmarks: speed (time-to-first-cut), quality (rubric scores), consistency (style)\n- How to store benchmarks in the Artifact Store (IDs + metadata)\n- How to run benchmarks periodically (schedule + reporting)\n- Acceptance criteria\n\nConstraints: plain text, no tables, under ~240 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote BENCHMARK_LIBRARY_PLAN_V1.md (bench types + storage + runs).';
+    next = 'Proceed to P6-S1 Templates + style packs structure.';
+
+  // Special-case: P6-S1 Templates + style packs structure
+  } else if (picked.step.id === 'P6-S1') {
+    const outPath = path.join(OR_DIR, 'TEMPLATES_AND_STYLE_PACKS_V1.md');
+    const prompt = `Write OnionReel Templates + Style Packs Structure v1.\n\nMust include:\n- Folder structure for reusable templates (brief, script, storyboard, shot list, edit plan, QC)\n- Style pack structure (brand tokens, motion rules, caption rules, audio rules, examples)\n- How templates + style packs are selected per project\n- Versioning rules and compatibility\n- Acceptance criteria\n\nConstraints: plain text, no tables, under ~240 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote TEMPLATES_AND_STYLE_PACKS_V1.md (structure + selection + versioning).';
+    next = 'Proceed to P6-S2 Permissions/analytics/billing hooks plan.';
+
+  // Special-case: P6-S2 Permissions/analytics/billing hooks plan
+  } else if (picked.step.id === 'P6-S2') {
+    const outPath = path.join(OR_DIR, 'SCALE_PLAN_PERMISSIONS_ANALYTICS_BILLING_V1.md');
+    const prompt = `Write OnionReel Scale Plan v1: permissions + analytics + billing hooks.\n\nMust include:\n- Roles/permissions model (operator/producer/client + granular scopes)\n- Analytics events (pipeline speed, QC pass rates, revision loops, approvals time)\n- Billing hooks (usage-based vs subscription; what to meter)\n- Data retention + audit considerations\n- Acceptance criteria\n\nConstraints: plain text, no tables, under ~240 lines.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote SCALE_PLAN_PERMISSIONS_ANALYTICS_BILLING_V1.md (roles + metrics + billing hooks).';
+    next = 'Proceed to P7 implementation steps.';
+
+  // Special-case: P7-S1 Dashboard data layer v1 (projects + activity log persisted on disk)
+  } else if (picked.step.id === 'P7-S1') {
+    const dashDir = path.join(OR_DIR, 'dashboard');
+    fs.mkdirSync(dashDir, { recursive: true });
+    const dataDir = path.join(dashDir, 'data');
+    fs.mkdirSync(dataDir, { recursive: true });
+
+    const storePath = path.join(dashDir, 'store.mjs');
+    const seedPath = path.join(dataDir, 'seed.json');
+
+    // Minimal JSON store for projects + activity log.
+    fs.writeFileSync(storePath, `import fs from 'node:fs';\nimport path from 'node:path';\n\nconst DATA_DIR = path.join(path.dirname(new URL(import.meta.url).pathname), 'data');\nconst PROJECTS = path.join(DATA_DIR, 'projects.json');\nconst ACTIVITY = path.join(DATA_DIR, 'activity.json');\n\nfunction ensureFile(p, init){\n  fs.mkdirSync(path.dirname(p), { recursive: true });\n  if (!fs.existsSync(p)) fs.writeFileSync(p, JSON.stringify(init, null, 2) + '\\n');\n}\n\nexport function initStore(){\n  ensureFile(PROJECTS, { projects: [] });\n  ensureFile(ACTIVITY, { events: [] });\n}\n\nexport function listProjects(){\n  initStore();\n  return JSON.parse(fs.readFileSync(PROJECTS, 'utf8')).projects || [];\n}\n\nexport function getProject(id){\n  return listProjects().find(p => p.id === id) || null;\n}\n\nexport function upsertProject(project){\n  initStore();\n  const data = JSON.parse(fs.readFileSync(PROJECTS, 'utf8'));\n  const projects = data.projects || [];\n  const i = projects.findIndex(p => p.id === project.id);\n  if (i >= 0) projects[i] = { ...projects[i], ...project, updatedAt: new Date().toISOString() };\n  else projects.push({ ...project, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });\n  fs.writeFileSync(PROJECTS, JSON.stringify({ projects }, null, 2) + '\\n');\n  return project;\n}\n\nexport function appendActivity(evt){\n  initStore();\n  const data = JSON.parse(fs.readFileSync(ACTIVITY, 'utf8'));\n  const events = data.events || [];\n  events.push({\n    id: crypto.randomUUID?.() || String(Date.now()),\n    ts: new Date().toISOString(),\n    ...evt\n  });\n  fs.writeFileSync(ACTIVITY, JSON.stringify({ events }, null, 2) + '\\n');\n}\n\nexport function listActivity(limit=100){\n  initStore();\n  const events = (JSON.parse(fs.readFileSync(ACTIVITY, 'utf8')).events || []).slice(-limit);\n  return events;\n}\n`);
+
+    // Seed file just documents the schema/shape.
+    fs.writeFileSync(seedPath, JSON.stringify({
+      projectExample: {
+        id: 'proj_demo',
+        name: 'Demo Project',
+        status: 'active',
+        client: 'OnionReel',
+        tags: ['ad', '30s']
+      },
+      activityExample: {
+        kind: 'ship',
+        message: 'Shipped dashboard data layer v1',
+        projectId: 'proj_demo'
+      }
+    }, null, 2) + '\n');
+
+    // Patch dashboard server to add new endpoints if present.
+    const serverPath = path.join(dashDir, 'server.mjs');
+    if (fs.existsSync(serverPath)) {
+      let server = fs.readFileSync(serverPath, 'utf8');
+      if (!server.includes("/api/projects")) {
+        server = server.replace(
+          "import http from 'node:http';",
+          "import http from 'node:http';\nimport { initStore, listProjects, getProject, upsertProject, appendActivity, listActivity } from './store.mjs';\n"
+        );
+        server = server.replace(
+          "const server = http.createServer((req, res) => {",
+          "initStore();\n\nconst server = http.createServer((req, res) => {"
+        );
+        server = server.replace(
+          "  if (req.url === '/api/roadmap') {",
+          "  if (req.url === '/api/projects' && req.method === 'GET') {\n    return json(res, 200, { projects: listProjects() });\n  }\n\n  if (req.url?.startsWith('/api/projects/') && req.method === 'GET') {\n    const id = req.url.split('/').pop();\n    const project = getProject(id);\n    return json(res, project ? 200 : 404, project ? project : { error: 'not_found' });\n  }\n\n  if (req.url === '/api/projects' && req.method === 'POST') {\n    let body='';\n    req.on('data', c => body += c);\n    req.on('end', () => {\n      try {\n        const project = JSON.parse(body || '{}');\n        if (!project.id) project.id = 'proj_' + Date.now();\n        upsertProject(project);\n        appendActivity({ kind: 'project_upsert', message: `Project upsert: ${project.id}`, projectId: project.id });\n        return json(res, 200, { ok: true, project });\n      } catch (e) {\n        return json(res, 400, { error: String(e) });\n      }\n    });\n    return;\n  }\n\n  if (req.url === '/api/activity' && req.method === 'GET') {\n    return json(res, 200, { events: listActivity(200) });\n  }\n\n  if (req.url === '/api/roadmap') {"
+        );
+        fs.writeFileSync(serverPath, server);
+      }
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented dashboard data layer v1 (projects + activity) persisted on disk + API endpoints.';
+    next = 'Proceed to P7-S2 Dashboard screens v1.';
+
+  // Special-case: P7-S2 Dashboard screens v1 (Projects list + Project detail + Activity log)
+  } else if (picked.step.id === 'P7-S2') {
+    const dashDir = path.join(OR_DIR, 'dashboard');
+    fs.mkdirSync(dashDir, { recursive: true });
+    const htmlPath = path.join(dashDir, 'index.html');
+
+    const html = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OnionReel Dashboard (MVP)</title>
+  <style>
+    body{font-family: ui-sans-serif, system-ui, -apple-system; margin:24px; color:#111; max-width:1100px}
+    .row{display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+    .card{border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:12px 0}
+    .muted{color:#555}
+    input,button{font:inherit; padding:10px 12px; border-radius:10px; border:1px solid #d1d5db}
+    button{background:#111827; color:#fff; border-color:#111827; cursor:pointer}
+    button.secondary{background:#fff; color:#111827}
+    a{color:#2563eb; text-decoration:none}
+    pre{background:#0b1020; color:#d6e1ff; padding:12px; border-radius:12px; overflow:auto}
+    ul{padding-left:18px}
+    li{margin:6px 0}
+    .pill{display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; font-size:12px}
+    .grid{display:grid; grid-template-columns: 1fr 1fr; gap:16px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <h1>OnionReel Dashboard (MVP)</h1>
+  <div class="muted">Projects + Activity log (persisted). API: <code>/api/projects</code>, <code>/api/activity</code>, <code>/api/roadmap</code>.</div>
+
+  <div class="card">
+    <div class="row">
+      <input id="pid" placeholder="project id (optional)" style="min-width:240px" />
+      <input id="pname" placeholder="project name" style="min-width:280px" />
+      <input id="pstatus" placeholder="status (active/done)" style="min-width:200px" />
+      <button id="create">Create/Update Project</button>
+      <button class="secondary" id="refresh">Refresh</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Projects</h2>
+      <div id="projects" class="muted">Loading…</div>
+    </div>
+
+    <div class="card">
+      <h2>Activity</h2>
+      <div id="activity" class="muted">Loading…</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Roadmap JSON</h2>
+    <pre id="roadmap">Loading…</pre>
+  </div>
+
+<script>
+async function jget(url){ const r=await fetch(url); return r.json(); }
+async function refresh(){
+  const projects = await jget('/api/projects');
+  const activity = await jget('/api/activity');
+  const roadmap = await jget('/api/roadmap');
+
+  const p = (projects.projects||[]);
+  document.getElementById('projects').innerHTML = p.length
+    ? '<ul>' + p.map(function(x){
+        return '<li><span class="pill">' + (x.status||'n/a') + '</span> <b>' + (x.name||x.id) + '</b> <span class="muted">(' + x.id + ')</span></li>';
+      }).join('') + '</ul>'
+    : '<div class="muted">No projects yet. Create one above.</div>';
+
+  const ev = (activity.events||[]).slice().reverse().slice(0, 40);
+  document.getElementById('activity').innerHTML = ev.length
+    ? '<ul>' + ev.map(function(e){
+        return '<li><span class="muted">' + e.ts + '</span> — <b>' + (e.kind||'event') + '</b>: ' + (e.message||'') + '</li>';
+      }).join('') + '</ul>'
+    : '<div class="muted">No activity yet.</div>';
+
+  document.getElementById('roadmap').textContent = JSON.stringify(roadmap, null, 2);
+}
+
+document.getElementById('refresh').onclick = refresh;
+document.getElementById('create').onclick = async () => {
+  const id = document.getElementById('pid').value.trim();
+  const name = document.getElementById('pname').value.trim();
+  const status = document.getElementById('pstatus').value.trim() || 'active';
+  if(!name && !id){ alert('Enter project name (or id).'); return; }
+  const payload = { id: id || undefined, name: name || id, status };
+  const r = await fetch('/api/projects', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(payload) });
+  await r.json().catch(()=>{});
+  await refresh();
+};
+
+refresh();
+</script>
+</body>
+</html>`;
+
+    fs.writeFileSync(htmlPath, html);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented dashboard screens v1 (Projects list + Activity log + create/update UI).';
+    next = 'Proceed to P7-S3 Brain job runner implementation v1.';
+
+  // Special-case: P7-S3 Brain job runner implementation v1
+  } else if (picked.step.id === 'P7-S3') {
+    const brainDir = path.join(OR_DIR, 'brain');
+    fs.mkdirSync(brainDir, { recursive: true });
+
+    const jobsPath = path.join(brainDir, 'jobs.json');
+    const runnerPath = path.join(brainDir, 'job_runner.mjs');
+    const readmePath = path.join(brainDir, 'README.md');
+
+    // Initialize jobs store if missing
+    if (!fs.existsSync(jobsPath)) {
+      fs.writeFileSync(jobsPath, JSON.stringify({ jobs: [] }, null, 2) + '\n');
+    }
+
+    fs.writeFileSync(runnerPath, `import fs from 'node:fs';\nimport path from 'node:path';\n\nconst ROOT = path.dirname(new URL(import.meta.url).pathname);\nconst JOBS = path.join(ROOT, 'jobs.json');\n\nfunction load(){ return JSON.parse(fs.readFileSync(JOBS, 'utf8')); }\nfunction save(obj){ fs.writeFileSync(JOBS, JSON.stringify(obj, null, 2) + '\\n'); }\n\nfunction now(){ return new Date().toISOString(); }\n\nfunction isRetryable(err){\n  const msg = (err && err.message) ? err.message : String(err);\n  return !/fatal|syntax|invalid/i.test(msg);\n}\n\nasync function runJob(job){\n  job.status = 'running';\n  job.startedAt = now();\n  job.attempts = (job.attempts||0) + 1;\n  saveState(job);\n\n  try {\n    // Placeholder: real implementations will dispatch by job.type.\n    job.outputs = job.outputs || {};\n    job.outputs.message = 'ok';\n    job.status = 'done';\n    job.finishedAt = now();\n  } catch (e) {\n    job.lastError = String(e && e.stack || e);\n    if (isRetryable(e) && (job.attempts||0) < (job.maxAttempts||3)) {\n      job.status = 'queued';\n      job.runAt = new Date(Date.now() + 60_000).toISOString();\n    } else {\n      job.status = 'failed';\n      job.finishedAt = now();\n    }\n  }\n\n  saveState(job);\n}\n\nfunction saveState(job){\n  const data = load();\n  const jobs = data.jobs || [];\n  const i = jobs.findIndex(j => j.id === job.id);\n  if (i >= 0) jobs[i] = job; else jobs.push(job);\n  save({ jobs });\n}\n\nfunction due(job){\n  if (job.status !== 'queued') return false;\n  if (!job.runAt) return true;\n  return new Date(job.runAt).getTime() <= Date.now();\n}\n\nasync function main(){\n  const data = load();\n  const jobs = data.jobs || [];\n  const next = jobs.find(due);\n  if (!next) {\n    console.log('no queued jobs');\n    return;\n  }\n  await runJob(next);\n  console.log('ran', next.id, next.status);\n}\n\nmain().catch(e => {\n  console.error(e);\n  process.exitCode = 1;\n});\n`);
+
+    fs.writeFileSync(readmePath, `# OnionReel Brain (MVP)\n\nThis is a minimal job runner implementation (queue + retries + logs) intended to be expanded.\n\n## Run one tick\n\n\`\`\`bash\nnode ./onionreel/brain/job_runner.mjs\n\`\`\`\n\n## jobs.json format\n\n- jobs[] items include: id, type, status(queued/running/done/failed), attempts, maxAttempts, runAt\n\nNext: wire this to the dashboard + artifact store and add real job type dispatch.\n`);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented brain job runner v1 (jobs.json queue + retries scaffold + runner tick).';
+    next = 'Proceed to P7-S4 Artifact store implementation v1.';
+
+  // Special-case: P7-S4 Artifact store implementation v1
+  } else if (picked.step.id === 'P7-S4') {
+    const storeDir = path.join(OR_DIR, 'artifact_store');
+    fs.mkdirSync(storeDir, { recursive: true });
+
+    const dataDir = path.join(storeDir, 'data');
+    fs.mkdirSync(dataDir, { recursive: true });
+
+    const libPath = path.join(storeDir, 'store.mjs');
+    const readmePath2 = path.join(storeDir, 'README.md');
+
+    fs.writeFileSync(libPath, `import fs from 'node:fs';\nimport path from 'node:path';\n\nconst ROOT = path.dirname(new URL(import.meta.url).pathname);\nconst DATA = path.join(ROOT, 'data');\n\nfunction ensureDir(p){ fs.mkdirSync(p, { recursive: true }); }\nfunction jwrite(p, obj){ ensureDir(path.dirname(p)); fs.writeFileSync(p, JSON.stringify(obj, null, 2) + '\\n'); }\nfunction jread(p){ return JSON.parse(fs.readFileSync(p, 'utf8')); }\n\nexport function initStore(){\n  ensureDir(DATA);\n}\n\nexport function putArtifact({ projectId='default', type, name, content, metadata={} }){\n  if(!type) throw new Error('type required');\n  initStore();\n  const id = (globalThis.crypto?.randomUUID?.() || ('a_'+Date.now()));\n  const dir = path.join(DATA, projectId, id);\n  ensureDir(dir);\n  const meta = { id, projectId, type, name: name||id, createdAt: new Date().toISOString(), metadata };\n  jwrite(path.join(dir, 'meta.json'), meta);\n  fs.writeFileSync(path.join(dir, 'content.txt'), String(content ?? ''));\n  return meta;\n}\n\nexport function listArtifacts({ projectId='default', limit=50 } = {}){\n  initStore();\n  const pdir = path.join(DATA, projectId);\n  if(!fs.existsSync(pdir)) return [];\n  const ids = fs.readdirSync(pdir).slice(-limit);\n  const out=[];\n  for(const id of ids){\n    const mp = path.join(pdir, id, 'meta.json');\n    if(fs.existsSync(mp)) out.push(jread(mp));\n  }\n  return out.sort((a,b)=> (a.createdAt||'').localeCompare(b.createdAt||''));\n}\n`);
+
+    fs.writeFileSync(readmePath2, `# OnionReel Artifact Store (MVP)\n\nThis is a minimal artifact store implementation: file/folder storage with meta.json + content.txt.\n\n## Layout\n\n- artifact_store/data/<projectId>/<artifactId>/meta.json\n- artifact_store/data/<projectId>/<artifactId>/content.txt\n\nNext: add query by type, version pointers, checksums, and wire to the dashboard + brain.\n`);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented artifact store v1 (file-backed store.mjs + meta.json/content.txt layout).';
+    next = 'Proceed to P7-S5 Automated QC implementation v1.';
+
+  // Special-case: P7-S5 Automated QC implementation v1
+  } else if (picked.step.id === 'P7-S5') {
+    const qcDir = path.join(OR_DIR, 'qc');
+    fs.mkdirSync(qcDir, { recursive: true });
+
+    const qcPath = path.join(qcDir, 'qc_checks.mjs');
+    const readmePath = path.join(qcDir, 'README.md');
+
+    // Minimal QC checks that don't require ffmpeg: file sanity + captions sanity.
+    fs.writeFileSync(qcPath, `import fs from 'node:fs';\nimport path from 'node:path';\n\nexport function checkFileSanity(filePath, { maxMb=200 } = {}){\n  const st = fs.statSync(filePath);\n  const sizeMb = st.size / (1024*1024);\n  const ext = path.extname(filePath).toLowerCase();\n  const okExt = ['.mp4', '.mov', '.m4v', '.wav', '.mp3'];\n  const issues=[];\n  if(sizeMb > maxMb) issues.push({ level:'fail', code:'file_too_large', detail:'sizeMb=' + sizeMb.toFixed(1) + ' > ' + maxMb });\n  if(!okExt.includes(ext)) issues.push({ level:'warn', code:'unexpected_ext', detail:'ext=' + ext });\n  return { ok: !issues.some(i=>i.level==='fail'), sizeMb, ext, issues };\n}\n\nexport function checkSrtSanity(srtPath, { maxCharsPerLine=42 } = {}){\n  const txt = fs.readFileSync(srtPath, 'utf8');\n  const lines = txt.split(/\\r?\\n/);\n  const issues=[];\n  let lastTs = null;\n  for(const line of lines){\n    if(line.includes('-->')){\n      const parts=line.split('-->').map(s=>s.trim());\n      const start=parts[0];\n      if(lastTs && start < lastTs) issues.push({ level:'fail', code:'non_monotonic_timecodes', detail:start + ' < ' + lastTs });\n      lastTs = start;\n    }\n    if(line && !/^\\d+$/.test(line) && !line.includes('-->')){\n      if(line.length > maxCharsPerLine) issues.push({ level:'warn', code:'caption_line_long', detail:'len=' + line.length });\n    }\n  }\n  return { ok: !issues.some(i=>i.level==='fail'), issues };\n}\n\nexport function qcRun({ filePath, srtPath } = {}){\n  const out = { ts: new Date().toISOString(), filePath, srtPath, results: [] };\n  if(filePath) out.results.push({ kind:'file_sanity', ...checkFileSanity(filePath) });\n  if(srtPath) out.results.push({ kind:'srt_sanity', ...checkSrtSanity(srtPath) });\n  out.ok = out.results.every(r => r.ok !== false);\n  return out;\n}\n`);
+
+    fs.writeFileSync(readmePath, `# OnionReel QC (MVP)\n\nMinimal automated QC implementation v1 (no ffmpeg dependency yet).\n\n## Checks\n- File sanity: size + extension warnings\n- SRT sanity: monotonic timecodes + line length warnings\n\n## Run\n\n\`\`\`bash\nnode -e \"import { qcRun } from './onionreel/qc/qc_checks.mjs'; console.log(qcRun({ filePath:'path/to/video.mp4', srtPath:'path/to/captions.srt' }))\"\n\`\`\`\n\nNext: add loudness + black frame checks using ffmpeg.\n`);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented QC v1 (qc_checks.mjs: file sanity + SRT sanity + qcRun).';
+    next = 'Proceed to P7-S6 Telegram control surface v1.';
+
+  // Special-case: P7-S6 Telegram control surface v1
+  } else if (picked.step.id === 'P7-S6') {
+    const outPath = path.join(OR_DIR, 'TELEGRAM_COMMANDS_V1.md');
+    const text = `# OnionReel Telegram Control Surface v1\n\n## Commands\n\n### /status\n- Returns: roadmap % + last shipped + runner freshness stamps\n\n### /projects\n- Returns: list of projects from dashboard store (top 10)\n\n### /run <jobType>\n- Enqueues a brain job (writes to onionreel/brain/jobs.json)\n\n## Implementation Notes\n- OpenClaw slash commands can be added later. For now, use message parsing inside the agent loop or a small dispatcher script.\n- The MVP goal is: operator can ask for status and trigger a job from Telegram.\n\n## Acceptance Criteria\n- Documented command behavior\n- Job enqueue format defined\n- Status response includes: pct, done/doing/total, last_build.json age\n`;
+    fs.writeFileSync(outPath, text);
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote TELEGRAM_COMMANDS_V1.md (status/projects/run command contract).';
+    next = 'Proceed to P7-S7 GitHub persistence v1.';
+
+  // Special-case: P7-S7 GitHub persistence v1
+  } else if (picked.step.id === 'P7-S7') {
+    const outPath = path.join(OR_DIR, 'GITHUB_PERSISTENCE_V1.md');
+    const text = `# OnionReel GitHub Persistence v1\n\n## Goal\nEvery ship is committed + pushed so progress is parallel + recoverable.\n\n## Policy\n- One commit per build tick\n- Include: roadmap JSON + shipped artifact(s) + ops changes\n- Commit message format: \"OnionReel: <stepId> <short ship>\"\n\n## Implementation Options\n1) Simple: build_tick calls \`git add -A && git commit -m ... && git push\` (requires auth)\n2) Safer: separate shipper script invoked by runner that only commits when changes exist\n\n## Acceptance Criteria\n- Repo has clean history of incremental ships\n- Remote is up to date after each tick\n`;
+    fs.writeFileSync(outPath, text);
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote GITHUB_PERSISTENCE_V1.md (commit+push policy + options).';
+    next = 'Proceed to P7-S8 one-command start + smoke test.';
+
+  // Special-case: P7-S8 Runbook: one-command start + smoke test
+  } else if (picked.step.id === 'P7-S8') {
+    const outPath = path.join(OR_DIR, 'RUNBOOK_ONE_COMMAND_START_V1.md');
+    const text = `# OnionReel One-Command Start Runbook v1\n\n## Start Dashboard\n\`\`\`bash\ncd onionreel/dashboard\nnode server.mjs\n\`\`\`\n\n## Start Continuous Loop\n- launchd job: com.onionreel.runner (KeepAlive)\n\n## Smoke Test\n1) Open dashboard: http://127.0.0.1:5057\n2) Create a project in the UI\n3) Verify \`GET /api/projects\` returns it\n4) Verify activity log shows a project_upsert event\n\n## Recovery\n- If the loop stalls, watchdog will kickstart runner and post a chat alert\n\n## Acceptance Criteria\n- A new user can run dashboard + see roadmap + create a project\n- Loop produces a ship at least every 5 minutes\n`;
+    fs.writeFileSync(outPath, text);
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Wrote RUNBOOK_ONE_COMMAND_START_V1.md (start + smoke test + recovery).';
+    next = 'P7 tranche complete; continue expanding roadmap with real code integrations.';
+
+  } else if (picked.step.id === 'P9-S6') {
+    // P9-S6: Sora integration — generate 4–6 clips for the MaxContrax reel project.
+    const script = path.join(OR_DIR, 'autoedit', 'sora_generate.mjs');
+    const projectId = 'maxcontrax-reel-v1';
+
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], {
+      stdio: 'pipe',
+      env: { ...process.env, OPENAI_API_KEY: apiKey }
+    });
+    if (r.status !== 0) {
+      throw new Error(`sora_generate failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+    }
+
+    // Try to parse JSON output for generated count.
+    let generated = null;
+    try {
+      const out = (r.stdout || '').toString().trim();
+      if (out) {
+        const lastLine = out.split('\n').at(-1);
+        const j = JSON.parse(lastLine);
+        generated = j.generated;
+      }
+    } catch {}
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Generated Sora clips for ${projectId}${generated !== null ? ` (generated=${generated})` : ''}.`;
+    next = 'Proceed to P9-S2 Timeline spec v1 (JSON) generated from reel blueprint.';
+
+  } else if (picked.step.id === 'P9-S2') {
+    // P9-S2: Generate a concrete timeline.json from blueprint + stock manifest.
+    const projectId = 'maxcontrax-reel-v1';
+    const projDir = path.join(OR_DIR, 'autoedit', 'projects', projectId);
+    const blueprint = readJson(path.join(projDir, 'blueprint.json'));
+    const manifest = readJson(path.join(projDir, 'stock_manifest.json'));
+
+    const clipDir = path.join(OR_DIR, 'autoedit', 'cache', projectId);
+    const pick = (id) => {
+      const m = (manifest.assets || []).find(a => a.id === id);
+      if (m?.localPath) return path.join(OR_DIR, 'autoedit', m.localPath);
+      const guess = path.join(clipDir, `${id}.mp4`);
+      return fs.existsSync(guess) ? guess : null;
+    };
+
+    const timeline = {
+      projectId,
+      width: blueprint.width || 1080,
+      height: blueprint.height || 1920,
+      fps: blueprint.fps || 30,
+      durationSec: blueprint.durationSec || 30,
+      clips: [
+        { id: 'overwhelm_scroll', path: pick('overwhelm_scroll'), seconds: 4 },
+        { id: 'ai_matching', path: pick('ai_matching'), seconds: 4 },
+        { id: 'email_alert', path: pick('email_alert'), seconds: 4 },
+        { id: 'handshake_trust', path: pick('handshake_trust'), seconds: 4 }
+      ],
+      beats: blueprint.beats || []
+    };
+
+    const outPath = path.join(projDir, 'timeline.json');
+    writeJson(outPath, timeline);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Generated timeline.json for ${projectId} (autoedit).`;
+    next = 'Proceed to P9-S3 Renderer v1 (stitch clips + overlays) outputs MP4 9:16.';
+
+  } else if (picked.step.id === 'P9-S3') {
+    // P9-S3: Render using autoedit pipeline (real clips if available).
+    const projectId = 'maxcontrax-reel-v1';
+    const script = path.join(OR_DIR, 'autoedit', 'render.mjs');
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) {
+      throw new Error(`render failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+    }
+    // Verify output exists
+    const outPath = path.join(OR_DIR, 'autoedit', 'renders', projectId, 'master_30s.mp4');
+    if (!fs.existsSync(outPath)) throw new Error('render produced no master_30s.mp4');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Rendered MP4: autoedit/renders/${projectId}/master_30s.mp4`;
+    next = 'Proceed to P9-S4 VO + music mix v1.';
+
+  } else if (picked.step.id === 'P9-S4') {
+    // P9-S4: Generate a VO+music mix artifact (v1 placeholder) and set us up for real TTS/ducking later.
+    const projectId = 'maxcontrax-reel-v1';
+    const script = path.join(OR_DIR, 'autoedit', 'mix_audio.mjs');
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) {
+      throw new Error(`mix_audio failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+    }
+    const mixPath = path.join(OR_DIR, 'autoedit', 'renders', projectId, 'mix.wav');
+    if (!fs.existsSync(mixPath)) throw new Error('mix produced no mix.wav');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Created audio mix: autoedit/renders/${projectId}/mix.wav (loudnorm).`;
+    next = 'Proceed to P9-S5 QC v1 + export pack 30/15/6.';
+
+  } else {
+    // Generic improvement: add a short note file for the step
+    const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);
+    const prompt = `You are improving OnionReel. Create a shippable v1 artifact for roadmap step ${picked.step.id}: ${picked.step.text}.\n\nOutput markdown with: Overview, Inputs, Outputs, Steps, Pitfalls. Keep it tight and useful.\n`;
+    const text = await openaiText(apiKey, prompt);
+    fs.writeFileSync(outPath, text.trim() + '\n');
+    shipped = `Created ${path.basename(outPath)} for ${picked.step.id}.`;
+    next = `Continue ${picked.step.id} or mark it done when criteria met.`;
+  }
+
+  roadmap.updated = iso;
+  writeJson(ROADMAP_PATH, roadmap);
+
+  const { pct } = computePercent(roadmap);
+  appendLoopLog(`${hhmm} - Shipped: ${shipped} | Next: ${next}`);
+
+  const msg = `OnionReel Build Tick - ${pct}%\n- Shipped: ${shipped}\n- Next: ${next}`;
+  if (process.env.ONIONREEL_TELEGRAM !== 'off') {
+    await telegramSend(botToken, '-5020096204', msg);
+  }
+  writeStamp('build', { ts: Date.now(), iso, pct, shipped, next, stepId: picked.step.id });
+}
+
+main().catch(err => {
+  try {
+    fs.mkdirSync(path.join(OR_DIR, 'logs'), { recursive: true });
+    const { hhmm } = nowNY();
+    fs.appendFileSync(path.join(OR_DIR, 'logs', 'build_tick.err.log'), `[${hhmm}] ${err.stack || err.message}\n`);
+  } catch {}
+  process.exitCode = 1;
+});

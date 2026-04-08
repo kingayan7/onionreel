@@ -1,0 +1,66 @@
+{
+  "projectId": "maxcontrax-reel-v1",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "durationSec": 30,
+  "clips": [
+    {
+      "id": "overwhelm_scroll",
+      "path": "/Users/adrianissac/.openclaw/workspace/onionreel/autoedit/cache/maxcontrax-reel-v1/overwhelm_scroll.mp4",
+      "seconds": 4
+    },
+    {
+      "id": "ai_matching",
+      "path": "/Users/adrianissac/.openclaw/workspace/onionreel/autoedit/cache/maxcontrax-reel-v1/ai_matching.mp4",
+      "seconds": 4
+    },
+    {
+      "id": "email_alert",
+      "path": "/Users/adrianissac/.openclaw/workspace/onionreel/autoedit/cache/maxcontrax-reel-v1/email_alert.mp4",
+      "seconds": 4
+    },
+    {
+      "id": "handshake_trust",
+      "path": "/Users/adrianissac/.openclaw/workspace/onionreel/autoedit/cache/maxcontrax-reel-v1/handshake_trust.mp4",
+      "seconds": 4
+    }
+  ],
+  "beats": [
+    {
+      "t0": 0,
+      "t1": 2,
+      "text": "STOP scrolling SAM.gov"
+    },
+    {
+      "t0": 2,
+      "t1": 6,
+      "text": "AI-MATCHED contracts"
+    },
+    {
+      "t0": 6,
+      "t1": 10,
+      "text": "Only what fits you"
+    },
+    {
+      "t0": 10,
+      "t1": 15,
+      "text": "DAILY alerts"
+    },
+    {
+      "t0": 15,
+      "t1": 20,
+      "text": "Less noise. More shots."
+    },
+    {
+      "t0": 20,
+      "t1": 25,
+      "text": "FREE 7-DAY TRIAL"
+    },
+    {
+      "t0": 25,
+      "t1": 30,
+      "text": "Start Free at MaxContrax.com"
+    }
+  ]
+}

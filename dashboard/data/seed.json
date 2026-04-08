@@ -1,0 +1,17 @@
+{
+  "projectExample": {
+    "id": "proj_demo",
+    "name": "Demo Project",
+    "status": "active",
+    "client": "OnionReel",
+    "tags": [
+      "ad",
+      "30s"
+    ]
+  },
+  "activityExample": {
+    "kind": "ship",
+    "message": "Shipped dashboard data layer v1",
+    "projectId": "proj_demo"
+  }
+}

@@ -1,0 +1,22 @@
+# OnionReel ignores
+
+# Runtime logs / stamps
+logs/
+ops/*.log
+ops/*.err.log
+
+# Render outputs / caches (generated)
+autoedit/cache/
+autoedit/renders/
+**/*.mp4
+**/*.wav
+**/*.aiff
+
+# Local artifacts
+out/
+
+# Node deps
+node_modules/
+
+# OS junk
+.DS_Store

@@ -1,58 +1,53 @@
-# OnionReel v1 Artifact: P13-S4 - Render Variants via Remotion
+# OnionReel v1 Artifact: Render Variants via Remotion
 
 ## Overview
-This artifact outlines the process to render video variants at resolutions of 30p, 15p, and 6p using Remotion, along with the encoding settings presets. The goal is to ensure efficient rendering and consistent output quality for different use cases.
+This artifact outlines the process for rendering video variants (30s, 15s, 6s) using Remotion, including the configuration of encoding settings presets. This will enhance the flexibility and efficiency of video rendering in OnionReel.
 
 ## Inputs
-- **Video Source**: Original video file(s) in supported formats (e.g., MP4, MOV).
-- **Remotion Project**: Pre-configured Remotion project files with necessary components.
-- **Encoding Presets**: JSON or configuration files defining encoding settings for each variant.
-- **Node.js Environment**: Ensure Node.js and Remotion are installed.
+1. **Video Source**: Original video files (e.g., MP4, MOV).
+2. **Remotion Configuration**: Project files and components set up for rendering.
+3. **Encoding Settings**: Preset configurations for different video qualities (e.g., resolution, bitrate).
+4. **Variant Durations**: Specifications for 30s, 15s, and 6s video lengths.
 
 ## Outputs
-- **Rendered Videos**: 
-  - `output-30p.mp4`
-  - `output-15p.mp4`
-  - `output-6p.mp4`
-- **Log Files**: Logs detailing the rendering process and any errors encountered.
+1. **Rendered Videos**: 
+   - `video_30s.mp4`
+   - `video_15s.mp4`
+   - `video_6s.mp4`
+2. **Encoding Logs**: Logs detailing the rendering process and any errors encountered.
+3. **Quality Assurance Report**: Summary of rendered video quality checks.
 
 ## Steps
-1. **Set Up Environment**:
-   - Ensure Node.js is installed.
-   - Install Remotion: 
-     ```bash
-     npm install remotion
-     ```
+1. **Set Up Remotion Project**:
+   - Ensure all components and assets are correctly configured in Remotion.
+   - Define video composition settings for each variant duration.
 
-2. **Prepare Remotion Project**:
-   - Create a Remotion project if not already set up.
-   - Define video components and timelines for rendering.
+2. **Configure Encoding Settings**:
+   - Create presets for each variant:
+     - **30s**: High quality (e.g., 1080p, 5000kbps).
+     - **15s**: Medium quality (e.g., 720p, 3000kbps).
+     - **6s**: Low quality (e.g., 480p, 1500kbps).
 
-3. **Define Encoding Settings**:
-   - Create encoding preset configurations for each variant:
-     ```json
-     {
-       "30p": { "bitrate": "5000k", "resolution": "1920x1080" },
-       "15p": { "bitrate": "2500k", "resolution": "1280x720" },
-       "6p": { "bitrate": "1000k", "resolution": "640x360" }
-     }
-     ```
-
-4. **Render Variants**:
+3. **Render Video Variants**:
    - Use Remotion CLI to render each variant:
      ```bash
-     npx remotion render <project-path> <output-path> --preset <preset-name>
+     npx remotion render <CompositionName> video_30s.mp4 --preset <30s_preset>
+     npx remotion render <CompositionName> video_15s.mp4 --preset <15s_preset>
+     npx remotion render <CompositionName> video_6s.mp4 --preset <6s_preset>
      ```
-   - Replace `<preset-name>` with `30p`, `15p`, and `6p` for each respective render.
 
-5. **Verify Outputs**:
-   - Check the output directory for the rendered videos.
-   - Review log files for any errors or warnings.
+4. **Quality Assurance**:
+   - Review each rendered video for quality and consistency.
+   - Log any discrepancies or issues encountered during rendering.
+
+5. **Finalize and Document**:
+   - Compile encoding logs and quality assurance reports.
+   - Update project documentation with new rendering processes and presets.
 
 ## Pitfalls
-- **Incorrect Encoding Settings**: Ensure the encoding presets match the desired output quality and compatibility.
-- **Resource Limitations**: Rendering can be resource-intensive; monitor CPU and memory usage to avoid crashes.
-- **File Format Issues**: Verify that the input video formats are compatible with Remotion.
-- **Version Compatibility**: Ensure that the installed version of Remotion supports all required features for rendering.
+- **Incorrect Configuration**: Ensure that Remotion project settings match the intended output specifications to avoid rendering errors.
+- **Encoding Failures**: Monitor logs closely for any encoding issues; adjust presets as necessary.
+- **Quality Control**: Neglecting to perform quality checks may result in subpar output; always verify rendered videos.
+- **Resource Limitations**: Ensure adequate system resources (CPU, RAM) are available to handle multiple renders simultaneously.
 
-By following these steps, you can successfully render video variants using Remotion, ensuring a streamlined workflow and high-quality outputs.
+By following this roadmap step, OnionReel will effectively produce high-quality video variants tailored to different durations, enhancing user experience and engagement.

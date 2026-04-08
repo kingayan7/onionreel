@@ -1367,6 +1367,15 @@ refresh();
     shipped = 'Shipped Library upgrades v1 (search filter + pin latest export pack).';
     next = 'Proceed to P18-S9 Dashboard-only acceptance test.';
 
+  } else if (picked.step.id === 'P18-S9') {
+    // P18-S9: End-to-end dashboard-only acceptance test (no chat) + docs
+    const doc = path.join(OR_DIR, 'dashboard', 'ACCEPTANCE_TEST_DASHBOARD_ONLY.md');
+    if (!fs.existsSync(doc)) throw new Error('missing dashboard acceptance test doc');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Added dashboard-only acceptance test doc (no chat required) + troubleshooting notes.';
+    next = 'Proceed to P18-S10 Cinematic Premium templates.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

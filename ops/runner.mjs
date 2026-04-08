@@ -24,7 +24,7 @@ function log(line) {
   fs.appendFileSync(path.join(LOG_DIR, 'runner.log'), `[${stamp}] ${line}\n`);
 }
 
-function runNode(scriptPath, timeoutMs = 8 * 60 * 1000) {
+function runNode(scriptPath, timeoutMs = 12 * 60 * 1000) {
   return new Promise((resolve, reject) => {
     const env = { ...process.env, ONIONREEL_TELEGRAM: 'off' };
     const p = spawn('/usr/local/bin/node', [scriptPath], { stdio: ['ignore', 'pipe', 'pipe'], env });

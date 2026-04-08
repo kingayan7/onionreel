@@ -1421,6 +1421,23 @@ refresh();
     shipped = 'Shipped film look v1 (curves + colorbalance + vignette + grain) → remotion_master_30s_film.mp4';
     next = 'Proceed to P18-S13 Beat-driven cut engine.';
 
+  } else if (picked.step.id === 'P18-S13') {
+    // P18-S13: Beat-driven cut engine (music/VO markers)
+    const script = path.join(OR_DIR, 'autoedit', 'cut_points_v1.mjs');
+    if (!fs.existsSync(script)) throw new Error('missing autoedit/cut_points_v1.mjs');
+
+    const projectId = 'maxcontrax-reel-v1';
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) throw new Error(`cut_points_v1 failed: ${(r.stderr||r.stdout||'').toString()}`);
+
+    const out = path.join(OR_DIR, 'autoedit', 'projects', projectId, 'markers.json');
+    if (!fs.existsSync(out)) throw new Error('markers.json missing');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped cut markers v1 (silence-driven cut points) → projects/<pid>/markers.json; variants snap to markers.';
+    next = 'Proceed to P18-S14 Thumbnails/posters generator.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

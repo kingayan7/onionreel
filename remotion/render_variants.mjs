@@ -26,7 +26,24 @@ const v6 = path.join(outDir, 'remotion_variant_6s.mp4');
 run('bash', ['-lc', `cd "${REM_DIR}" && npx remotion render src/index.ts Reel30 "${master}" --log=warn`]);
 
 // Variants via ffmpeg trim (fast + deterministic)
-run('ffmpeg', ['-y','-i', master, '-t','15','-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart', v15]);
-run('ffmpeg', ['-y','-i', master, '-t','6','-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart', v6]);
+// If project has markers.json, snap cutpoints to the nearest prior marker so variants feel intentionally cut.
+let cut15 = 15;
+let cut6 = 6;
+try {
+  const markersPath = path.join(AUTO_DIR, 'projects', projectId, 'markers.json');
+  if (fs.existsSync(markersPath)) {
+    const m = JSON.parse(fs.readFileSync(markersPath, 'utf8'));
+    const pts = (m.cutPointsSec || []).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
+    const snap = (t) => {
+      const prior = pts.filter(x => x <= t + 0.05);
+      return prior.length ? prior[prior.length - 1] : t;
+    };
+    cut15 = snap(15);
+    cut6 = snap(6);
+  }
+} catch {}
+
+run('ffmpeg', ['-y','-i', master, '-t', String(cut15), '-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart', v15]);
+run('ffmpeg', ['-y','-i', master, '-t', String(cut6), '-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart', v6]);
 
 console.log(JSON.stringify({ ok:true, projectId, master, v15, v6 }, null, 2));

@@ -1,0 +1,15 @@
+{
+  "projectId": "maxcontrax-reel-v1",
+  "base": "renders/maxcontrax-reel-v1/remotion_master_30s_mastered.mp4",
+  "cutPointsSec": [
+    0,
+    2,
+    6,
+    10,
+    15,
+    16.039854,
+    20,
+    25,
+    30
+  ]
+}

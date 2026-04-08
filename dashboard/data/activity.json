@@ -90,6 +90,13 @@
       "kind": "job_runner_loop",
       "message": "run_until_empty ran 3 times",
       "projectId": "system"
+    },
+    {
+      "id": "171449ec-67d3-4057-9531-0b0275c5ff8a",
+      "ts": "2026-04-08T15:50:20.687Z",
+      "kind": "jobs_enqueue",
+      "message": "Enqueued sora_generate, remotion_render, qc_export for maxcontrax ad thats catchy",
+      "projectId": "maxcontrax ad thats catchy"
     }
   ]
 }

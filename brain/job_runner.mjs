@@ -69,7 +69,7 @@ async function runJob(job, db){
       await runNode(script, [projectId]);
       job.outputs.master = `autoedit/renders/${projectId}/master_30s.mp4`;
 
-    } else if (type === 'export_pack' || type === 'qc_render') {
+    } else if (type === 'export_pack' || type === 'qc_render' || type === 'qc_export') {
       const script = path.join(OR_DIR, 'autoedit', 'qc_export.mjs');
       await runNode(script, [projectId]);
       job.outputs.exportDir = `autoedit/exports/${projectId}`;

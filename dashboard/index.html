@@ -247,7 +247,7 @@ document.getElementById('reqGenerate').onclick = async () => {
   const bundle = [];
   if (document.getElementById('stepSora').checked) bundle.push('sora_generate');
   if (document.getElementById('stepRemotion').checked) bundle.push('remotion_render');
-  if (document.getElementById('stepQc').checked) bundle.push('qc_export');
+  if (document.getElementById('stepQc').checked) bundle.push('export_pack');
 
   let payload = {};
   try { payload = JSON.parse(document.getElementById('reqPayload').value || '{}'); } catch(e) { alert('Advanced payload JSON is invalid'); return; }

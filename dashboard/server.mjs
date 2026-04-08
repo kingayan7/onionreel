@@ -183,7 +183,7 @@ const server = http.createServer((req, res) => {
         const b = safeJson(body) || {};
         const request = {
           requestId: b.requestId || ('req_' + Date.now()),
-          projectId: b.projectId || 'default',
+          projectId: (b.projectId || 'default').trim().replace(/\s+/g,'-'),
           createdAt: new Date().toISOString(),
           mode: b.mode || 'simple',
           bundle: b.bundle || ['sora_generate','remotion_render','qc_export'],
@@ -200,13 +200,13 @@ const server = http.createServer((req, res) => {
   }
 
   // POST /api/jobs/enqueue
-  // body: { projectId, bundle?: ['sora_generate','remotion_render','qc_export'], maxAttempts?, payload?, requestId? }
+  // body: { projectId, bundle?: ['sora_generate','remotion_render','export_pack'], maxAttempts?, payload?, requestId? }
   if (req.url === '/api/jobs/enqueue' && req.method === 'POST') {
     return readBody(req).then((body) => {
       try {
         const b = safeJson(body) || {};
-        const projectId = b.projectId || 'default';
-        const bundle = Array.isArray(b.bundle) && b.bundle.length ? b.bundle : ['sora_generate','remotion_render','qc_export'];
+        const projectId = (b.projectId || 'default').trim().replace(/\s+/g,'-');
+        const bundle = Array.isArray(b.bundle) && b.bundle.length ? b.bundle : ['sora_generate','remotion_render','export_pack'];
         const maxAttempts = Number(b.maxAttempts || 2);
         const db = openJobsDb();
         const created = [];

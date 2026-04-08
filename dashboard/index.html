@@ -31,6 +31,7 @@
         <button class="secondary" data-tab="requests">Requests</button>
         <button class="secondary" data-tab="jobs">Jobs</button>
         <button class="secondary" data-tab="projects">Projects</button>
+        <button class="secondary" data-tab="library">Library</button>
         <button class="secondary" data-tab="activity">Activity</button>
         <button class="secondary" data-tab="roadmap">Roadmap</button>
       </div>
@@ -96,6 +97,16 @@
       <h3>Artifact Store (selected project)</h3>
       <div id="artifacts" class="muted" style="margin-top:10px">Select a project…</div>
     </div>
+  </div>
+
+  <div id="tab-library" class="card" style="display:none">
+    <h2>Library</h2>
+    <div class="muted">Browse latest renders + exports by project. (Artifact Store browsing is in Projects → Artifact Store.)</div>
+    <div class="row" style="margin-top:10px">
+      <input id="libProjectId" placeholder="projectId (e.g. maxcontrax-reel-v1)" style="min-width:280px" />
+      <button class="secondary" id="libLoad">Load</button>
+    </div>
+    <div id="library" class="muted" style="margin-top:10px">Enter a projectId and click Load.</div>
   </div>
 
   <div id="tab-activity" class="card" style="display:none">
@@ -219,7 +230,7 @@ async function refresh(){
 
 // Tabs
 function showTab(name){
-  ['requests','jobs','projects','activity','roadmap'].forEach(t => {
+  ['requests','jobs','projects','library','activity','roadmap'].forEach(t => {
     const el = document.getElementById('tab-' + t);
     if (el) el.style.display = (t === name) ? '' : 'none';
   });
@@ -264,6 +275,21 @@ document.getElementById('reqRunOne').onclick = async () => {
 
 // Jobs
 document.getElementById('jobsRefresh').onclick = refreshJobs;
+
+// Library
+async function loadLibrary(){
+  const pid = document.getElementById('libProjectId').value.trim() || 'maxcontrax-reel-v1';
+  const r = await jget('/api/autoedit?projectId=' + encodeURIComponent(pid));
+  function link(kind, f){
+    return '<a href="/dl/autoedit/' + encodeURIComponent(pid) + '/' + kind + '/' + encodeURIComponent(f.name) + '" target="_blank">' + esc(f.name) + '</a>';
+  }
+  const renders = (r.renders||[]);
+  const exports = (r.exports||[]);
+  const rr = renders.length ? '<b>Renders</b><ul>' + renders.slice(0,30).map(f => '<li>' + link('renders', f) + '</li>').join('') + '</ul>' : '<div class="muted">No renders.</div>';
+  const ee = exports.length ? '<b>Exports</b><ul>' + exports.slice(0,30).map(f => '<li>' + link('exports', f) + '</li>').join('') + '</ul>' : '';
+  document.getElementById('library').innerHTML = rr + ee;
+}
+if (document.getElementById('libLoad')) document.getElementById('libLoad').onclick = loadLibrary;
 
 document.getElementById('create').onclick = async () => {
   const id = document.getElementById('pid').value.trim();

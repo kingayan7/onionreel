@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T17:58:52-04:00",
+  "updated": "2026-04-08T18:01:06-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -51,13 +51,15 @@
         {
           "id": "P18-S6",
           "name": "QC gate: scoring + block export until pass",
-          "status": "doing",
-          "doingAt": "2026-04-08T17:47:55-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T17:47:55-04:00",
+          "doneAt": "2026-04-08T18:01:06-04:00"
         },
         {
           "id": "P18-S7",
           "name": "Export Center: one-click final pack.zip + manifest",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T18:01:06-04:00"
         },
         {
           "id": "P18-S8",

@@ -132,6 +132,13 @@
       "kind": "project_upsert",
       "message": "Project upsert: maxcontrax-reel-v1",
       "projectId": "maxcontrax-reel-v1"
+    },
+    {
+      "id": "94b68ca4-0e44-4b98-aea0-0f7bae0518c8",
+      "ts": "2026-04-08T22:00:58.146Z",
+      "kind": "qc_set",
+      "message": "QC set pass=true score=92 for maxcontrax-reel-v1",
+      "projectId": "maxcontrax-reel-v1"
     }
   ]
 }

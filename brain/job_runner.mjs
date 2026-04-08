@@ -23,9 +23,10 @@ async function runJob(job, db){
     return;
   }
 
+  const attempts = job.attempts || 1;
+  const maxAttempts = job.maxAttempts || 3;
+
   try {
-    const attempts = job.attempts || 1;
-    const maxAttempts = job.maxAttempts || 3;
     const payload = job.payload || {};
     const outputs = {};
 

@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T19:22:35-04:00",
+  "updated": "2026-04-08T19:24:37-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -107,13 +107,15 @@
         {
           "id": "P18-S14",
           "name": "Cinematic Premium: Thumbnails/posters generator + export pack integration",
-          "status": "doing",
-          "doingAt": "2026-04-08T19:21:19-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T19:21:19-04:00",
+          "doneAt": "2026-04-08T19:24:37-04:00"
         },
         {
           "id": "P18-S15",
           "name": "Cinematic Premium: Motion language presets (easing/springs) applied across templates",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T19:24:37-04:00"
         }
       ]
     },

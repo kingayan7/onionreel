@@ -1404,6 +1404,23 @@ refresh();
     shipped = 'Shipped audio mastering v2 (ducking + SFX + loudnorm preset) → remotion_master_30s_mastered.mp4';
     next = 'Proceed to P18-S12 Film look presets + QC.';
 
+  } else if (picked.step.id === 'P18-S12') {
+    // P18-S12: Cinematic Premium color/film look presets + QC
+    const script = path.join(OR_DIR, 'autoedit', 'film_look_v1.mjs');
+    if (!fs.existsSync(script)) throw new Error('missing autoedit/film_look_v1.mjs');
+
+    const projectId = 'maxcontrax-reel-v1';
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) throw new Error(`film_look_v1 failed: ${(r.stderr||r.stdout||'').toString()}`);
+
+    const out = path.join(OR_DIR, 'autoedit', 'renders', projectId, 'remotion_master_30s_film.mp4');
+    if (!fs.existsSync(out)) throw new Error('film look output missing');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped film look v1 (curves + colorbalance + vignette + grain) → remotion_master_30s_film.mp4';
+    next = 'Proceed to P18-S13 Beat-driven cut engine.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

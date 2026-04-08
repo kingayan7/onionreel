@@ -1,0 +1,2 @@
+{"templateId":"tpl_saas_authority_ad_pack","name":"SaaS Authority Ad Pack (30/15/6)","kind":"ad_pack","createdAt":"2026-04-08T00:00:00Z","inputs":["brand","offer","ctaUrl"],"defaults":{"platform":"reels","durations":[30,15,6],"bundle":["sora_generate","remotion_render","export_pack"]}}
+{"templateId":"tpl_hook_pack_10","name":"Hook Pack (10 hooks)","kind":"hook_pack","createdAt":"2026-04-08T00:00:00Z","inputs":["brand","offer","ctaUrl"],"defaults":{"hooks":10,"bundle":["sora_generate","remotion_render","export_pack"]}}

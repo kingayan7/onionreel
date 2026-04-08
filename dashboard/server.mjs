@@ -163,6 +163,43 @@ const server = http.createServer((req, res) => {
 
   // Requests persistence (MVP): dashboard/data/requests.jsonl
   const REQUESTS = path.join(ROOT, 'data', 'requests.jsonl');
+  const TEMPLATES = path.join(ROOT, 'data', 'templates.jsonl');
+
+  // Templates (MVP): dashboard/data/templates.jsonl
+  if (req.url === '/api/templates' && req.method === 'GET') {
+    try {
+      if (!fs.existsSync(TEMPLATES)) fs.writeFileSync(TEMPLATES, '');
+      const lines = fs.readFileSync(TEMPLATES, 'utf8').split('\n').filter(Boolean);
+      const templates = lines.map(safeJson).filter(Boolean).slice(-500).reverse();
+      return json(res, 200, { templates });
+    } catch (e) {
+      return json(res, 500, { error: String(e) });
+    }
+  }
+
+  if (req.url === '/api/templates' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        if (!fs.existsSync(path.dirname(TEMPLATES))) fs.mkdirSync(path.dirname(TEMPLATES), { recursive: true });
+        if (!fs.existsSync(TEMPLATES)) fs.writeFileSync(TEMPLATES, '');
+        const b = safeJson(body) || {};
+        if (!b.name) return json(res, 400, { ok:false, error: 'missing name' });
+        const tpl = {
+          templateId: b.templateId || ('tpl_' + Date.now()),
+          name: b.name,
+          kind: b.kind || 'custom',
+          createdAt: new Date().toISOString(),
+          inputs: b.inputs || [],
+          defaults: b.defaults || {}
+        };
+        fs.appendFileSync(TEMPLATES, JSON.stringify(tpl) + '\n');
+        appendActivity({ kind: 'template_create', message: `Template ${tpl.templateId}: ${tpl.name}`, projectId: 'system' });
+        return json(res, 200, { ok:true, template: tpl });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
 
   if (req.url === '/api/requests' && req.method === 'GET') {
     try {

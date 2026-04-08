@@ -74,14 +74,16 @@ async function main() {
   // Dynamic focus/next from roadmap: focus = current DOING step (or first TODO), next = next TODO after focus.
   const steps = roadmap.phases.flatMap(p => p.steps.map(s => ({ phaseId: p.id, phaseName: p.name, ...s })));
   const focusStep = steps.find(s => s.status === 'doing') || steps.find(s => s.status === 'todo');
+  const focusLabel = focusStep ? (focusStep.text || focusStep.name || '') : '';
   const focus = focusStep
-    ? `${focusStep.id} — ${focusStep.text}`
+    ? `${focusStep.id} — ${focusLabel}`
     : 'No active step (roadmap empty).';
 
   const startIdx = focusStep ? steps.findIndex(s => s.id === focusStep.id) : -1;
   const nextStep = startIdx >= 0 ? steps.slice(startIdx + 1).find(s => s.status === 'todo') : null;
+  const nextLabel = nextStep ? (nextStep.text || nextStep.name || '') : '';
   const next = nextStep
-    ? `${nextStep.id} — ${nextStep.text}`
+    ? `${nextStep.id} — ${nextLabel}`
     : 'No queued TODO step found.';
 
   // Add freshness info

@@ -2,7 +2,7 @@ import http from 'node:http';
 import { initStore, listProjects, getProject, upsertProject, appendActivity, listActivity } from './store.mjs';
 import { listArtifacts } from '../artifact_store/store.mjs';
 import { openDb as openQueueDb, enqueueJob } from '../brain/queue.mjs';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 import fs from 'node:fs';
 import path from 'node:path';

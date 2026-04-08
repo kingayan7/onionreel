@@ -1,54 +1,58 @@
-# OnionReel v1 Artifact: Render Variants 30/15/6 via Remotion + Encode Settings Presets
+# OnionReel v1 Artifact: P13-S4 - Render Variants via Remotion
 
 ## Overview
-This artifact outlines the process for rendering video variants at 30, 15, and 6 frames per second (FPS) using Remotion, along with predefined encoding settings. This step is crucial for optimizing video delivery across different platforms and bandwidths.
+This artifact outlines the process to render video variants at resolutions of 30p, 15p, and 6p using Remotion, along with the encoding settings presets. The goal is to ensure efficient rendering and consistent output quality for different use cases.
 
 ## Inputs
-- **Video Source**: Original video file(s) to be rendered.
-- **Remotion Project**: Configuration files including composition settings.
-- **Encoding Presets**: Predefined settings for different quality and compression levels.
-- **Output Formats**: Desired output formats (e.g., MP4, WebM).
+- **Video Source**: Original video file(s) in supported formats (e.g., MP4, MOV).
+- **Remotion Project**: Pre-configured Remotion project files with necessary components.
+- **Encoding Presets**: JSON or configuration files defining encoding settings for each variant.
+- **Node.js Environment**: Ensure Node.js and Remotion are installed.
 
 ## Outputs
-- **Rendered Videos**: Three variants of the video rendered at 30 FPS, 15 FPS, and 6 FPS.
+- **Rendered Videos**: 
+  - `output-30p.mp4`
+  - `output-15p.mp4`
+  - `output-6p.mp4`
 - **Log Files**: Logs detailing the rendering process and any errors encountered.
-- **Quality Metrics**: Reports on the quality and size of each rendered variant.
 
 ## Steps
-1. **Set Up Remotion Environment**:
-   - Ensure Remotion is installed and configured.
-   - Create a new Remotion project or navigate to the existing project.
-
-2. **Configure Video Composition**:
-   - Define the main composition settings (resolution, duration).
-   - Ensure the video source is properly imported.
-
-3. **Define Encoding Settings**:
-   - Create and save encoding presets for 30 FPS, 15 FPS, and 6 FPS.
-   - Include parameters such as bitrate, codec, and resolution.
-
-4. **Render Video Variants**:
-   - Use Remotion's rendering capabilities to generate the three video variants.
-   - Execute rendering commands for each FPS setting:
+1. **Set Up Environment**:
+   - Ensure Node.js is installed.
+   - Install Remotion: 
      ```bash
-     npm run render --fps=30
-     npm run render --fps=15
-     npm run render --fps=6
+     npm install remotion
      ```
 
-5. **Verify Outputs**:
-   - Check the output directory for rendered videos.
-   - Review log files for any errors or warnings.
-   - Validate quality metrics to ensure compliance with preset standards.
+2. **Prepare Remotion Project**:
+   - Create a Remotion project if not already set up.
+   - Define video components and timelines for rendering.
 
-6. **Document and Archive**:
-   - Document the rendering process and any issues encountered.
-   - Archive the rendered videos and logs for future reference.
+3. **Define Encoding Settings**:
+   - Create encoding preset configurations for each variant:
+     ```json
+     {
+       "30p": { "bitrate": "5000k", "resolution": "1920x1080" },
+       "15p": { "bitrate": "2500k", "resolution": "1280x720" },
+       "6p": { "bitrate": "1000k", "resolution": "640x360" }
+     }
+     ```
+
+4. **Render Variants**:
+   - Use Remotion CLI to render each variant:
+     ```bash
+     npx remotion render <project-path> <output-path> --preset <preset-name>
+     ```
+   - Replace `<preset-name>` with `30p`, `15p`, and `6p` for each respective render.
+
+5. **Verify Outputs**:
+   - Check the output directory for the rendered videos.
+   - Review log files for any errors or warnings.
 
 ## Pitfalls
-- **Incompatible Formats**: Ensure the original video format is supported by Remotion.
-- **Rendering Errors**: Monitor logs for errors; common issues include missing assets or incorrect settings.
-- **Performance Issues**: Rendering at lower FPS may lead to unexpected quality; validate outputs before deployment.
-- **Version Compatibility**: Ensure that the Remotion version used is compatible with the encoding presets.
+- **Incorrect Encoding Settings**: Ensure the encoding presets match the desired output quality and compatibility.
+- **Resource Limitations**: Rendering can be resource-intensive; monitor CPU and memory usage to avoid crashes.
+- **File Format Issues**: Verify that the input video formats are compatible with Remotion.
+- **Version Compatibility**: Ensure that the installed version of Remotion supports all required features for rendering.
 
-By following these steps, you can successfully render video variants at different frame rates, ensuring optimal delivery for various use cases.
+By following these steps, you can successfully render video variants using Remotion, ensuring a streamlined workflow and high-quality outputs.

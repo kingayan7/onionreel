@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Sequence, useCurrentFrame, interpolate, Video, staticFile} from 'remotion';
 import {parseSrt} from '../lib/srt';
+import {Motion} from '../style/motion';
 
 type Beat = { t0: number; t1: number; text: string };
 
@@ -153,8 +154,7 @@ const Captions: React.FC<{ srtPath: string; fg: string; accent: string }> = ({ s
 
 const BeatCard: React.FC<{ text: string; fg: string; accent: string }> = ({ text, fg, accent }) => {
   const frame = useCurrentFrame();
-  const y = interpolate(frame, [0, 10], [18, 0], { extrapolateRight: 'clamp' });
-  const o = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
+  const {opacity: o, y} = Motion.riseFade(frame, 30, { fromY: 16, dur: 14 });
 
   const words = text.split(' ');
   const hi = (w: string) => {

@@ -1,52 +1,48 @@
 # OnionReel v1 Artifact: Render Variants via Remotion
 
 ## Overview
-This artifact outlines the implementation of rendering video variants (30s, 15s, and 6s) using Remotion, along with encoding settings presets. This will streamline the video production process, ensuring consistency and efficiency in rendering different video lengths for various platforms.
+This artifact outlines the process for rendering video variants (30s, 15s, and 6s) using Remotion, along with encoding settings presets. This step ensures that OnionReel can produce optimized video formats for various platforms and user needs.
 
 ## Inputs
-- **Video Source**: Original video file(s) to be rendered.
-- **Remotion Configuration**: Project setup with necessary components and assets.
-- **Encoding Settings Presets**: Pre-defined settings for video quality, resolution, and format.
-- **Rendering Parameters**: Specifications for each variant (duration, resolution, etc.).
+- **Video Source**: Original video file (e.g., MP4, MOV)
+- **Remotion Project**: Pre-configured Remotion project with templates for each variant
+- **Encoding Presets**: JSON or configuration files defining encoding settings for each variant
+- **Node.js Environment**: Required for running Remotion scripts
 
 ## Outputs
-- **Rendered Video Variants**:
-  - `video_30s.mp4`
-  - `video_15s.mp4`
-  - `video_6s.mp4`
-- **Log Files**: Detailed logs of the rendering process for troubleshooting.
-- **Error Reports**: Any issues encountered during rendering.
+- **Rendered Video Files**: 
+  - `output_30s.mp4`
+  - `output_15s.mp4`
+  - `output_6s.mp4`
+- **Log Files**: Detailed logs of the rendering process for troubleshooting
 
 ## Steps
-1. **Set Up Remotion Project**:
-   - Ensure the Remotion environment is correctly configured.
-   - Create a new project or update the existing one with necessary components.
+1. **Set Up Environment**:
+   - Ensure Node.js and Remotion are installed.
+   - Clone the OnionReel repository and navigate to the Remotion project directory.
 
-2. **Define Video Variants**:
-   - Specify the duration and any unique attributes for each variant (30s, 15s, 6s).
+2. **Configure Encoding Settings**:
+   - Create or update encoding presets in a JSON file. Include settings like bitrate, resolution, and codec for each variant.
 
-3. **Configure Encoding Settings**:
-   - Create presets for each variant:
-     - **30s**: High resolution, optimized for web.
-     - **15s**: Medium resolution, suitable for social media.
-     - **6s**: Low resolution, quick loading for ads.
+3. **Render Variants**:
+   - Run the Remotion CLI commands for each variant:
+     ```bash
+     npx remotion render <path_to_project> <output_30s.mp4> --props '{"duration":30}'
+     npx remotion render <path_to_project> <output_15s.mp4> --props '{"duration":15}'
+     npx remotion render <path_to_project> <output_6s.mp4> --props '{"duration":6}'
+     ```
 
-4. **Implement Rendering Logic**:
-   - Write scripts to automate the rendering process for each variant using Remotion's API.
-   - Ensure that each variant adheres to the defined encoding settings.
+4. **Verify Outputs**:
+   - Check the output directory for the rendered video files and log files.
+   - Ensure that each variant meets the specified encoding settings.
 
-5. **Run Render Process**:
-   - Execute the rendering scripts.
-   - Monitor the process for any errors or performance issues.
-
-6. **Validate Outputs**:
-   - Check the rendered video files for quality and compliance with specifications.
-   - Review log files and error reports for any discrepancies.
+5. **Document Process**:
+   - Update the documentation with the rendering process and encoding settings for future reference.
 
 ## Pitfalls
-- **Encoding Issues**: Incorrect presets may lead to poor video quality or incompatible formats.
-- **Resource Limitations**: Ensure that the rendering environment has sufficient resources (CPU, RAM) to handle multiple renders simultaneously.
-- **Dependency Management**: Keep track of Remotion and any plugin versions to avoid compatibility issues.
-- **Error Handling**: Implement robust error handling to capture and log issues during rendering for easier debugging.
+- **Incorrect Encoding Settings**: Ensure that the encoding presets are compatible with the target platforms.
+- **Rendering Failures**: Monitor log files for errors during rendering; common issues include missing assets or incorrect paths.
+- **Performance Issues**: Rendering can be resource-intensive; ensure the environment has adequate CPU and memory resources.
+- **Version Compatibility**: Verify that the Remotion version is compatible with the project setup to avoid breaking changes.
 
-This artifact serves as a concise guide for implementing the rendering of video variants in OnionReel using Remotion, ensuring a smooth and efficient workflow.
+By following this artifact, the team can efficiently render video variants, ensuring high-quality outputs tailored for various user needs.

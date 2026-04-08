@@ -14,6 +14,11 @@ function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
+function writeStamp(name, payload) {
+  fs.mkdirSync(LOG_DIR, { recursive: true });
+  fs.writeFileSync(path.join(LOG_DIR, name), JSON.stringify(payload, null, 2) + '\n');
+}
+
 function log(line) {
   const stamp = new Date().toISOString();
   fs.appendFileSync(path.join(LOG_DIR, 'runner.log'), `[${stamp}] ${line}\n`);
@@ -58,9 +63,12 @@ async function main() {
       await runNode(BUILD);
       await runNode(PING);
       consecutiveFailures = 0;
+      writeStamp('last_cycle.json', { ts: Date.now(), iso: new Date().toISOString(), ok: true });
       log('cycle ok (build + ping)');
     } catch (e) {
       consecutiveFailures += 1;
+      writeStamp('last_cycle.json', { ts: Date.now(), iso: new Date().toISOString(), ok: false, error: String(e?.stack || e) });
+      writeStamp('last_error.json', { ts: Date.now(), iso: new Date().toISOString(), error: String(e?.stack || e) });
       log(`cycle ERROR (failures=${consecutiveFailures}): ${e?.stack || e}`);
       // Keep going forever; small backoff to avoid hot-looping.
       const backoffMs = Math.min(5 * 60 * 1000, 10_000 * consecutiveFailures);

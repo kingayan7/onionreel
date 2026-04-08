@@ -11,6 +11,8 @@ function now(){ return new Date().toISOString(); }
 
 function isRetryable(err){
   const msg = (err && err.message) ? err.message : String(err);
+  // Moderation blocks and unknown job types are not retryable.
+  if (/moderation_blocked|unknown job type/i.test(msg)) return false;
   return !/fatal|syntax|invalid/i.test(msg);
 }
 
@@ -21,12 +23,54 @@ async function runJob(job){
   saveState(job);
 
   try {
-    // Placeholder: real implementations will dispatch by job.type.
-    // For now, simulate a quick success and write a log artifact.
     job.outputs = job.outputs || {};
-    job.outputs.message = 'ok';
+
+    // Dispatch by job.type (minimal but real).
+    const type = job.type;
+    const projectId = job.projectId || 'maxcontrax-reel-v1';
+
+    const node = '/usr/local/bin/node';
+    const OR_DIR = path.resolve(ROOT, '..');
+
+    function runNode(script, args = [], extraEnv = {}){
+      const { spawnSync } = await import('node:child_process');
+      const r = spawnSync(node, [script, ...args], {
+        stdio: 'pipe',
+        env: { ...process.env, ...extraEnv }
+      });
+      if (r.status !== 0) {
+        throw new Error((r.stderr||r.stdout||'').toString() || `job failed: ${type}`);
+      }
+      return (r.stdout || '').toString().trim();
+    }
+
+    if (type === 'sora_generate') {
+      const script = path.join(OR_DIR, 'autoedit', 'sora_generate.mjs');
+      await runNode(script, [projectId], { OPENAI_API_KEY: process.env.OPENAI_API_KEY });
+      job.outputs.clipDir = `autoedit/cache/${projectId}`;
+
+    } else if (type === 'stock_fetch') {
+      const script = path.join(OR_DIR, 'autoedit', 'stock_fetch.mjs');
+      await runNode(script, [projectId]);
+      job.outputs.manifest = `autoedit/projects/${projectId}/stock_manifest.json`;
+
+    } else if (type === 'render') {
+      const script = path.join(OR_DIR, 'autoedit', 'render.mjs');
+      await runNode(script, [projectId]);
+      job.outputs.master = `autoedit/renders/${projectId}/master_30s.mp4`;
+
+    } else if (type === 'export_pack' || type === 'qc_render') {
+      const script = path.join(OR_DIR, 'autoedit', 'qc_export.mjs');
+      await runNode(script, [projectId]);
+      job.outputs.exportDir = `autoedit/exports/${projectId}`;
+
+    } else {
+      throw new Error(`unknown job type: ${type}`);
+    }
+
     job.status = 'done';
     job.finishedAt = now();
+
   } catch (e) {
     job.lastError = String(e && e.stack || e);
     if (isRetryable(e) && (job.attempts||0) < (job.maxAttempts||3)) {

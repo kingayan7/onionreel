@@ -24,7 +24,7 @@ export function putArtifact({ projectId='default', type, name, content, metadata
   return meta;
 }
 
-export function listArtifacts({ projectId='default', limit=50 } = {}){
+export function listArtifacts({ projectId='default', limit=50, type } = {}){
   initStore();
   const pdir = path.join(DATA, projectId);
   if(!fs.existsSync(pdir)) return [];
@@ -34,5 +34,12 @@ export function listArtifacts({ projectId='default', limit=50 } = {}){
     const mp = path.join(pdir, id, 'meta.json');
     if(fs.existsSync(mp)) out.push(jread(mp));
   }
-  return out.sort((a,b)=> (a.createdAt||'').localeCompare(b.createdAt||''));
+  let sorted = out.sort((a,b)=> (a.createdAt||'').localeCompare(b.createdAt||''));
+  if (type) sorted = sorted.filter(a => (a.type || a.kind) === type);
+  return sorted;
+}
+
+export function latestArtifact({ projectId='default', type } = {}){
+  const all = listArtifacts({ projectId, limit: 500, type });
+  return all.length ? all[all.length - 1] : null;
 }

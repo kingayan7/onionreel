@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-07T21:42:23-04:00",
+  "updated": "2026-04-08T00:03:01-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -44,7 +44,7 @@
       "steps": [
         {
           "id": "P2-S1",
-          "text": "Canonical 30\u201360s ad pipeline doc (brief\u2192final)",
+          "text": "Canonical 30–60s ad pipeline doc (brief→final)",
           "status": "done",
           "doingAt": "2026-04-06T09:43:43-04:00",
           "doneAt": "2026-04-06T11:03:29-04:00"
@@ -234,14 +234,14 @@
       "steps": [
         {
           "id": "P8-S1",
-          "text": "Wire Dashboard \u2194 Artifact Store (API + UI list)",
+          "text": "Wire Dashboard ↔ Artifact Store (API + UI list)",
           "status": "done",
           "doingAt": "2026-04-07T17:56:00-04:00",
           "doneAt": "2026-04-07T17:58:04-04:00"
         },
         {
           "id": "P8-S2",
-          "text": "Wire Dashboard \u2194 Brain (enqueue + list jobs)",
+          "text": "Wire Dashboard ↔ Brain (enqueue + list jobs)",
           "status": "done",
           "doingAt": "2026-04-07T18:00:18-04:00",
           "doneAt": "2026-04-07T18:05:18-04:00"
@@ -262,7 +262,7 @@
         },
         {
           "id": "P8-S5",
-          "text": "GitHub auto-ship (commit + push per build tick) \u2014 optional",
+          "text": "GitHub auto-ship (commit + push per build tick) — optional",
           "status": "done",
           "doingAt": "2026-04-07T18:30:18-04:00",
           "doneAt": "2026-04-07T18:35:18-04:00"
@@ -303,12 +303,13 @@
         {
           "id": "P9-S5",
           "text": "QC v1 for rendered video (duration/resolution/black frames/basic loudness) + export pack 30/15/6",
-          "status": "doing",
-          "doingAt": "2026-04-07T21:37:05-04:00"
+          "status": "done",
+          "doingAt": "2026-04-07T21:37:05-04:00",
+          "doneAt": "2026-04-07T21:50:21-04:00"
         },
         {
           "id": "P9-S6",
-          "text": "Sora clip generation integration (4\u20136 clips per reel blueprint)",
+          "text": "Sora clip generation integration (4–6 clips per reel blueprint)",
           "status": "done",
           "doingAt": "2026-04-07T19:18:23-04:00",
           "doneAt": "2026-04-07T20:11:11-04:00"
@@ -322,32 +323,44 @@
         {
           "id": "P10-S1",
           "text": "Create project + artifacts in autoedit (script/SRT/blueprint/brand/manifest)",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T21:50:48-04:00",
+          "doneAt": "2026-04-07T21:58:29-04:00"
         },
         {
           "id": "P10-S2",
           "text": "Generate b-roll (Sora preferred; fallback Pexels) and cache",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T21:58:47-04:00",
+          "doneAt": "2026-04-07T21:59:18-04:00"
         },
         {
           "id": "P10-S3",
           "text": "Render 30s master w/ text cards + end card",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T21:59:28-04:00",
+          "doneAt": "2026-04-07T22:11:58-04:00"
         },
         {
           "id": "P10-S4",
           "text": "Render variants: 15s + 6s",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T22:12:23-04:00",
+          "doneAt": "2026-04-07T22:12:23-04:00"
         },
         {
           "id": "P10-S5",
           "text": "QC pass + export pack (mp4 + srt + metadata)",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T22:12:36-04:00",
+          "doneAt": "2026-04-07T22:12:36-04:00"
         },
         {
           "id": "P10-S6",
           "text": "Publish pack to artifact store + show in dashboard",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T22:13:03-04:00",
+          "doneAt": "2026-04-07T22:13:17-04:00"
         }
       ]
     },
@@ -358,27 +371,37 @@
         {
           "id": "P11-S1",
           "text": "Brain job types: sora_generate, stock_fetch, render, qc_render, export_pack",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T22:13:33-04:00",
+          "doneAt": "2026-04-07T22:44:09-04:00"
         },
         {
           "id": "P11-S2",
           "text": "Dashboard: project view shows artifacts + render status + download links",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T22:44:18-04:00",
+          "doneAt": "2026-04-07T22:56:17-04:00"
         },
         {
           "id": "P11-S3",
           "text": "Artifact store API: list/query artifacts + latest render",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T22:59:14-04:00",
+          "doneAt": "2026-04-07T22:59:14-04:00"
         },
         {
           "id": "P11-S4",
           "text": "Config layer (brand packs, templates, per-client settings)",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T23:00:32-04:00",
+          "doneAt": "2026-04-07T23:08:26-04:00"
         },
         {
           "id": "P11-S5",
           "text": "Runbook: one-command start + one-command render",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T23:08:38-04:00",
+          "doneAt": "2026-04-07T23:10:05-04:00"
         }
       ]
     },
@@ -389,27 +412,36 @@
         {
           "id": "P12-S1",
           "text": "Build loop hardening: no duplicate pings, clear single status channel",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T23:10:15-04:00",
+          "doneAt": "2026-04-07T23:13:36-04:00"
         },
         {
           "id": "P12-S2",
           "text": "Observability: render logs, last success stamps, failure alerts (non-spam)",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T23:13:36-04:00",
+          "doneAt": "2026-04-07T23:24:30-04:00"
         },
         {
           "id": "P12-S3",
           "text": "Performance: caching, parallel clip gen, deterministic renders",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T23:24:30-04:00",
+          "doneAt": "2026-04-07T23:50:54-04:00"
         },
         {
           "id": "P12-S4",
           "text": "GitHub persistence: commit+push each ship (optional toggle)",
-          "status": "todo"
+          "status": "done",
+          "doingAt": "2026-04-07T23:50:54-04:00",
+          "doneAt": "2026-04-08T00:03:01-04:00"
         },
         {
           "id": "P12-S5",
           "text": "Cost controls: clip length caps, retries, budget guardrails",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T00:03:01-04:00"
         }
       ]
     },
@@ -424,7 +456,7 @@
         },
         {
           "id": "P13-S2",
-          "text": "Implement Reel composition v1 (beats \u2192 text cards + end card)",
+          "text": "Implement Reel composition v1 (beats → text cards + end card)",
           "status": "todo"
         },
         {
@@ -476,7 +508,7 @@
         },
         {
           "id": "P15-S2",
-          "text": "SRT \u2192 styled captions render (Remotion preferred; ffmpeg ASS fallback)",
+          "text": "SRT → styled captions render (Remotion preferred; ffmpeg ASS fallback)",
           "status": "todo"
         }
       ]

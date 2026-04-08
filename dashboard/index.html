@@ -42,6 +42,13 @@
     </div>
 
     <div class="card">
+      <h2>Project Artifacts / Renders</h2>
+      <div class="muted">Selected project: <code id="sel">(none)</code></div>
+      <div id="artifacts" class="muted" style="margin-top:10px">Select a project…</div>
+      <div id="renders" class="muted" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
       <h2>Activity</h2>
       <div id="activity" class="muted">Loading…</div>
     </div>
@@ -54,6 +61,43 @@
 
 <script>
 async function jget(url){ const r=await fetch(url); return r.json(); }
+let selectedProjectId = null;
+
+function esc(s){ return String(s||'').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function loadProjectPanel(pid){
+  selectedProjectId = pid;
+  document.getElementById('sel').textContent = pid || '(none)';
+  if (!pid) return;
+
+  const a = await jget('/api/artifacts?projectId=' + encodeURIComponent(pid));
+  const r = await jget('/api/autoedit?projectId=' + encodeURIComponent(pid));
+
+  const arts = (a.artifacts||[]);
+  document.getElementById('artifacts').innerHTML = arts.length
+    ? '<div><b>Artifact Store</b></div><ul>' + arts.slice(0,30).map(function(x){
+        return '<li><span class="pill">' + esc(x.type||x.kind||'artifact') + '</span> <b>' + esc(x.name||x.id) + '</b> <span class="muted">' + esc(x.createdAt||'') + '</span></li>';
+      }).join('') + '</ul>'
+    : '<div class="muted">No artifacts for this project yet.</div>';
+
+  const renders = (r.renders||[]);
+  const exports = (r.exports||[]);
+
+  function link(kind, f){
+    return '<a href="/dl/autoedit/' + encodeURIComponent(pid) + '/' + kind + '/' + encodeURIComponent(f.name) + '" target="_blank">' + esc(f.name) + '</a>';
+  }
+
+  const rr = renders.length
+    ? '<div style="margin-top:10px"><b>AutoEdit Renders</b></div><ul>' + renders.slice(0,20).map(f => '<li>' + link('renders', f) + ' <span class="muted">(' + Math.round((f.bytes||0)/1024) + ' KB)</span></li>').join('') + '</ul>'
+    : '<div class="muted">No renders yet.</div>';
+
+  const ee = exports.length
+    ? '<div style="margin-top:10px"><b>Export Pack</b></div><ul>' + exports.slice(0,20).map(f => '<li>' + link('exports', f) + '</li>').join('') + '</ul>'
+    : '';
+
+  document.getElementById('renders').innerHTML = rr + ee;
+}
+
 async function refresh(){
   const projects = await jget('/api/projects');
   const activity = await jget('/api/activity');
@@ -62,9 +106,19 @@ async function refresh(){
   const p = (projects.projects||[]);
   document.getElementById('projects').innerHTML = p.length
     ? '<ul>' + p.map(function(x){
-        return '<li><span class="pill">' + (x.status||'n/a') + '</span> <b>' + (x.name||x.id) + '</b> <span class="muted">(' + x.id + ')</span></li>';
+        return '<li style="cursor:pointer" data-pid="' + esc(x.id) + '"><span class="pill">' + (x.status||'n/a') + '</span> <b>' + esc(x.name||x.id) + '</b> <span class="muted">(' + esc(x.id) + ')</span></li>';
       }).join('') + '</ul>'
     : '<div class="muted">No projects yet. Create one above.</div>';
+
+  // click handlers
+  Array.from(document.querySelectorAll('#projects [data-pid]')).forEach(el => {
+    el.onclick = () => loadProjectPanel(el.getAttribute('data-pid'));
+  });
+
+  if (selectedProjectId) {
+    // refresh right panel too
+    loadProjectPanel(selectedProjectId).catch(()=>{});
+  }
 
   const ev = (activity.events||[]).slice().reverse().slice(0, 40);
   document.getElementById('activity').innerHTML = ev.length

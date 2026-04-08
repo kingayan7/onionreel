@@ -1,0 +1,10 @@
+{
+  "projectId": "maxcontrax-reel-v1",
+  "createdAt": "2026-04-08T02:12:36.543Z",
+  "outputs": {
+    "master_30s": "renders/maxcontrax-reel-v1/master_30s.mp4",
+    "variant_15s": "renders/maxcontrax-reel-v1/variant_15s.mp4",
+    "variant_6s": "renders/maxcontrax-reel-v1/variant_6s.mp4"
+  },
+  "qcReport": "qc_report.json"
+}

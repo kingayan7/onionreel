@@ -35,16 +35,9 @@ function getBotToken() {
   }
 }
 
-async function telegramSend(text) {
-  const token = getBotToken();
-  if (!token) return;
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
-  await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: '-5020096204', text, disable_web_page_preview: true })
-  }).catch(() => {});
-}
+// Watchdog is non-spam: it never sends Telegram messages.
+// Status is communicated via the regular 10-minute status ping.
+async function telegramSend(_text) { /* disabled */ }
 
 function append(line) {
   fs.mkdirSync(LOG_DIR, { recursive: true });

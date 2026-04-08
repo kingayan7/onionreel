@@ -84,13 +84,32 @@ async function main() {
     ? `${nextStep.id} — ${nextStep.text}`
     : 'No queued TODO step found.';
 
+  // Add freshness info
+  const logsDir = path.join(OR_DIR, 'logs');
+  function readStampSafe(name){
+    try {
+      const p = path.join(logsDir, name);
+      if (!fs.existsSync(p)) return null;
+      return JSON.parse(fs.readFileSync(p,'utf8'));
+    } catch { return null; }
+  }
+  function ageMin(ts){
+    if (!ts) return null;
+    return (Date.now() - ts) / 60000;
+  }
+  const lastBuild = readStampSafe('last_build.json');
+  const lastCycle = readStampSafe('last_cycle.json');
+  const lastErr = readStampSafe('last_error.json');
+
   const msg = [
     `OnionReel Build Status — ${pct}%`,
     `- Focus: ${focus}`,
     `- Last shipped: ${last}`,
+    `- Freshness: build ${lastBuild?.ts ? ageMin(lastBuild.ts).toFixed(1)+'m' : 'n/a'} | cycle ${lastCycle?.ts ? ageMin(lastCycle.ts).toFixed(1)+'m' : 'n/a'}`,
+    lastCycle && lastCycle.ok === false ? `- Last error: ${String(lastCycle.error||'').slice(0,160)}` : (lastErr ? `- Last error: ${String(lastErr.error||'').slice(0,160)}` : ''),
     `- Next: ${next}`,
     `- Roadmap: ${done} done, ${doing} doing, ${total} total`
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 
   await telegramSend(botToken, '-5020096204', msg);
   appendMemory(`${isoNowNY().slice(11,16)} — Ping sent: ${pct}%.`);

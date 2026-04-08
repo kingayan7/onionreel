@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { spawnSync } from 'child_process';
+import crypto from 'crypto';
+import { spawn } from 'child_process';
 
 const OR_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const AUTO_DIR = path.join(OR_DIR, 'autoedit');
@@ -9,9 +10,30 @@ const SORA_PY = path.join(OR_DIR, 'scripts', 'sora_render.py');
 function loadJson(p){ return JSON.parse(fs.readFileSync(p,'utf8')); }
 function saveJson(p,obj){ fs.writeFileSync(p, JSON.stringify(obj,null,2)+'\n'); }
 
-function run(cmd, args, env={}){
-  const r = spawnSync(cmd, args, { stdio: 'inherit', env: { ...process.env, ...env } });
-  if (r.status !== 0) throw new Error(`${cmd} failed`);
+function sha1(s){ return crypto.createHash('sha1').update(String(s)).digest('hex'); }
+
+function runStreaming(cmd, args, env={}){
+  return new Promise((resolve, reject) => {
+    const p = spawn(cmd, args, { stdio: 'inherit', env: { ...process.env, ...env } });
+    p.on('error', reject);
+    p.on('exit', code => {
+      if (code === 0) resolve();
+      else reject(new Error(`${cmd} failed (exit ${code})`));
+    });
+  });
+}
+
+async function runSoraOnce({ model, size, seconds, prompt, out }){
+  const args = [
+    SORA_PY,
+    '--model', model,
+    '--size', size,
+    '--seconds', String(seconds || 4),
+    '--prompt', prompt,
+    '--out', out,
+    '--poll', '10'
+  ];
+  await runStreaming('python3', args);
 }
 
 const projectId = process.argv[2];
@@ -64,53 +86,76 @@ const prompts = blueprint.soraPrompts || [
   }
 ];
 
-const model = process.env.SORA_MODEL || 'sora-2-pro';
+// Allow config override (per-client).
+let model = process.env.SORA_MODEL || 'sora-2-pro';
+try {
+  const { loadClientConfig } = await import('../config/load_config.mjs');
+  const cfg = loadClientConfig('maxcontrax');
+  model = cfg?.autoedit?.soraModel || model;
+} catch {}
 const size = `${blueprint.width || 1080}x${blueprint.height || 1920}`;
 
 let generated = 0;
-for (const p of prompts) {
-  const out = path.join(outClipsDir, `${p.id}.mp4`);
-  if (fs.existsSync(out)) continue;
-  // Run Sora render. If moderation blocks, retry once with a safer prompt.
-  const argsBase = [
-    SORA_PY,
-    '--model', model,
-    '--size', size,
-    '--seconds', String(p.seconds || 4),
-    '--prompt', p.prompt,
-    '--out', out,
-    '--poll', '10'
-  ];
 
-  let ok = false;
-  let a = manifest.assets.find(x => x.id === p.id);
-  try {
-    run('python3', argsBase);
-    ok = true;
-  } catch (e) {
-    const msg = String(e.message || e);
-    // Common failure: moderation_blocked or transient network timeout. Retry once with a safer prompt.
-    const safePrompt = `Vertical 9:16 cinematic b-roll. Professional business office scene, clean modern lighting, premium commercial look, shallow depth of field. No text.`;
+// Deterministic caching: file name includes prompt hash. If prompt changes, we generate a new file.
+function desiredOutPath(item){
+  const h = sha1(`${model}|${size}|${item.seconds||4}|${item.prompt}`).slice(0,12);
+  return path.join(outClipsDir, `${item.id}__${h}.mp4`);
+}
+
+const concurrency = Math.max(1, Math.min(3, Number(process.env.SORA_CONCURRENCY || 2)));
+const queue = prompts.map(p => ({ ...p }));
+
+async function worker(){
+  while (queue.length) {
+    const p = queue.shift();
+    const out = desiredOutPath(p);
+    let a = manifest.assets.find(x => x.id === p.id);
+
+    // Skip if manifest already points to an existing file.
+    if (a?.localPath) {
+      const abs = path.join(AUTO_DIR, a.localPath);
+      if (fs.existsSync(abs)) continue;
+    }
+
+    // Skip if desired file already exists.
+    if (fs.existsSync(out)) {
+      if (!a) { a = { id: p.id, type: 'video', notes: 'sora_generated' }; manifest.assets.push(a); }
+      a.localPath = path.relative(AUTO_DIR, out);
+      a.source = 'sora';
+      a.promptHash = path.basename(out).split('__')[1]?.replace('.mp4','');
+      continue;
+    }
+
+    let ok = false;
     try {
-      const argsRetry = [...argsBase];
-      const idx = argsRetry.indexOf('--prompt');
-      if (idx !== -1) argsRetry[idx + 1] = safePrompt;
-      run('python3', argsRetry);
+      await runSoraOnce({ model, size, seconds: p.seconds || 4, prompt: p.prompt, out });
       ok = true;
-      if (a) a.note = `retried_with_safe_prompt_due_to_error: ${msg}`;
-    } catch (e2) {
-      if (a) a.error = `sora_failed: ${msg}`;
+    } catch (e) {
+      const msg = String(e.message || e);
+      // Retry once with a safer prompt if blocked/timeouts.
+      const safePrompt = `Vertical 9:16 cinematic b-roll. Professional business office scene, clean modern lighting, premium commercial look, shallow depth of field. No text.`;
+      try {
+        await runSoraOnce({ model, size, seconds: p.seconds || 4, prompt: safePrompt, out });
+        ok = true;
+        if (a) a.note = `retried_with_safe_prompt_due_to_error: ${msg}`;
+      } catch {
+        if (a) a.error = `sora_failed: ${msg}`;
+      }
+    }
+
+    if (ok) {
+      generated++;
+      if (!a) { a = { id: p.id, type: 'video', notes: 'sora_generated' }; manifest.assets.push(a); }
+      a.localPath = path.relative(AUTO_DIR, out);
+      a.source = 'sora';
+      a.promptHash = path.basename(out).split('__')[1]?.replace('.mp4','');
+      a.error = undefined;
     }
   }
-
-  if (ok) generated++;
-
-  // update manifest asset localPath
-  let a = manifest.assets.find(x => x.id === p.id);
-  if (!a) { a = { id: p.id, type: 'video', notes: 'sora_generated' }; manifest.assets.push(a); }
-  a.localPath = path.relative(AUTO_DIR, out);
-  a.source = 'sora';
 }
+
+await Promise.all(Array.from({ length: concurrency }, () => worker()));
 
 saveJson(manifestPath, manifest);
 console.log(JSON.stringify({ ok:true, projectId, generated, outClipsDir, manifestPath }, null, 2));

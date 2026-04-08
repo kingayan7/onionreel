@@ -2,5 +2,6 @@
   "bg": "#0B0B0B",
   "fg": "#FFFFFF",
   "accent": "#E17B3B",
-  "font": "Arial Bold"
+  "font": "Arial Bold",
+  "clientId": "maxcontrax"
 }

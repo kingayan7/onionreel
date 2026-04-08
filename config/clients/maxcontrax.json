@@ -1,0 +1,12 @@
+{
+  "clientId": "maxcontrax",
+  "brand": {
+    "bg": "#0B0B0B",
+    "fg": "#FFFFFF",
+    "accent": "#E17B3B"
+  },
+  "autoedit": {
+    "soraModel": "sora-2-pro",
+    "defaultProjectId": "maxcontrax-reel-v1"
+  }
+}

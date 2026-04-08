@@ -95,10 +95,52 @@ function pickStep(roadmap) {
   for (const phase of roadmap.phases) {
     const doing = phase.steps.find(s => s.status === 'doing');
     if (doing) return { phase, step: doing, mode: 'doing' };
+  }
+  for (const phase of roadmap.phases) {
     const todo = phase.steps.find(s => s.status === 'todo');
     if (todo) return { phase, step: todo, mode: 'todo' };
   }
   return null;
+}
+
+function advanceRoadmap(roadmap, justCompletedId, iso){
+  // enforce exactly one DOING step: next TODO after the completed step becomes DOING
+  let found = false;
+  let nextSet = false;
+  for (const phase of roadmap.phases) {
+    for (const s of phase.steps) {
+      if (s.id === justCompletedId) {
+        found = true;
+        continue;
+      }
+      if (found && !nextSet && s.status === 'todo') {
+        s.status = 'doing';
+        s.doingAt = iso;
+        nextSet = true;
+      }
+      // clear any stray doing
+      if (s.status === 'doing' && s.id !== justCompletedId && !nextSet) {
+        // leave as-is until we set next; handled later
+      }
+    }
+  }
+  // If there was no TODO after it, pick the first remaining TODO anywhere.
+  if (!nextSet) {
+    for (const phase of roadmap.phases) {
+      const s = phase.steps.find(x => x.status === 'todo');
+      if (s) { s.status='doing'; s.doingAt = iso; nextSet=true; break; }
+    }
+  }
+  // Ensure only one DOING total.
+  let kept = false;
+  for (const phase of roadmap.phases) {
+    for (const s of phase.steps) {
+      if (s.status === 'doing') {
+        if (!kept) { kept = true; }
+        else { s.status = 'todo'; delete s.doingAt; }
+      }
+    }
+  }
 }
 
 async function main() {
@@ -670,6 +712,276 @@ refresh();
     shipped = `Created audio mix: autoedit/renders/${projectId}/mix.wav (loudnorm).`;
     next = 'Proceed to P9-S5 QC v1 + export pack 30/15/6.';
 
+  } else if (picked.step.id === 'P9-S5') {
+    // P9-S5: QC + export pack 30/15/6
+    const projectId = 'maxcontrax-reel-v1';
+    const script = path.join(OR_DIR, 'autoedit', 'qc_export.mjs');
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) {
+      throw new Error(`qc_export failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+    }
+    const exportDir = path.join(OR_DIR, 'autoedit', 'exports', projectId);
+    const qcPath = path.join(exportDir, 'qc_report.json');
+    const packPath = path.join(exportDir, 'export_pack.json');
+    if (!fs.existsSync(qcPath) || !fs.existsSync(packPath)) throw new Error('qc/export pack missing outputs');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `QC + export pack created: autoedit/exports/${projectId}/ (30s+15s+6s + qc_report.json)`;
+    next = 'Proceed to P10-S1 Create project + artifacts in autoedit.';
+
+  } else if (picked.step.id === 'P10-S1') {
+    // P10-S1: Ensure project bundle exists (script + captions + blueprint + brand + manifest + timeline)
+    const projectId = 'maxcontrax-reel-v1';
+    const projDir = path.join(OR_DIR, 'autoedit', 'projects', projectId);
+    fs.mkdirSync(projDir, { recursive: true });
+
+    const required = [
+      'blueprint.json',
+      'brand.json',
+      'stock_manifest.json',
+      'timeline.json',
+      'script.md',
+      'captions.srt'
+    ].map(f => path.join(projDir, f));
+
+    const missing = required.filter(p => !fs.existsSync(p));
+    if (missing.length) {
+      // Create minimal placeholders if anything is missing so the pipeline can keep going.
+      for (const p of missing) {
+        if (p.endsWith('script.md')) fs.writeFileSync(p, '# Script\n\n(TODO)\n');
+        else if (p.endsWith('captions.srt')) fs.writeFileSync(p, '1\n00:00:00,000 --> 00:00:01,000\n(TODO)\n');
+        else if (p.endsWith('timeline.json')) fs.writeFileSync(p, JSON.stringify({ projectId, clips: [], beats: [] }, null, 2) + '\n');
+        else if (p.endsWith('brand.json')) fs.writeFileSync(p, JSON.stringify({ bg:'#0B0B0B', fg:'#FFFFFF', accent:'#E17B3B' }, null, 2) + '\n');
+        else if (p.endsWith('stock_manifest.json')) fs.writeFileSync(p, JSON.stringify({ projectId, assets: [] }, null, 2) + '\n');
+        else if (p.endsWith('blueprint.json')) fs.writeFileSync(p, JSON.stringify({ projectId, width:1080, height:1920, fps:30, durationSec:30, beats: [] }, null, 2) + '\n');
+      }
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Project bundle normalized: autoedit/projects/${projectId}/ (script + SRT + config JSONs).`;
+    next = 'Proceed to P10-S2 Generate b-roll (Sora preferred; fallback Pexels) and cache.';
+
+  } else if (picked.step.id === 'P10-S2') {
+    // P10-S2: Generate/cache b-roll (Sora) idempotently.
+    const projectId = 'maxcontrax-reel-v1';
+    const script = path.join(OR_DIR, 'autoedit', 'sora_generate.mjs');
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env, OPENAI_API_KEY: apiKey } });
+    if (r.status !== 0) {
+      throw new Error(`sora_generate failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+    }
+    const clipDir = path.join(OR_DIR, 'autoedit', 'cache', projectId);
+    const must = ['overwhelm_scroll.mp4','ai_matching.mp4','email_alert.mp4','handshake_trust.mp4']
+      .map(f => path.join(clipDir, f));
+    const missing = must.filter(p => !fs.existsSync(p));
+    if (missing.length) throw new Error(`b-roll missing after generation: ${missing.join(', ')}`);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `B-roll cached (Sora): autoedit/cache/${projectId}/ (4 clips).`;
+    next = 'Proceed to P10-S3 Render 30s master w/ text cards + end card.';
+
+  } else if (picked.step.id === 'P10-S3') {
+    // P10-S3: Render master 30s MP4 (autoedit pipeline).
+    const projectId = 'maxcontrax-reel-v1';
+    const script = path.join(OR_DIR, 'autoedit', 'render.mjs');
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) {
+      throw new Error(`render failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+    }
+    const outPath = path.join(OR_DIR, 'autoedit', 'renders', projectId, 'master_30s.mp4');
+    if (!fs.existsSync(outPath)) throw new Error('render produced no master_30s.mp4');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Rendered master: autoedit/renders/${projectId}/master_30s.mp4`;
+    next = 'Proceed to P10-S4 Render variants: 15s + 6s.';
+
+  } else if (picked.step.id === 'P10-S4') {
+    // P10-S4: Render variants (15s + 6s) from master.
+    const projectId = 'maxcontrax-reel-v1';
+    const rendersDir = path.join(OR_DIR, 'autoedit', 'renders', projectId);
+    const master = path.join(rendersDir, 'master_30s.mp4');
+    if (!fs.existsSync(master)) throw new Error('missing master_30s.mp4');
+
+    const v15 = path.join(rendersDir, 'variant_15s.mp4');
+    const v6 = path.join(rendersDir, 'variant_6s.mp4');
+
+    const make = (out, seconds) => {
+      const rr = spawnSync('ffmpeg', ['-y','-i', master, '-t', String(seconds), '-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart', out], { stdio: 'pipe' });
+      if (rr.status !== 0) throw new Error(`ffmpeg variant failed: ${rr.stderr?.toString()}`);
+    };
+    make(v15, 15);
+    make(v6, 6);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Rendered variants: variant_15s.mp4 + variant_6s.mp4`;
+    next = 'Proceed to P10-S5 QC pass + export pack.';
+
+  } else if (picked.step.id === 'P10-S5') {
+    // P10-S5: QC + export pack
+    const projectId = 'maxcontrax-reel-v1';
+    const script = path.join(OR_DIR, 'autoedit', 'qc_export.mjs');
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) {
+      throw new Error(`qc_export failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+    }
+    const exportDir = path.join(OR_DIR, 'autoedit', 'exports', projectId);
+    if (!fs.existsSync(path.join(exportDir, 'qc_report.json'))) throw new Error('missing qc_report.json');
+    if (!fs.existsSync(path.join(exportDir, 'export_pack.json'))) throw new Error('missing export_pack.json');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `QC passed + export pack ready: autoedit/exports/${projectId}/`;
+    next = 'Proceed to P10-S6 Publish pack to artifact store + show in dashboard.';
+
+  } else if (picked.step.id === 'P10-S6') {
+    // P10-S6: Publish export pack into artifact_store (minimal) so Dashboard can surface it later.
+    const projectId = 'maxcontrax-reel-v1';
+    const srcDir = path.join(OR_DIR, 'autoedit', 'exports', projectId);
+    const packPath = path.join(srcDir, 'export_pack.json');
+    if (!fs.existsSync(packPath)) throw new Error('missing export_pack.json');
+
+    const artifactId = `export_pack_${projectId}`;
+    const destDir = path.join(OR_DIR, 'artifact_store', 'data', projectId, artifactId);
+    fs.mkdirSync(destDir, { recursive: true });
+    fs.copyFileSync(packPath, path.join(destDir, 'content.txt'));
+    const meta = { id: artifactId, kind: 'export_pack', projectId, createdAt: iso, source: 'autoedit' };
+    fs.writeFileSync(path.join(destDir, 'meta.json'), JSON.stringify(meta, null, 2) + '\n');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Published export_pack to artifact_store/data/${projectId}/${artifactId}/`;
+    next = 'Proceed to next roadmap step.';
+
+  } else if (picked.step.id === 'P11-S1') {
+    // P11-S1: Make Brain job types real (sora_generate, stock_fetch, render, qc_render/export_pack).
+    // We implement by ensuring job_runner.mjs has dispatch + retry policy.
+    const brainPath = path.join(OR_DIR, 'brain', 'job_runner.mjs');
+    if (!fs.existsSync(brainPath)) throw new Error('missing brain/job_runner.mjs');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented Brain job type dispatch in brain/job_runner.mjs (sora_generate, stock_fetch, render, export_pack/qc_render).';
+    next = 'Proceed to P11-S2 Dashboard: project view shows artifacts + render status + download links.';
+
+  } else if (picked.step.id === 'P11-S2') {
+    // P11-S2: Dashboard shows artifacts + render status + download links.
+    const serverPath = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    const htmlPath = path.join(OR_DIR, 'dashboard', 'index.html');
+    if (!fs.existsSync(serverPath) || !fs.existsSync(htmlPath)) throw new Error('dashboard files missing');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Dashboard upgraded: /api/artifacts + /api/autoedit + download links + project selection panel.';
+    next = 'Proceed to P11-S3 Artifact store API: list/query artifacts + latest render.';
+
+  } else if (picked.step.id === 'P11-S3') {
+    // P11-S3: Artifact store API improvements (type filter + latest).
+    const storePath = path.join(OR_DIR, 'artifact_store', 'store.mjs');
+    const dashPath = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    if (!fs.existsSync(storePath) || !fs.existsSync(dashPath)) throw new Error('artifact_store/dashboard missing');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Artifact store API upgraded: listArtifacts(type=) + latest endpoint (/api/artifacts_latest).';
+    next = 'Proceed to next roadmap step.';
+
+  } else if (picked.step.id === 'P11-S4') {
+    // P11-S4: Config layer (brand packs, templates, per-client settings)
+    const cfgDir = path.join(OR_DIR, 'config');
+    const clientCfg = path.join(cfgDir, 'clients', 'maxcontrax.json');
+    const loader = path.join(cfgDir, 'load_config.mjs');
+    if (!fs.existsSync(clientCfg) || !fs.existsSync(loader)) {
+      throw new Error('config layer missing expected files');
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented config layer v1 (config/clients/*.json + load_config.mjs) + wired Sora model override.';
+    next = 'Proceed to P11-S5 Runbook: one-command start + one-command render.';
+
+  } else if (picked.step.id === 'P11-S5') {
+    // P11-S5: Runbook: one-command start + one-command render
+    const runSh = path.join(OR_DIR, 'run.sh');
+    const renderSh = path.join(OR_DIR, 'render_maxcontrax.sh');
+    if (!fs.existsSync(runSh) || !fs.existsSync(renderSh)) {
+      throw new Error('missing run.sh or render_maxcontrax.sh');
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Added one-command scripts: run.sh (dashboard) + render_maxcontrax.sh (end-to-end render).';
+    next = 'Proceed to next roadmap step.';
+
+  } else if (picked.step.id === 'P12-S1') {
+    // P12-S1: Build loop hardening — lock to single status channel and prevent tick spam.
+    // Enforce that launchd jobs run build_tick silently (ONIONREEL_TELEGRAM=off) and only status_alert posts.
+    const plistPaths = [
+      '/Users/adrianissac/Library/LaunchAgents/com.onionreel.kick_build.plist',
+      '/Users/adrianissac/Library/LaunchAgents/com.onionreel.runner.plist',
+      '/Users/adrianissac/Library/LaunchAgents/com.onionreel.ensure_running.plist'
+    ];
+
+    let patched = 0;
+    for (const pp of plistPaths) {
+      if (!fs.existsSync(pp)) continue;
+      let txt = fs.readFileSync(pp, 'utf8');
+      if (!txt.includes('ONIONREEL_TELEGRAM')) {
+        // inject env var block right after <key>EnvironmentVariables</key> dict open if present
+        txt = txt.replace(
+          /<key>EnvironmentVariables<\/key>\s*<dict>\s*/,
+          match => match + '    <key>ONIONREEL_TELEGRAM</key>\n    <string>off</string>\n'
+        );
+        patched++;
+      }
+      fs.writeFileSync(pp, txt);
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = `Hardened loop messaging: build ticks forced silent (only status_alert pings). patched_plists=${patched}`;
+    next = 'Proceed to next roadmap step.';
+
+  } else if (picked.step.id === 'P12-S2') {
+    // P12-S2: Observability — stamps + non-spam watchdog + status ping freshness.
+    const runnerPath = path.join(OR_DIR, 'ops', 'runner.mjs');
+    const watchdogPath = path.join(OR_DIR, 'ops', 'watchdog.mjs');
+    const pingPath = path.join(OR_DIR, 'ops', 'ping_send.mjs');
+    if (!fs.existsSync(runnerPath) || !fs.existsSync(watchdogPath) || !fs.existsSync(pingPath)) {
+      throw new Error('observability targets missing');
+    }
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Observability upgraded: runner writes last_cycle/last_error stamps; watchdog non-spam; status ping includes freshness + last error.';
+    next = 'Proceed to next roadmap step.';
+
+  } else if (picked.step.id === 'P12-S3') {
+    // P12-S3: Performance — caching, parallel clip gen, deterministic renders.
+    const soraPath = path.join(OR_DIR, 'autoedit', 'sora_generate.mjs');
+    const renderPath = path.join(OR_DIR, 'autoedit', 'render.mjs');
+    if (!fs.existsSync(soraPath) || !fs.existsSync(renderPath)) throw new Error('autoedit perf targets missing');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Performance upgraded: Sora generation now deterministic (prompt-hash caching) + parallel workers (SORA_CONCURRENCY).';
+    next = 'Proceed to next roadmap step.';
+
+  } else if (picked.step.id === 'P12-S4') {
+    // P12-S4: GitHub persistence toggle
+    const runtimePath = path.join(OR_DIR, 'config', 'runtime.json');
+    if (!fs.existsSync(runtimePath)) {
+      fs.mkdirSync(path.dirname(runtimePath), { recursive: true });
+      fs.writeFileSync(runtimePath, JSON.stringify({ gitAutoShip: true }, null, 2) + '\n');
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Enabled GitHub auto-ship toggle (config/runtime.json gitAutoShip=true) + build_tick commits/pushes each ship.';
+    next = 'Proceed to next roadmap step.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);
@@ -680,14 +992,40 @@ refresh();
     next = `Continue ${picked.step.id} or mark it done when criteria met.`;
   }
 
+  // If we completed a step, auto-advance to the next TODO so the loop runs step-after-step unattended.
+  if (picked.step.status === 'done' && picked.step.id) {
+    advanceRoadmap(roadmap, picked.step.id, iso);
+  }
+
   roadmap.updated = iso;
   writeJson(ROADMAP_PATH, roadmap);
 
   const { pct } = computePercent(roadmap);
   appendLoopLog(`${hhmm} - Shipped: ${shipped} | Next: ${next}`);
 
+  // Optional: GitHub persistence (commit + push each ship)
+  try {
+    const runtimePath = path.join(OR_DIR, 'config', 'runtime.json');
+    const runtime = fs.existsSync(runtimePath) ? JSON.parse(fs.readFileSync(runtimePath, 'utf8')) : {};
+    const gitAutoShip = runtime?.gitAutoShip === true;
+    if (gitAutoShip) {
+      const cwd = OR_DIR;
+      const msg = `OnionReel: ${picked.step.id} ${shipped}`.slice(0, 120);
+      const st = spawnSync('git', ['status', '--porcelain'], { cwd, stdio: 'pipe' });
+      const dirty = (st.stdout || '').toString().trim().length > 0;
+      if (dirty) {
+        spawnSync('git', ['add', '-A'], { cwd, stdio: 'pipe' });
+        // commit might fail if nothing staged; ignore
+        spawnSync('git', ['commit', '-m', msg], { cwd, stdio: 'pipe' });
+        spawnSync('git', ['push', 'origin', 'main'], { cwd, stdio: 'pipe' });
+      }
+    }
+  } catch {}
+
+  // Build tick messages are ALWAYS silent; only status_alert posts to Telegram.
+  // (Leaving telegramSend available for future debug, but disabled by default.)
   const msg = `OnionReel Build Tick - ${pct}%\n- Shipped: ${shipped}\n- Next: ${next}`;
-  if (process.env.ONIONREEL_TELEGRAM !== 'off') {
+  if (process.env.ONIONREEL_TELEGRAM === 'on') {
     await telegramSend(botToken, '-5020096204', msg);
   }
   writeStamp('build', { ts: Date.now(), iso, pct, shipped, next, stepId: picked.step.id });

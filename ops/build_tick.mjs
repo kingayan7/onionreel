@@ -1376,6 +1376,16 @@ refresh();
     shipped = 'Added dashboard-only acceptance test doc (no chat required) + troubleshooting notes.';
     next = 'Proceed to P18-S10 Cinematic Premium templates.';
 
+  } else if (picked.step.id === 'P18-S10') {
+    // P18-S10: Cinematic Premium Remotion template library (motion + typography)
+    const motion = path.join(OR_DIR, 'remotion', 'src', 'style', 'motion.ts');
+    const reel = path.join(OR_DIR, 'remotion', 'src', 'compositions', 'Reel30.tsx');
+    if (!fs.existsSync(motion) || !fs.existsSync(reel)) throw new Error('missing remotion cinematic template pieces');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Added cinematic motion language v1 (remotion/src/style/motion.ts) and applied to Reel30 text reveals.';
+    next = 'Proceed to P18-S11 Audio mastering v2.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

@@ -1,5 +1,4 @@
 import {spring, interpolate, Easing} from 'remotion';
-import {measureSpring} from '@remotion/animation-utils';
 
 // Cinematic Premium motion language (v1)
 // Goal: consistent easing + spring feel across all typography and transitions.
@@ -33,17 +32,5 @@ export const Motion = {
     return {opacity: o, y};
   },
 
-  // Helper for timing a spring to a duration
-  springDurationFrames: (fps: number, config?: {damping?: number; stiffness?: number}) => {
-    return Math.ceil(
-      measureSpring({
-        fps,
-        config: {
-          damping: config?.damping ?? 24,
-          stiffness: config?.stiffness ?? 120,
-          mass: 1,
-        },
-      }).durationInFrames
-    );
-  },
+  // springDurationFrames: could be added later; not required for v1.
 };

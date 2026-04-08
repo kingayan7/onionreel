@@ -341,6 +341,93 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // POST /api/iterate/regenerate_clip
+  // body: { projectId, clipId }
+  if (req.url === '/api/iterate/regenerate_clip' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const projectId = (b.projectId || 'default').trim().replace(/\s+/g,'-');
+        const clipId = (b.clipId || '').trim();
+        if (!clipId) return json(res, 400, { ok:false, error: 'missing clipId' });
+
+        // Clear manifest entry so sora_generate will regenerate it.
+        const manifestPath = path.join(AUTOEDIT, 'projects', projectId, 'stock_manifest.json');
+        if (!fs.existsSync(manifestPath)) return json(res, 404, { ok:false, error: 'missing stock_manifest.json' });
+        const m = JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+        m.assets = m.assets || [];
+        const a = m.assets.find(x => x.id === clipId);
+        if (a) {
+          delete a.localPath;
+          delete a.promptHash;
+          delete a.error;
+        }
+        fs.writeFileSync(manifestPath, JSON.stringify(m,null,2)+'\n');
+
+        // Enqueue pipeline
+        const db = openJobsDb();
+        const bundle = ['sora_generate','remotion_render','export_pack'];
+        const created=[];
+        for (const type of bundle) {
+          const id = `job_${Date.now()}_${Math.random().toString(16).slice(2)}_${type}`;
+          enqueueJob(db, { id, type, projectId, maxAttempts: 2, payload: { clipId } });
+          created.push({ id, type });
+        }
+
+        appendActivity({ kind:'iterate_regenerate_clip', message:`Regenerate clip ${clipId} for ${projectId}`, projectId });
+        return json(res, 200, { ok:true, projectId, clipId, created });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
+
+  // POST /api/iterate/hook_alternates
+  // body: { projectId, n }
+  if (req.url === '/api/iterate/hook_alternates' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const projectId = (b.projectId || 'default').trim().replace(/\s+/g,'-');
+        const n = Math.min(10, Math.max(1, Number(b.n || 3)));
+        const db = openJobsDb();
+        // MVP: just re-render; future: generate alt hooks + update blueprint.
+        const created=[];
+        for (const type of ['remotion_render','export_pack']) {
+          const id = `job_${Date.now()}_${Math.random().toString(16).slice(2)}_${type}`;
+          enqueueJob(db, { id, type, projectId, maxAttempts: 2, payload: { hookAlternates: n } });
+          created.push({ id, type });
+        }
+        appendActivity({ kind:'iterate_hook_alternates', message:`Hook alternates n=${n} for ${projectId}`, projectId });
+        return json(res, 200, { ok:true, projectId, n, created });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
+
+  // POST /api/iterate/rerender
+  // body: { projectId }
+  if (req.url === '/api/iterate/rerender' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const projectId = (b.projectId || 'default').trim().replace(/\s+/g,'-');
+        const db = openJobsDb();
+        const created=[];
+        for (const type of ['remotion_render','export_pack']) {
+          const id = `job_${Date.now()}_${Math.random().toString(16).slice(2)}_${type}`;
+          enqueueJob(db, { id, type, projectId, maxAttempts: 2, payload: {} });
+          created.push({ id, type });
+        }
+        appendActivity({ kind:'iterate_rerender', message:`Rerender for ${projectId}`, projectId });
+        return json(res, 200, { ok:true, projectId, created });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
+
   // POST /api/jobs/reset_stuck — requeue "running" jobs older than N minutes
   if (req.url === '/api/jobs/reset_stuck' && req.method === 'POST') {
     return readBody(req).then((body) => {

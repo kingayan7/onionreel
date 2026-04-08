@@ -162,15 +162,15 @@ async function worker(){
         }
       }
     }
-    if (!ok && a) a.error = `sora_failed: ${lastErr}`;
+    if (!ok && asset) asset.error = `sora_failed: ${lastErr}`;
 
     if (ok) {
       generated++;
-      if (!a) { a = { id: p.id, type: 'video', notes: 'sora_generated' }; manifest.assets.push(a); }
-      a.localPath = path.relative(AUTO_DIR, out);
-      a.source = 'sora';
-      a.promptHash = path.basename(out).split('__')[1]?.replace('.mp4','');
-      a.error = undefined;
+      if (!asset) { asset = { id: p.id, type: 'video', notes: 'sora_generated' }; manifest.assets.push(asset); }
+      asset.localPath = path.relative(AUTO_DIR, out);
+      asset.source = 'sora';
+      asset.promptHash = path.basename(out).split('__')[1]?.replace('.mp4','');
+      asset.error = undefined;
     }
   }
 }

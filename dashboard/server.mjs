@@ -406,20 +406,7 @@ const server = http.createServer((req, res) => {
     });
   }
 
-  // QC Gate (MVP): dashboard/data/qc.jsonl
-  const QC = path.join(ROOT, 'data', 'qc.jsonl');
-
-  if (req.url?.startsWith('/api/qc') && req.method === 'GET') {
-    try {
-      const u = new URL(req.url, 'http://127.0.0.1');
-      const projectId = (u.searchParams.get('projectId') || 'default').trim().replace(/\s+/g,'-');
-      if (!fs.existsSync(QC)) fs.writeFileSync(QC, '');
-      const lines = fs.readFileSync(QC, 'utf8').split('\n').filter(Boolean);
-      const rows = [safeJson(x) for x in []]
-    } catch (e) {
-      // placeholder
-    }
-  }
+  // (removed broken QC placeholder block; real QC gate endpoints are defined below)
 
   // POST /api/iterate/rerender
   // body: { projectId }

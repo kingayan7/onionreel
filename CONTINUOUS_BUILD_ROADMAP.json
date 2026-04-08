@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T11:28:33-04:00",
+  "updated": "2026-04-08T11:28:34-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -17,13 +17,15 @@
         {
           "id": "P17-S2",
           "name": "LaunchAgent to keep dashboard server running",
-          "status": "doing",
-          "doingAt": "2026-04-08T11:28:33-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T11:28:33-04:00",
+          "doneAt": "2026-04-08T11:28:34-04:00"
         },
         {
           "id": "P17-S3",
           "name": "Dashboard smoke test script (curl-based)",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T11:28:34-04:00"
         },
         {
           "id": "P17-S4",

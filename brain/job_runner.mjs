@@ -1,11 +1,8 @@
-import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { openDb, claimNextJob, markDone, markFailed, requeue, acquireLock, releaseLock } from './queue.mjs';
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
-const JOBS = path.join(ROOT, 'jobs.json');
-
-function load(){ return JSON.parse(fs.readFileSync(JOBS, 'utf8')); }
-function save(obj){ fs.writeFileSync(JOBS, JSON.stringify(obj, null, 2) + '\n'); }
 
 function now(){ return new Date().toISOString(); }
 
@@ -16,14 +13,21 @@ function isRetryable(err){
   return !/fatal|syntax|invalid/i.test(msg);
 }
 
-async function runJob(job){
-  job.status = 'running';
-  job.startedAt = now();
-  job.attempts = (job.attempts||0) + 1;
-  saveState(job);
+async function runJob(job, db){
+  const lockKey = `job:${job.type}:${job.projectId || 'default'}`;
+  const got = acquireLock(db, lockKey, 10 * 60 * 1000);
+  if (!got) {
+    // Idempotency: another job of the same type/project is already active recently.
+    markDone(db, job.id, { skipped: true, reason: 'lock_active', lockKey });
+    job.status = 'done';
+    return;
+  }
 
   try {
-    job.outputs = job.outputs || {};
+    const attempts = job.attempts || 1;
+    const maxAttempts = job.maxAttempts || 3;
+    const payload = job.payload || {};
+    const outputs = {};
 
     // Dispatch by job.type (minimal but real).
     const type = job.type;
@@ -33,7 +37,6 @@ async function runJob(job){
     const OR_DIR = path.resolve(ROOT, '..');
 
     function runNode(script, args = [], extraEnv = {}){
-      const { spawnSync } = await import('node:child_process');
       const r = spawnSync(node, [script, ...args], {
         stdio: 'pipe',
         env: { ...process.env, ...extraEnv }
@@ -75,46 +78,35 @@ async function runJob(job){
       throw new Error(`unknown job type: ${type}`);
     }
 
+    markDone(db, job.id, job.outputs || outputs);
     job.status = 'done';
-    job.finishedAt = now();
 
   } catch (e) {
-    job.lastError = String(e && e.stack || e);
-    if (isRetryable(e) && (job.attempts||0) < (job.maxAttempts||3)) {
+    const msg = String(e && e.stack || e);
+    if (isRetryable(e) && attempts < maxAttempts) {
+      requeue(db, job.id, 60_000, msg);
       job.status = 'queued';
-      job.runAt = new Date(Date.now() + 60_000).toISOString();
     } else {
+      markFailed(db, job.id, msg);
+      try {
+        const { writeDeadLetter } = await import('./dead_letter.mjs');
+        writeDeadLetter(job, msg);
+      } catch {}
       job.status = 'failed';
-      job.finishedAt = now();
     }
+  } finally {
+    releaseLock(db, lockKey);
   }
-
-  saveState(job);
-}
-
-function saveState(job){
-  const data = load();
-  const jobs = data.jobs || [];
-  const i = jobs.findIndex(j => j.id === job.id);
-  if (i >= 0) jobs[i] = job; else jobs.push(job);
-  save({ jobs });
-}
-
-function due(job){
-  if (job.status !== 'queued') return false;
-  if (!job.runAt) return true;
-  return new Date(job.runAt).getTime() <= Date.now();
 }
 
 async function main(){
-  const data = load();
-  const jobs = data.jobs || [];
-  const next = jobs.find(due);
+  const db = openDb();
+  const next = claimNextJob(db);
   if (!next) {
     console.log('no queued jobs');
     return;
   }
-  await runJob(next);
+  await runJob(next, db);
   console.log('ran', next.id, next.status);
 }
 

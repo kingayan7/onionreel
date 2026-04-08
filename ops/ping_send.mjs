@@ -111,8 +111,15 @@ async function main() {
     `- Roadmap: ${done} done, ${doing} doing, ${total} total`
   ].filter(Boolean).join('\n');
 
-  await telegramSend(botToken, '-5020096204', msg);
-  appendMemory(`${isoNowNY().slice(11,16)} — Ping sent: ${pct}%.`);
+  try {
+    await telegramSend(botToken, '-5020096204', msg);
+  } catch (e) {
+    // Never fail the loop because Telegram is flaky.
+    const stamp = isoNowNY().slice(11,16);
+    fs.appendFileSync(path.join(OR_DIR, 'logs', 'ping_send.err.log'), `[${stamp}] ${e?.stack || e}\n`);
+  }
+
+  appendMemory(`${isoNowNY().slice(11,16)} — Ping attempted: ${pct}%.`);
   writeStamp('ping', { ts: Date.now(), iso: isoNowNY(), pct, done, doing, total });
 }
 
@@ -121,5 +128,6 @@ main().catch(err => {
     const stamp = isoNowNY().slice(11,16);
     fs.appendFileSync(path.join(OR_DIR, 'logs', 'ping_send.err.log'), `[${stamp}] ${err.stack || err.message}\n`);
   } catch {}
-  process.exitCode = 1;
+  // Always exit 0: status pings must not break the continuous loop.
+  process.exitCode = 0;
 });

@@ -6,10 +6,10 @@
   "fps": 30,
   "beats": [
     {"t0": 0, "t1": 2, "text": "STOP scrolling SAM.gov"},
-    {"t0": 2, "t1": 6, "text": "AI-MATCHED contracts"},
-    {"t0": 6, "t1": 10, "text": "Only what fits you"},
-    {"t0": 10, "t1": 15, "text": "DAILY alerts"},
-    {"t0": 15, "t1": 20, "text": "Less noise. More shots."},
+    {"t0": 2, "t1": 6, "text": "AI-MATCHED contracts for your business"},
+    {"t0": 6, "t1": 10, "text": "Only what fits (No noise)"},
+    {"t0": 10, "t1": 15, "text": "DAILY alerts — Personalized matches"},
+    {"t0": 15, "t1": 20, "text": "Fewer dead ends. More real shots."},
     {"t0": 20, "t1": 25, "text": "FREE 7-DAY TRIAL"},
     {"t0": 25, "t1": 30, "text": "Start Free at MaxContrax.com"}
   ],
@@ -17,22 +17,22 @@
     {
       "id": "overwhelm_scroll",
       "seconds": 4,
-      "prompt": "Vertical 9:16 cinematic b-roll. Close-up of a laptop and hands rapidly scrolling through many government contract listings, multiple browser tabs, slight motion blur, modern office lighting, premium commercial look, shallow depth of field."
+      "prompt": "Vertical 9:16, bright modern office daylight, close shot of hands scrolling a laptop with many browser tabs open, fast scrolling, subtle frustration, clean minimal desk, premium commercial cinematography, shallow depth of field, natural skin tones, no readable real website text, no logos."
     },
     {
       "id": "ai_matching",
       "seconds": 4,
-      "prompt": "Vertical 9:16 cinematic b-roll. Abstract minimal AI interface visuals: clean data cards gently animating into place with subtle checkmarks, dark premium background, orange accent highlights, realistic screen reflections, modern tech commercial style."
+      "prompt": "Vertical 9:16, bright clean motion-graphics UI: generic opportunity match cards smoothly appearing with subtle checkmarks, white/gray dashboard aesthetic, orange accent, minimal premium SaaS style, crisp typography, no brand names, no claims, no real-world site text."
     },
     {
       "id": "email_alert",
       "seconds": 4,
-      "prompt": "Vertical 9:16 cinematic b-roll. Smartphone close-up receiving a new email notification, modern UI, subtle glow, premium lighting, shallow depth of field, commercial product shot."
+      "prompt": "Vertical 9:16, bright desk scene, phone close-up receiving a generic notification reading 'New Match Alert' (no logos), tasteful modern UI, shallow depth of field, premium product ad look."
     },
     {
       "id": "handshake_trust",
       "seconds": 4,
-      "prompt": "Vertical 9:16 cinematic b-roll. Professional business handshake and contract signing moment, modern office, confident mood, premium commercial lighting, shallow depth of field."
+      "prompt": "Vertical 9:16, bright office, confident business owner reviewing a document then a clean professional handshake, premium corporate commercial style, natural skin tones, no cheesy stock vibe, shallow depth of field."
     }
   ]
 }

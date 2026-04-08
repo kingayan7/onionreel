@@ -1,14 +1,15 @@
 import React from 'react';
 import {AbsoluteFill, Sequence, useCurrentFrame, interpolate, Video, staticFile} from 'remotion';
+import {parseSrt} from '../lib/srt';
 
 type Beat = { t0: number; t1: number; text: string };
 
 const defaultBeats: Beat[] = [
   { t0: 0, t1: 2, text: 'STOP scrolling SAM.gov' },
-  { t0: 2, t1: 6, text: 'AI-MATCHED contracts' },
-  { t0: 6, t1: 10, text: 'Only what fits you' },
-  { t0: 10, t1: 15, text: 'DAILY alerts' },
-  { t0: 15, t1: 20, text: 'Less noise. More shots.' },
+  { t0: 2, t1: 6, text: 'AI-MATCHED contracts for your business' },
+  { t0: 6, t1: 10, text: 'Only what fits (No noise)' },
+  { t0: 10, t1: 15, text: 'DAILY alerts — Personalized matches' },
+  { t0: 15, t1: 20, text: 'Fewer dead ends. More real shots.' },
   { t0: 20, t1: 25, text: 'FREE 7-DAY TRIAL' },
   { t0: 25, t1: 30, text: 'Start Free at MaxContrax.com' },
 ];
@@ -18,12 +19,13 @@ const cardStyle = {
   left: 64,
   right: 64,
   top: 140,
-  padding: '28px 28px',
+  padding: '26px 26px',
   borderRadius: 22,
-  background: 'rgba(11,11,11,0.55)',
-  border: '1px solid rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(10px)',
-  WebkitBackdropFilter: 'blur(10px)',
+  background: 'rgba(255,255,255,0.90)',
+  border: '1px solid rgba(0,0,0,0.08)',
+  boxShadow: '0 18px 40px rgba(0,0,0,0.18)',
+  backdropFilter: 'blur(8px)',
+  WebkitBackdropFilter: 'blur(8px)',
 };
 
 export const Reel30: React.FC<{
@@ -37,6 +39,7 @@ export const Reel30: React.FC<{
   clips: { overwhelm: string; ai: string; email: string; trust: string };
 }> = ({ title, cta, bg, fg, accent, beats = defaultBeats, projectId, clips }) => {
   const frame = useCurrentFrame();
+  const srt = staticFile(`clips/${projectId}/captions.srt`);
 
   // 4x 4-second clips looped/cropped to cover 0-20s.
   const sources = [
@@ -55,8 +58,8 @@ export const Reel30: React.FC<{
             src={staticFile(`clips/${projectId}/${s.file}`)}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
-          {/* darken for readability */}
-          <AbsoluteFill style={{ backgroundColor: 'rgba(0,0,0,0.35)' }} />
+          {/* slight soften for readability (bright theme) */}
+          <AbsoluteFill style={{ backgroundColor: 'rgba(255,255,255,0.06)' }} />
         </Sequence>
       ))}
 
@@ -81,6 +84,9 @@ export const Reel30: React.FC<{
         </AbsoluteFill>
       </Sequence>
 
+      {/* captions (native Remotion render, since ffmpeg on this host lacks subtitles filter) */}
+      <Captions srtPath={srt} fg={fg} accent={accent} />
+
       {/* subtle vignette */}
       <AbsoluteFill
         style={{
@@ -95,6 +101,56 @@ export const Reel30: React.FC<{
   );
 };
 
+const Captions: React.FC<{ srtPath: string; fg: string; accent: string }> = ({ srtPath, fg, accent }) => {
+  const frame = useCurrentFrame();
+  const [cues, setCues] = React.useState<{ startMs:number; endMs:number; text:string }[]>([]);
+
+  React.useEffect(() => {
+    fetch(srtPath)
+      .then((r) => r.text())
+      .then((t) => setCues(parseSrt(t)))
+      .catch(() => setCues([]));
+  }, [srtPath]);
+
+  const ms = (frame / 30) * 1000;
+  const cue = cues.find((c) => ms >= c.startMs && ms <= c.endMs);
+  if (!cue) return null;
+
+  return (
+    <AbsoluteFill style={{ justifyContent: 'flex-end', paddingBottom: 260, paddingLeft: 80, paddingRight: 80 }}>
+      <div
+        style={{
+          fontSize: 52,
+          fontWeight: 900,
+          color: fg,
+          lineHeight: 1.08,
+          textShadow: '0 4px 14px rgba(0,0,0,0.18)',
+          background: 'rgba(255,255,255,0.88)',
+          border: '1px solid rgba(0,0,0,0.08)',
+          borderRadius: 18,
+          padding: '18px 22px',
+          maxWidth: 920,
+        }}
+      >
+        {cue.text.split(/\n/).map((line, idx) => (
+          <div key={idx}>
+            {line.split(' ').map((w, i) => {
+              const up = w.toUpperCase().replace(/[^A-Z0-9.]/g, '');
+              const hi = ['AI','FREE','TRIAL','SAM.GOV','DAILY','MAXCONTRAX.COM'].includes(up);
+              return (
+                <span key={i} style={{ color: hi ? accent : fg }}>
+                  {w}
+                  {i < line.split(' ').length - 1 ? ' ' : ''}
+                </span>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const BeatCard: React.FC<{ text: string; fg: string; accent: string }> = ({ text, fg, accent }) => {
   const frame = useCurrentFrame();
   const y = interpolate(frame, [0, 10], [18, 0], { extrapolateRight: 'clamp' });
@@ -103,12 +159,12 @@ const BeatCard: React.FC<{ text: string; fg: string; accent: string }> = ({ text
   const words = text.split(' ');
   const hi = (w: string) => {
     const up = w.toUpperCase();
-    return up.includes('AI') || up.includes('FREE') || up.includes('TRIAL') || up.includes('SAM.GOV') || up.includes('DAILY');
+    return up.includes('AI') || up.includes('FREE') || up.includes('TRIAL') || up.includes('SAM.GOV') || up.includes('DAILY') || up.includes('MATCH');
   };
 
   return (
     <div style={{ ...cardStyle, transform: `translateY(${y}px)`, opacity: o }}>
-      <div style={{ fontSize: 64, fontWeight: 900, color: fg, lineHeight: 1.05, letterSpacing: -0.8 }}>
+      <div style={{ fontSize: 62, fontWeight: 900, color: fg, lineHeight: 1.05, letterSpacing: -0.8 }}>
         {words.map((w, i) => (
           <span key={i} style={{ color: hi(w) ? accent : fg }}>
             {w}

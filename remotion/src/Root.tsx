@@ -16,8 +16,8 @@ export const RemotionRoot: React.FC = () => {
           title: 'MaxContrax',
           cta: 'Start Free at MaxContrax.com',
           accent: '#E17B3B',
-          bg: '#0B0B0B',
-          fg: '#FFFFFF',
+          bg: '#FFFFFF',
+          fg: '#0B0B0B',
           projectId: 'maxcontrax-reel-v1',
           clips: {
             overwhelm: 'overwhelm_scroll.mp4',

@@ -1,6 +1,6 @@
 {
   "projectId": "maxcontrax-reel-v1",
-  "ts": "2026-04-08T02:12:36.543Z",
+  "ts": "2026-04-08T12:57:17.323Z",
   "files": {
     "master_30s": {
       "path": "/Users/adrianissac/.openclaw/workspace/onionreel/autoedit/renders/maxcontrax-reel-v1/master_30s.mp4",
@@ -9,12 +9,12 @@
     },
     "variant_15s": {
       "path": "/Users/adrianissac/.openclaw/workspace/onionreel/autoedit/renders/maxcontrax-reel-v1/variant_15s.mp4",
-      "bytes": 3448503,
-      "mb": 3.29
+      "bytes": 3438455,
+      "mb": 3.28
     },
     "variant_6s": {
       "path": "/Users/adrianissac/.openclaw/workspace/onionreel/autoedit/renders/maxcontrax-reel-v1/variant_6s.mp4",
-      "bytes": 1731627,
+      "bytes": 1725182,
       "mb": 1.65
     }
   },

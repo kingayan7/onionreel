@@ -5,5 +5,6 @@
     "soraMaxClipsPerRun": 6,
     "soraConcurrency": 2,
     "soraMaxAttemptsPerClip": 2
-  }
+  },
+  "telegramPingsEnabled": true
 }

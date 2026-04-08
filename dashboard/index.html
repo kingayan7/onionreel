@@ -22,45 +22,94 @@
   </style>
 </head>
 <body>
-  <h1>OnionReel Dashboard (MVP)</h1>
-  <div class="muted">Projects + Activity log (persisted). API: <code>/api/projects</code>, <code>/api/activity</code>, <code>/api/roadmap</code>.</div>
+  <h1>OnionReel</h1>
+  <div class="muted">Self-serve dashboard: Requests → Jobs → Downloads. (Local only for now.)</div>
 
   <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <button class="secondary" data-tab="requests">Requests</button>
+        <button class="secondary" data-tab="jobs">Jobs</button>
+        <button class="secondary" data-tab="projects">Projects</button>
+        <button class="secondary" data-tab="activity">Activity</button>
+        <button class="secondary" data-tab="roadmap">Roadmap</button>
+      </div>
+      <div class="muted" style="font-size:12px">Server: <code id="serverOrigin"></code></div>
+    </div>
+  </div>
+
+  <div id="tab-requests" class="card">
+    <h2>Create Request</h2>
+    <div class="muted">Generate a reel pack without chat. Start simple; expand “Advanced” for power-user control.</div>
+
+    <div class="row" style="margin-top:10px">
+      <input id="reqProjectId" placeholder="projectId (e.g. maxcontrax-reel-v1)" style="min-width:280px" />
+      <button id="reqGenerate">Generate Pack</button>
+      <button class="secondary" id="reqRunOne">Run Next Job</button>
+      <button class="secondary" id="refresh">Refresh</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <label class="muted"><input type="checkbox" id="stepSora" checked /> Generate clips (Sora)</label>
+      <label class="muted"><input type="checkbox" id="stepRemotion" checked /> Render (Remotion)</label>
+      <label class="muted"><input type="checkbox" id="stepQc" checked /> QC + export pack</label>
+    </div>
+
+    <details style="margin-top:10px">
+      <summary><b>Advanced</b> (power-user)</summary>
+      <div class="muted" style="margin-top:8px">Optional payload JSON passed into jobs (future: override prompts, beat timing, variants).</div>
+      <textarea id="reqPayload" style="width:100%; min-height:120px; font: ui-monospace, SFMono-Regular, Menlo, monospace; padding:12px; border-radius:12px; border:1px solid #d1d5db">{}</textarea>
+      <div class="row" style="margin-top:8px">
+        <input id="reqMaxAttempts" placeholder="maxAttempts (default 2)" style="max-width:220px" />
+      </div>
+    </details>
+
+    <div class="card" style="margin-top:12px">
+      <h3>Latest Downloads</h3>
+      <div class="muted">Selected project: <code id="sel">(none)</code></div>
+      <div id="renders" class="muted" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div id="tab-jobs" class="card" style="display:none">
+    <h2>Jobs</h2>
+    <div class="row">
+      <input id="jobsProjectId" placeholder="filter projectId (optional)" style="min-width:280px" />
+      <input id="jobsStatus" placeholder="status filter (queued/running/done/failed)" style="min-width:260px" />
+      <button class="secondary" id="jobsRefresh">Refresh Jobs</button>
+    </div>
+    <div id="jobs" class="muted" style="margin-top:10px">Loading…</div>
+  </div>
+
+  <div id="tab-projects" class="card" style="display:none">
+    <h2>Projects</h2>
     <div class="row">
       <input id="pid" placeholder="project id (optional)" style="min-width:240px" />
       <input id="pname" placeholder="project name" style="min-width:280px" />
       <input id="pstatus" placeholder="status (active/done)" style="min-width:200px" />
       <button id="create">Create/Update Project</button>
-      <button class="secondary" id="refresh">Refresh</button>
     </div>
-  </div>
+    <div id="projects" class="muted" style="margin-top:10px">Loading…</div>
 
-  <div class="grid">
-    <div class="card">
-      <h2>Projects</h2>
-      <div id="projects" class="muted">Loading…</div>
-    </div>
-
-    <div class="card">
-      <h2>Project Artifacts / Renders / Downloads</h2>
-      <div class="muted">Selected project: <code id="sel">(none)</code></div>
+    <div class="card" style="margin-top:12px">
+      <h3>Artifact Store (selected project)</h3>
       <div id="artifacts" class="muted" style="margin-top:10px">Select a project…</div>
-      <div id="renders" class="muted" style="margin-top:10px"></div>
-    </div>
-
-    <div class="card">
-      <h2>Activity</h2>
-      <div id="activity" class="muted">Loading…</div>
     </div>
   </div>
 
-  <div class="card">
+  <div id="tab-activity" class="card" style="display:none">
+    <h2>Activity</h2>
+    <div id="activity" class="muted">Loading…</div>
+  </div>
+
+  <div id="tab-roadmap" class="card" style="display:none">
     <h2>Roadmap JSON</h2>
     <pre id="roadmap">Loading…</pre>
   </div>
 
 <script>
 async function jget(url){ const r=await fetch(url); return r.json(); }
+async function jpost(url, obj){ const r=await fetch(url, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(obj||{})}); return r.json().catch(()=>({})); }
 let selectedProjectId = null;
 
 function esc(s){ return String(s||'').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -98,7 +147,44 @@ async function loadProjectPanel(pid){
   document.getElementById('renders').innerHTML = rr + ee;
 }
 
+async function refreshJobs(){
+  const pid = document.getElementById('jobsProjectId')?.value?.trim();
+  const st = document.getElementById('jobsStatus')?.value?.trim();
+  const qs = new URLSearchParams();
+  if (pid) qs.set('projectId', pid);
+  if (st) qs.set('status', st);
+  const data = await jget('/api/jobs?' + qs.toString());
+  const jobs = (data.jobs||[]);
+
+  function row(j){
+    const when = new Date(j.createdAt||0).toLocaleString();
+    const pill = '<span class="pill">' + esc(j.status) + '</span>';
+    const btns = (j.status === 'failed')
+      ? ' <button class="secondary" data-retry="' + esc(j.id) + '">Retry</button>'
+      : (j.status === 'queued')
+        ? ' <button class="secondary" data-cancel="' + esc(j.id) + '">Cancel</button>'
+        : '';
+    return '<li><div class="row" style="justify-content:space-between">'
+      + '<div>' + pill + ' <b>' + esc(j.type) + '</b> <span class="muted">(' + esc(j.projectId||'') + ')</span><div class="muted" style="font-size:12px">' + when + ' • ' + esc(j.id) + '</div></div>'
+      + '<div>' + btns + '</div>'
+      + '</div></li>';
+  }
+
+  document.getElementById('jobs').innerHTML = jobs.length
+    ? '<ul>' + jobs.slice(0,200).map(row).join('') + '</ul>'
+    : '<div class="muted">No jobs.</div>';
+
+  Array.from(document.querySelectorAll('[data-retry]')).forEach(b => {
+    b.onclick = async () => { await jpost('/api/jobs/' + b.getAttribute('data-retry') + '/retry', {}); await refreshJobs(); };
+  });
+  Array.from(document.querySelectorAll('[data-cancel]')).forEach(b => {
+    b.onclick = async () => { await jpost('/api/jobs/' + b.getAttribute('data-cancel') + '/cancel', {}); await refreshJobs(); };
+  });
+}
+
 async function refresh(){
+  document.getElementById('serverOrigin').textContent = location.origin;
+
   const projects = await jget('/api/projects');
   const activity = await jget('/api/activity');
   const roadmap = await jget('/api/roadmap');
@@ -130,7 +216,47 @@ async function refresh(){
   document.getElementById('roadmap').textContent = JSON.stringify(roadmap, null, 2);
 }
 
+// Tabs
+function showTab(name){
+  ['requests','jobs','projects','activity','roadmap'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (el) el.style.display = (t === name) ? '' : 'none';
+  });
+}
+Array.from(document.querySelectorAll('[data-tab]')).forEach(b => {
+  b.onclick = () => showTab(b.getAttribute('data-tab'));
+});
+showTab('requests');
+
+// Requests
 document.getElementById('refresh').onclick = refresh;
+document.getElementById('reqGenerate').onclick = async () => {
+  const projectId = document.getElementById('reqProjectId').value.trim() || 'maxcontrax-reel-v1';
+  const bundle = [];
+  if (document.getElementById('stepSora').checked) bundle.push('sora_generate');
+  if (document.getElementById('stepRemotion').checked) bundle.push('remotion_render');
+  if (document.getElementById('stepQc').checked) bundle.push('qc_export');
+
+  let payload = {};
+  try { payload = JSON.parse(document.getElementById('reqPayload').value || '{}'); } catch(e) { alert('Advanced payload JSON is invalid'); return; }
+  const maxAttempts = Number(document.getElementById('reqMaxAttempts').value || 2);
+
+  await jpost('/api/jobs/enqueue', { projectId, bundle, payload, maxAttempts });
+  await refresh();
+  await refreshJobs();
+  alert('Enqueued. Go to Jobs tab and click “Run Next Job” (or run multiple times).');
+};
+
+document.getElementById('reqRunOne').onclick = async () => {
+  const r = await jpost('/api/jobs/run_one', {});
+  await refresh();
+  await refreshJobs();
+  if (!r.ok) alert('job_runner returned non-zero. Check Jobs tab + Activity.');
+};
+
+// Jobs
+document.getElementById('jobsRefresh').onclick = refreshJobs;
+
 document.getElementById('create').onclick = async () => {
   const id = document.getElementById('pid').value.trim();
   const name = document.getElementById('pname').value.trim();

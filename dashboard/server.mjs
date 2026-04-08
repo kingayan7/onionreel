@@ -1,6 +1,8 @@
 import http from 'node:http';
 import { initStore, listProjects, getProject, upsertProject, appendActivity, listActivity } from './store.mjs';
 import { listArtifacts } from '../artifact_store/store.mjs';
+import { openDb as openQueueDb, enqueueJob } from '../brain/queue.mjs';
+import { spawn } from 'node:child_process';
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -13,6 +15,23 @@ const AUTOEDIT = path.resolve(ROOT, '..', 'autoedit');
 function json(res, code, obj){
   res.writeHead(code, { 'content-type': 'application/json' });
   res.end(JSON.stringify(obj, null, 2));
+}
+
+function readBody(req){
+  return new Promise((resolve) => {
+    let body='';
+    req.on('data', c => body += c);
+    req.on('end', () => resolve(body));
+  });
+}
+
+function safeJson(s){
+  try { return JSON.parse(s || '{}'); } catch { return null; }
+}
+
+function openJobsDb(){
+  // brain/queue.mjs manages schema + WAL.
+  return openQueueDb();
 }
 
 initStore();
@@ -35,9 +54,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.url === '/api/projects' && req.method === 'POST') {
-    let body='';
-    req.on('data', c => body += c);
-    req.on('end', () => {
+    readBody(req).then((body) => {
       try {
         const project = JSON.parse(body || '{}');
         if (!project.id) project.id = 'proj_' + Date.now();
@@ -107,6 +124,101 @@ const server = http.createServer((req, res) => {
       renders: listFiles(rendersDir),
       exports: listFiles(exportsDir)
     });
+  }
+
+  // /api/jobs?status=queued|running|done|failed|...
+  if (req.url?.startsWith('/api/jobs') && req.method === 'GET') {
+    try {
+      const u = new URL(req.url, 'http://127.0.0.1');
+      const status = u.searchParams.get('status');
+      const projectId = u.searchParams.get('projectId');
+      const limit = Math.min(500, Math.max(1, Number(u.searchParams.get('limit') || 200)));
+      const db = openJobsDb();
+      let rows = [];
+      if (status && projectId) {
+        rows = db.prepare('select * from jobs where status=? and projectId=? order by createdAt desc limit ?').all(status, projectId, limit);
+      } else if (status) {
+        rows = db.prepare('select * from jobs where status=? order by createdAt desc limit ?').all(status, limit);
+      } else if (projectId) {
+        rows = db.prepare('select * from jobs where projectId=? order by createdAt desc limit ?').all(projectId, limit);
+      } else {
+        rows = db.prepare('select * from jobs order by createdAt desc limit ?').all(limit);
+      }
+      return json(res, 200, {
+        jobs: rows.map(r => ({
+          ...r,
+          payload: safeJson(r.payload),
+          outputs: safeJson(r.outputs),
+        }))
+      });
+    } catch (e) {
+      return json(res, 500, { error: String(e) });
+    }
+  }
+
+  // POST /api/jobs/enqueue
+  // body: { projectId, bundle?: ['sora_generate','remotion_render','qc_export'], maxAttempts?, note? }
+  if (req.url === '/api/jobs/enqueue' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const projectId = b.projectId || 'default';
+        const bundle = Array.isArray(b.bundle) && b.bundle.length ? b.bundle : ['sora_generate','remotion_render','qc_export'];
+        const maxAttempts = Number(b.maxAttempts || 2);
+        const db = openJobsDb();
+        const created = [];
+        for (const type of bundle) {
+          const id = `job_${Date.now()}_${Math.random().toString(16).slice(2)}_${type}`;
+          enqueueJob(db, { id, type, projectId, maxAttempts, payload: b.payload || {} });
+          created.push({ id, type, projectId });
+        }
+        appendActivity({ kind: 'jobs_enqueue', message: `Enqueued ${bundle.join(', ')} for ${projectId}`, projectId });
+        return json(res, 200, { ok: true, projectId, created });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
+
+  // POST /api/jobs/run_one — runs brain/job_runner.mjs once (claims + runs next job)
+  if (req.url === '/api/jobs/run_one' && req.method === 'POST') {
+    const runner = path.resolve(ROOT, '..', 'brain', 'job_runner.mjs');
+    const p = spawn(process.execPath, [runner], { cwd: path.resolve(ROOT, '..'), env: process.env });
+    let out='';
+    let err='';
+    p.stdout.on('data', d => out += d.toString());
+    p.stderr.on('data', d => err += d.toString());
+    p.on('close', (code) => {
+      appendActivity({ kind: 'job_runner_once', message: `job_runner exit ${code}`, projectId: 'system' });
+      return json(res, 200, { ok: code === 0, code, stdout: out.slice(-4000), stderr: err.slice(-4000) });
+    });
+    return;
+  }
+
+  // POST /api/jobs/:id/retry — sets job back to queued (best-effort)
+  if (req.url?.startsWith('/api/jobs/') && req.url?.endsWith('/retry') && req.method === 'POST') {
+    const id = req.url.split('/').at(3);
+    try {
+      const db = openJobsDb();
+      db.prepare("update jobs set status='queued', runAt=?, lastError=null where id=?").run(Date.now(), id);
+      appendActivity({ kind: 'job_retry', message: `Retry ${id}`, projectId: 'system' });
+      return json(res, 200, { ok:true, id });
+    } catch (e) {
+      return json(res, 500, { ok:false, error: String(e) });
+    }
+  }
+
+  // POST /api/jobs/:id/cancel — marks job cancelled (runner will ignore because it only claims queued)
+  if (req.url?.startsWith('/api/jobs/') && req.url?.endsWith('/cancel') && req.method === 'POST') {
+    const id = req.url.split('/').at(3);
+    try {
+      const db = openJobsDb();
+      db.prepare("update jobs set status='cancelled', finishedAt=? where id=?").run(Date.now(), id);
+      appendActivity({ kind: 'job_cancel', message: `Cancel ${id}`, projectId: 'system' });
+      return json(res, 200, { ok:true, id });
+    } catch (e) {
+      return json(res, 500, { ok:false, error: String(e) });
+    }
   }
 
   // /dl/autoedit/<projectId>/<kind>/<filename>

@@ -5,12 +5,12 @@ Stop scrolling SAM.gov for hours.
 2
 00:00:02,000 --> 00:00:06,000
 MaxContrax uses AI to match
-government contracts to you.
+government contracts to your business.
 
 3
 00:00:06,000 --> 00:00:10,000
-So you only see opportunities
-that fit.
+So you see what fits —
+without the noise.
 
 4
 00:00:10,000 --> 00:00:15,000
@@ -19,7 +19,7 @@ Personalized matches.
 
 5
 00:00:15,000 --> 00:00:20,000
-Less noise.
+Fewer dead ends.
 More real shots.
 
 6

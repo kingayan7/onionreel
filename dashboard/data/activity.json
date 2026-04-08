@@ -1,0 +1,18 @@
+{
+  "events": [
+    {
+      "id": "d79c66a4-1a53-435c-a6cb-ac8dde6b93ce",
+      "ts": "2026-04-08T14:57:10.369Z",
+      "kind": "jobs_enqueue",
+      "message": "Enqueued qc_export for maxcontrax-reel-v1",
+      "projectId": "maxcontrax-reel-v1"
+    },
+    {
+      "id": "1c2092a5-9bf5-4a7d-a161-2dbfce54d92c",
+      "ts": "2026-04-08T14:57:14.292Z",
+      "kind": "job_runner_once",
+      "message": "job_runner exit 0",
+      "projectId": "system"
+    }
+  ]
+}

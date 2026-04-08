@@ -1,0 +1,26 @@
+{
+  "version": "v1",
+  "format": "reels_9x16",
+  "safeArea": {
+    "top": 180,
+    "bottom": 260,
+    "left": 80,
+    "right": 80
+  },
+  "font": {
+    "family": "Inter, system-ui, -apple-system",
+    "weight": 900,
+    "size": 56,
+    "lineHeight": 1.08
+  },
+  "colors": {
+    "fg": "#FFFFFF",
+    "accent": "#E17B3B",
+    "shadow": "rgba(0,0,0,0.55)"
+  },
+  "rules": {
+    "maxWordsPerLine": 5,
+    "maxLines": 2,
+    "highlightWords": ["AI", "FREE", "TRIAL", "SAM.GOV", "DAILY", "MAXCONTRAX.COM"]
+  }
+}

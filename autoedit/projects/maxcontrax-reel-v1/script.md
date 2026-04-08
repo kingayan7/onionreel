@@ -1,15 +1,15 @@
-# MaxContrax IG Reel (30s) — Script v1
+# MaxContrax IG Reel (30s) — Script v2 (Masterpiece)
 
 ## VO
 Stop scrolling SAM dot gov for hours.
 
-MaxContrax uses AI to match government contracts to you.
+MaxContrax uses AI to match government contracts to your business.
 
-So you only see opportunities that fit.
+So you see what fits — without the noise.
 
 Daily alerts. Personalized matches.
 
-Less noise. More real shots.
+Fewer dead ends. More real shots.
 
 Start free for seven days.
 

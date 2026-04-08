@@ -1077,6 +1077,69 @@ refresh();
     shipped = 'Hooked Remotion into Brain (job type remotion_render) + Dashboard downloads already exposed via /dl/autoedit.';
     next = 'Proceed to next roadmap step.';
 
+  } else if (picked.step.id === 'P14-S1') {
+    // P14-S1: Replace jobs.json with persistent queue (SQLite).
+    const qPath = path.join(OR_DIR, 'brain', 'queue.mjs');
+    const jrPath = path.join(OR_DIR, 'brain', 'job_runner.mjs');
+    if (!fs.existsSync(qPath) || !fs.existsSync(jrPath)) throw new Error('missing queue/job_runner');
+
+    // Smoke: job_runner should execute with empty queue.
+    const r = spawnSync('/usr/local/bin/node', [jrPath], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) throw new Error(`job_runner failed: ${r.stderr?.toString() || r.stdout?.toString()}`);
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented persistent job queue v1 (SQLite via better-sqlite3) + updated brain/job_runner.mjs to claim jobs from jobs.db.';
+    next = 'Proceed to P14-S2 Idempotent job semantics + lock.';
+
+  } else if (picked.step.id === 'P14-S2') {
+    // P14-S2: Idempotent job semantics + lock to prevent duplicate renders.
+    const qPath = path.join(OR_DIR, 'brain', 'queue.mjs');
+    const jrPath = path.join(OR_DIR, 'brain', 'job_runner.mjs');
+    if (!fs.existsSync(qPath) || !fs.existsSync(jrPath)) throw new Error('missing queue/job_runner');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Added per-(type,project) lock in SQLite queue (prevents duplicate renders) + job_runner skips when lock is active.';
+    next = 'Proceed to P14-S3 Failure handling: dead-letter queue + error artifacts.';
+
+  } else if (picked.step.id === 'P14-S3') {
+    // P14-S3: Failure handling — dead-letter queue + human-readable error artifacts.
+    const dlq = path.join(OR_DIR, 'brain', 'dead_letter.mjs');
+    if (!fs.existsSync(dlq)) throw new Error('missing dead_letter.mjs');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented dead-letter queue v1: brain/dead_letter/*.json written on job failure.';
+    next = 'Proceed to next roadmap step.';
+
+  } else if (picked.step.id === 'P15-S1') {
+    // P15-S1: Caption layout spec as code
+    const stylePath = path.join(OR_DIR, 'captions', 'CAPTION_STYLE_V1.json');
+    const convPath = path.join(OR_DIR, 'captions', 'srt_to_ass.py');
+    if (!fs.existsSync(stylePath) || !fs.existsSync(convPath)) throw new Error('captions spec missing');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Created caption style spec (CAPTION_STYLE_V1.json) + SRT→ASS converter (srt_to_ass.py).';
+    next = 'Proceed to P15-S2 Styled captions render (Remotion preferred; ffmpeg ASS fallback).';
+
+  } else if (picked.step.id === 'P15-S2') {
+    // P15-S2: Styled captions render (Remotion preferred)
+    // Host ffmpeg lacks subtitles filter, so captions must be rendered natively in Remotion.
+    const rem = path.join(OR_DIR, 'remotion');
+    const srt = path.join(rem, 'public', 'clips', 'maxcontrax-reel-v1', 'captions.srt');
+    const srtParser = path.join(rem, 'src', 'lib', 'srt.ts');
+    const comp = path.join(rem, 'src', 'compositions', 'Reel30.tsx');
+    if (!fs.existsSync(srt) || !fs.existsSync(srtParser) || !fs.existsSync(comp)) {
+      throw new Error('missing remotion captions pieces');
+    }
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented Remotion-native captions v1 (SRT parser + caption overlay with safe areas + highlight rules).';
+    next = 'Proceed to next roadmap step.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

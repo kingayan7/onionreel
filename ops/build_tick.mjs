@@ -1386,6 +1386,24 @@ refresh();
     shipped = 'Added cinematic motion language v1 (remotion/src/style/motion.ts) and applied to Reel30 text reveals.';
     next = 'Proceed to P18-S11 Audio mastering v2.';
 
+  } else if (picked.step.id === 'P18-S11') {
+    // P18-S11: Cinematic Premium audio mastering v2
+    const script = path.join(OR_DIR, 'autoedit', 'master_audio_v2.mjs');
+    if (!fs.existsSync(script)) throw new Error('missing autoedit/master_audio_v2.mjs');
+
+    // run once on the flagship project (proves it works)
+    const projectId = 'maxcontrax-reel-v1';
+    const r = spawnSync('/usr/local/bin/node', [script, projectId], { stdio: 'pipe', env: { ...process.env } });
+    if (r.status !== 0) throw new Error(`master_audio_v2 failed: ${(r.stderr||r.stdout||'').toString()}`);
+
+    const out = path.join(OR_DIR, 'autoedit', 'renders', projectId, 'remotion_master_30s_mastered.mp4');
+    if (!fs.existsSync(out)) throw new Error('mastered output missing');
+
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped audio mastering v2 (ducking + SFX + loudnorm preset) → remotion_master_30s_mastered.mp4';
+    next = 'Proceed to P18-S12 Film look presets + QC.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

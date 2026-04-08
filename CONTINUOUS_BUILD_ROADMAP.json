@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T18:33:52-04:00",
+  "updated": "2026-04-08T18:36:49-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -72,13 +72,15 @@
         {
           "id": "P18-S9",
           "name": "End-to-end dashboard-only acceptance test (no chat) + docs",
-          "status": "doing",
-          "doingAt": "2026-04-08T18:30:40-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T18:30:40-04:00",
+          "doneAt": "2026-04-08T18:36:49-04:00"
         },
         {
           "id": "P18-S10",
           "name": "Cinematic Premium: Remotion ad pack template library (motion + typography)",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T18:36:49-04:00"
         },
         {
           "id": "P18-S11",

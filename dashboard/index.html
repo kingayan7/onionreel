@@ -74,6 +74,27 @@
     </div>
   </div>
 
+  <div id="tab-templates" class="card" style="display:none">
+    <h2>Templates</h2>
+    <div class="muted">Pick a template to generate a pack fast. (Power-user: create your own.)</div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="secondary" id="tplRefresh">Refresh</button>
+    </div>
+    <div id="templates" class="muted" style="margin-top:10px">Loading…</div>
+
+    <details style="margin-top:10px">
+      <summary><b>Create template</b></summary>
+      <div class="row" style="margin-top:10px">
+        <input id="tplName" placeholder="Template name" style="min-width:280px" />
+        <input id="tplKind" placeholder="kind (ad_pack/hook_pack/custom)" style="min-width:260px" />
+        <button id="tplCreate">Save Template</button>
+      </div>
+      <div class="muted" style="margin-top:8px">Defaults JSON (stored with template):</div>
+      <textarea id="tplDefaults" style="width:100%; min-height:120px; font: ui-monospace, SFMono-Regular, Menlo, monospace; padding:12px; border-radius:12px; border:1px solid #d1d5db">{"bundle":["sora_generate","remotion_render","export_pack"]}</textarea>
+    </details>
+  </div>
+
   <div id="tab-jobs" class="card" style="display:none">
     <h2>Jobs</h2>
     <div class="row">
@@ -160,6 +181,38 @@ async function loadProjectPanel(pid){
   document.getElementById('renders').innerHTML = rr + ee;
 }
 
+async function refreshTemplates(){
+  const data = await jget('/api/templates');
+  const tpls = (data.templates||[]);
+
+  function tplRow(t){
+    const btn = '<button class="secondary" data-use="' + esc(t.templateId) + '">Use</button>';
+    return '<li><div class="row" style="justify-content:space-between">'
+      + '<div><span class="pill">' + esc(t.kind||'template') + '</span> <b>' + esc(t.name) + '</b><div class="muted" style="font-size:12px">' + esc(t.templateId) + '</div></div>'
+      + '<div>' + btn + '</div>'
+      + '</div></li>';
+  }
+
+  document.getElementById('templates').innerHTML = tpls.length
+    ? '<ul>' + tpls.slice(0,100).map(tplRow).join('') + '</ul>'
+    : '<div class="muted">No templates yet.</div>';
+
+  Array.from(document.querySelectorAll('[data-use]')).forEach(b => {
+    b.onclick = async () => {
+      const id = b.getAttribute('data-use');
+      const t = tpls.find(x => x.templateId === id);
+      const projectId = document.getElementById('reqProjectId').value.trim() || 'maxcontrax-reel-v1';
+      const bundle = (t?.defaults?.bundle) || ['sora_generate','remotion_render','export_pack'];
+      await jpost('/api/requests', { projectId, mode:'template', note:`template:${id}`, bundle, payload: t?.defaults || {} });
+      await jpost('/api/jobs/enqueue', { projectId, bundle, payload: t?.defaults || {} });
+      showTab('requests');
+      await refresh();
+      await refreshJobs();
+      alert('Template enqueued. Click “Run Full Chain”.');
+    };
+  });
+}
+
 async function refreshJobs(){
   const pid = document.getElementById('jobsProjectId')?.value?.trim();
   const st = document.getElementById('jobsStatus')?.value?.trim();
@@ -231,7 +284,7 @@ async function refresh(){
 
 // Tabs
 function showTab(name){
-  ['requests','jobs','projects','library','activity','roadmap'].forEach(t => {
+  ['requests','templates','jobs','projects','library','activity','roadmap'].forEach(t => {
     const el = document.getElementById('tab-' + t);
     if (el) el.style.display = (t === name) ? '' : 'none';
   });
@@ -243,6 +296,18 @@ showTab('requests');
 
 // Requests
 document.getElementById('refresh').onclick = refresh;
+
+// Templates
+if (document.getElementById('tplRefresh')) document.getElementById('tplRefresh').onclick = refreshTemplates;
+if (document.getElementById('tplCreate')) document.getElementById('tplCreate').onclick = async () => {
+  const name = document.getElementById('tplName').value.trim();
+  const kind = document.getElementById('tplKind').value.trim() || 'custom';
+  if (!name) { alert('Enter template name'); return; }
+  let defaults = {};
+  try { defaults = JSON.parse(document.getElementById('tplDefaults').value || '{}'); } catch { alert('Defaults JSON invalid'); return; }
+  await jpost('/api/templates', { name, kind, defaults });
+  await refreshTemplates();
+};
 document.getElementById('reqGenerate').onclick = async () => {
   const projectId = document.getElementById('reqProjectId').value.trim() || 'maxcontrax-reel-v1';
   const bundle = [];

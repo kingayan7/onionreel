@@ -1251,6 +1251,20 @@ refresh();
     shipped = 'Made Telegram ping_send non-fatal (runner continues even if ping fails).';
     next = 'All dashboard hardening steps complete.';
 
+  } else if (picked.step.id === 'P18-S1') {
+    // P18-S1: Templates system (save/load) + gallery UI
+    const dash = path.join(OR_DIR, 'dashboard');
+    const srv = path.join(dash, 'server.mjs');
+    const html = path.join(dash, 'index.html');
+    const tpl = path.join(dash, 'data', 'templates.jsonl');
+    if (!fs.existsSync(srv) || !fs.readFileSync(srv,'utf8').includes('/api/templates')) throw new Error('templates API missing');
+    if (!fs.existsSync(html) || !fs.readFileSync(html,'utf8').includes('Templates')) throw new Error('templates UI missing');
+    if (!fs.existsSync(tpl)) throw new Error('templates.jsonl missing');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Templates v1: templates.jsonl persistence + /api/templates + Templates tab with Use/Create.';
+    next = 'Proceed to P18-S2 Pack Builder wizard.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

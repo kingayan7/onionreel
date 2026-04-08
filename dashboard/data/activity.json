@@ -97,6 +97,41 @@
       "kind": "jobs_enqueue",
       "message": "Enqueued sora_generate, remotion_render, qc_export for maxcontrax ad thats catchy",
       "projectId": "maxcontrax ad thats catchy"
+    },
+    {
+      "id": "6a7e0545-9586-4886-ab27-f8e61d6fc544",
+      "ts": "2026-04-08T15:52:44.109Z",
+      "kind": "jobs_enqueue",
+      "message": "Enqueued export_pack for maxcontrax-reel-v1",
+      "projectId": "maxcontrax-reel-v1"
+    },
+    {
+      "id": "5a0dd448-a717-47b7-8c59-0cb58398c8ea",
+      "ts": "2026-04-08T15:54:50.078Z",
+      "kind": "job_runner_loop",
+      "message": "run_until_empty ran 5 times",
+      "projectId": "system"
+    },
+    {
+      "id": "3493e096-cdf8-4387-81a8-249f9c73bdbe",
+      "ts": "2026-04-08T15:55:25.717Z",
+      "kind": "job_runner_loop",
+      "message": "run_until_empty ran 1 times",
+      "projectId": "system"
+    },
+    {
+      "id": "0333c10e-a29b-4ee6-9bb6-6aa785c893f3",
+      "ts": "2026-04-08T15:56:16.553Z",
+      "kind": "jobs_reset_stuck",
+      "message": "requeued 1 running jobs older than 5m",
+      "projectId": "system"
+    },
+    {
+      "id": "9124a3f4-e8dc-4c1e-8e15-6ac0dae6e4ab",
+      "ts": "2026-04-08T15:58:46.206Z",
+      "kind": "project_upsert",
+      "message": "Project upsert: maxcontrax-reel-v1",
+      "projectId": "maxcontrax-reel-v1"
     }
   ]
 }

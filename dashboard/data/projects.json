@@ -1,3 +1,11 @@
 {
-  "projects": []
+  "projects": [
+    {
+      "id": "maxcontrax-reel-v1",
+      "name": "maxcontrax-reel-v1",
+      "status": "active",
+      "createdAt": "2026-04-08T15:58:46.205Z",
+      "updatedAt": "2026-04-08T15:58:46.205Z"
+    }
+  ]
 }

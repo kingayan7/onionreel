@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T18:58:59-04:00",
+  "updated": "2026-04-08T19:03:56-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -93,13 +93,15 @@
         {
           "id": "P18-S12",
           "name": "Cinematic Premium: Color/film look (grain/vignette/curves) presets + QC",
-          "status": "doing",
-          "doingAt": "2026-04-08T18:57:30-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T18:57:30-04:00",
+          "doneAt": "2026-04-08T19:03:56-04:00"
         },
         {
           "id": "P18-S13",
           "name": "Cinematic Premium: Beat-driven cut engine (music/VO markers) – variants feel edited, not trimmed",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T19:03:56-04:00"
         },
         {
           "id": "P18-S14",

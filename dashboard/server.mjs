@@ -104,6 +104,47 @@ const server = http.createServer((req, res) => {
     return json(res, 200, { projectId, type, latest });
   }
 
+  // Pins (MVP): dashboard/data/pins.json
+  const PINS = path.join(ROOT, 'data', 'pins.json');
+
+  // POST /api/pins/latest
+  // body: { projectId }
+  if (req.url === '/api/pins/latest' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const projectId = (b.projectId || 'default').trim().replace(/\s+/g,'-');
+        const exportsDir = path.join(AUTOEDIT, 'exports', projectId);
+        if (!fs.existsSync(exportsDir)) return json(res, 404, { ok:false, error:'missing exports dir', projectId });
+        const files = fs.readdirSync(exportsDir).filter(f => !f.startsWith('.'));
+        if (!files.length) return json(res, 400, { ok:false, error:'no exports to pin', projectId });
+        // Prefer final_pack.zip if present, else most recent.
+        let pick = files.includes('final_pack.zip') ? 'final_pack.zip' : files.sort((a,b)=>fs.statSync(path.join(exportsDir,b)).mtimeMs - fs.statSync(path.join(exportsDir,a)).mtimeMs)[0];
+        const pins = fs.existsSync(PINS) ? safeJson(fs.readFileSync(PINS,'utf8')) : {};
+        const obj = (pins && typeof pins === 'object') ? pins : {};
+        obj[projectId] = { kind:'latest', file: pick, ts: Date.now() };
+        fs.writeFileSync(PINS, JSON.stringify(obj,null,2)+'\n');
+        appendActivity({ kind:'pin_latest', message:`Pinned ${pick} for ${projectId}`, projectId });
+        return json(res, 200, { ok:true, projectId, file: pick, url: `/dl/autoedit/${encodeURIComponent(projectId)}/exports/${encodeURIComponent(pick)}` });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
+
+  // GET /api/pins?projectId=...
+  if (req.url?.startsWith('/api/pins') && req.method === 'GET') {
+    try {
+      const u = new URL(req.url, 'http://127.0.0.1');
+      const projectId = (u.searchParams.get('projectId') || '').trim().replace(/\s+/g,'-');
+      const pins = fs.existsSync(PINS) ? safeJson(fs.readFileSync(PINS,'utf8')) : {};
+      const obj = (pins && typeof pins === 'object') ? pins : {};
+      return json(res, 200, { pins: projectId ? { [projectId]: obj[projectId]||null } : obj });
+    } catch (e) {
+      return json(res, 500, { ok:false, error: String(e) });
+    }
+  }
+
   // /api/autoedit?projectId=...
   // Returns latest render/export files so the UI can show download links.
   if (req.url?.startsWith('/api/autoedit') && req.method === 'GET') {

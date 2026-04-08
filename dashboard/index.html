@@ -158,10 +158,12 @@
 
   <div id="tab-library" class="card" style="display:none">
     <h2>Library</h2>
-    <div class="muted">Browse latest renders + exports by project. (Artifact Store browsing is in Projects → Artifact Store.)</div>
+    <div class="muted">Browse and search renders/exports. Pin a “latest approved” pack.</div>
     <div class="row" style="margin-top:10px">
       <input id="libProjectId" placeholder="projectId (e.g. maxcontrax-reel-v1)" style="min-width:280px" />
+      <input id="libQuery" placeholder="search (e.g. mp4, qc_report, final_pack)" style="min-width:320px" />
       <button class="secondary" id="libLoad">Load</button>
+      <button class="secondary" id="libPin">Pin Latest</button>
     </div>
     <div id="library" class="muted" style="margin-top:10px">Enter a projectId and click Load.</div>
   </div>
@@ -477,6 +479,7 @@ document.getElementById('jobsRefresh').onclick = refreshJobs;
 // Library
 async function loadLibrary(){
   const pid = document.getElementById('libProjectId').value.trim() || 'maxcontrax-reel-v1';
+  const q = document.getElementById('libQuery').value.trim().toLowerCase();
   const r = await jget('/api/autoedit?projectId=' + encodeURIComponent(pid));
   function link(kind, f){
     return '<a href="/dl/autoedit/' + encodeURIComponent(pid) + '/' + kind + '/' + encodeURIComponent(f.name) + '" target="_blank">' + esc(f.name) + '</a>';

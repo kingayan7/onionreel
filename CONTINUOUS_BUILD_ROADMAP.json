@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T11:12:40-04:00",
+  "updated": "2026-04-08T11:12:47-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -31,13 +31,15 @@
         {
           "id": "P16-S4",
           "name": "Jobs UI: queue + stdout/stderr + retry/cancel",
-          "status": "doing",
-          "doingAt": "2026-04-08T11:12:40-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T11:12:40-04:00",
+          "doneAt": "2026-04-08T11:12:47-04:00"
         },
         {
           "id": "P16-S5",
           "name": "One-click Generate Pack runs full chain (worker loop)",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T11:12:47-04:00"
         },
         {
           "id": "P16-S6",

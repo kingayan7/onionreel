@@ -1,45 +1,41 @@
 # OnionReel v1 Artifact: Cost Controls (P12-S5)
 
 ## Overview
-This artifact outlines the implementation of cost control features for OnionReel, focusing on clip length caps, retry limits, and budget guardrails. These features aim to optimize resource usage and prevent overspending during video processing.
+Implement cost control mechanisms in OnionReel to manage expenses effectively. This includes setting clip length caps, limiting retries, and establishing budget guardrails to ensure that users stay within their financial limits while creating content.
 
 ## Inputs
-- **User Settings**: Desired clip length cap, maximum retries, and budget limits.
-- **System Metrics**: Current processing costs, clip lengths, and retry statistics.
-- **Feedback Loop**: User feedback on cost control effectiveness.
+- **User Input**: Desired clip length, maximum retries, budget limits.
+- **System Parameters**: Current budget status, clip length settings.
+- **Cost Metrics**: Costs associated with clip creation, retries, and overall budget.
 
 ## Outputs
-- **Clip Length Cap**: Enforced maximum length for video clips.
-- **Retry Limits**: Configurable maximum number of retries for processing failures.
-- **Budget Guardrails**: Alerts and restrictions based on user-defined budget thresholds.
+- **Enforced Clip Length**: Maximum length for clips based on user settings.
+- **Retry Limit**: Number of times a user can retry a clip before incurring additional costs.
+- **Budget Alerts**: Notifications when approaching budget limits.
 
 ## Steps
-1. **Define User Settings**:
-   - Create a user interface for inputting clip length caps, retry limits, and budget thresholds.
-   
-2. **Implement Clip Length Cap**:
-   - Modify the video processing pipeline to enforce a maximum clip length.
-   - Validate input lengths against user-defined caps before processing.
+1. **Define Clip Length Caps**:
+   - Set maximum clip length based on user preferences and system capabilities.
+   - Implement validation checks to enforce these limits during clip creation.
 
-3. **Set Up Retry Logic**:
-   - Develop a retry mechanism that limits the number of processing attempts based on user settings.
-   - Log each retry attempt and its outcome for user review.
+2. **Implement Retry Logic**:
+   - Establish a maximum number of retries per clip.
+   - Track the number of retries and alert users when they reach the limit.
 
-4. **Establish Budget Guardrails**:
-   - Integrate a monitoring system that tracks processing costs in real-time.
-   - Implement alerts for users when approaching budget limits, with options to pause or stop processing.
+3. **Set Budget Guardrails**:
+   - Allow users to input their budget limits.
+   - Create a monitoring system that tracks spending and sends alerts when nearing the budget cap.
 
-5. **Testing and Validation**:
-   - Conduct unit tests for each feature to ensure functionality.
-   - Gather user feedback on the effectiveness of cost controls and make adjustments as necessary.
+4. **Testing**:
+   - Conduct unit tests for clip length enforcement, retry limits, and budget notifications.
+   - Perform user acceptance testing (UAT) to ensure functionality meets user expectations.
 
-6. **Documentation**:
-   - Create user documentation outlining how to set and adjust cost control features.
+5. **Deployment**:
+   - Package the changes into a shippable artifact.
+   - Deploy to production and monitor for issues.
 
 ## Pitfalls
-- **User Confusion**: Users may not understand the implications of clip length caps or budget limits. Clear documentation is essential.
-- **Over-Restrictive Settings**: Setting caps too low may hinder user experience. Balance is key.
-- **Performance Impact**: Implementing additional checks may slow down processing. Optimize code to minimize impact.
-- **Inadequate Alerts**: Failing to provide timely alerts could lead to unexpected costs. Ensure robust notification systems are in place.
-
-By following this roadmap, OnionReel can effectively implement cost control features that enhance user experience while managing operational costs.
+- **User Misunderstanding**: Users may not fully grasp the implications of clip length caps or retry limits; ensure clear communication and documentation.
+- **Overly Restrictive Limits**: Setting caps too low may frustrate users; balance cost controls with user flexibility.
+- **Inadequate Testing**: Insufficient testing may lead to bugs; prioritize thorough testing to avoid disruptions post-deployment.
+- **Budget Calculation Errors**: Ensure accurate tracking of expenses to prevent discrepancies and user dissatisfaction.

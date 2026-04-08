@@ -1003,6 +1003,19 @@ refresh();
     shipped = 'Enabled cost controls in config/runtime.json (clip seconds cap, clips/run cap, concurrency, max attempts).';
     next = 'Proceed to next roadmap step.';
 
+  } else if (picked.step.id === 'P13-S1') {
+    // P13-S1: Scaffold Remotion project
+    const remDir = path.join(OR_DIR, 'remotion');
+    const pkg = path.join(remDir, 'package.json');
+    const root = path.join(remDir, 'src', 'Root.tsx');
+    if (!fs.existsSync(pkg) || !fs.existsSync(root)) {
+      throw new Error('remotion scaffold missing (package.json/src/Root.tsx)');
+    }
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Scaffolded Remotion render engine (onionreel/remotion) with Reel30 composition + npm scripts.';
+    next = 'Proceed to P13-S2 Implement Reel composition v1.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

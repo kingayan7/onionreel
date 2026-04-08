@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T00:57:47-04:00",
+  "updated": "2026-04-08T00:58:30-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -452,13 +452,15 @@
         {
           "id": "P13-S1",
           "text": "Scaffold Remotion project inside onionreel/remotion (composition + CLI render)",
-          "status": "doing",
-          "doingAt": "2026-04-08T00:32:45-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T00:32:45-04:00",
+          "doneAt": "2026-04-08T00:58:30-04:00"
         },
         {
           "id": "P13-S2",
           "text": "Implement Reel composition v1 (beats → text cards + end card)",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T00:58:30-04:00"
         },
         {
           "id": "P13-S3",

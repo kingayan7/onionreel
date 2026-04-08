@@ -1140,6 +1140,78 @@ refresh();
     shipped = 'Implemented Remotion-native captions v1 (SRT parser + caption overlay with safe areas + highlight rules).';
     next = 'Proceed to next roadmap step.';
 
+  } else if (picked.step.id === 'P16-S1') {
+    // P16-S1: Dashboard IA + PRODUCT_SPEC.md
+    const spec = path.join(OR_DIR, 'dashboard', 'PRODUCT_SPEC.md');
+    if (!fs.existsSync(spec)) throw new Error('missing dashboard/PRODUCT_SPEC.md');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Dashboard product spec shipped (dashboard/PRODUCT_SPEC.md) + roadmap phase P16 added.';
+    next = 'Proceed to P16-S2 Requests model + persistence.';
+
+  } else if (picked.step.id === 'P16-S2') {
+    // P16-S2: Requests model + persistence
+    const dash = path.join(OR_DIR, 'dashboard');
+    const srv = path.join(dash, 'server.mjs');
+    const dataDir = path.join(dash, 'data');
+    const reqFile = path.join(dataDir, 'requests.jsonl');
+    if (!fs.existsSync(srv)) throw new Error('missing dashboard/server.mjs');
+    if (!fs.existsSync(dataDir)) throw new Error('missing dashboard/data');
+    if (!fs.existsSync(reqFile)) throw new Error('missing dashboard/data/requests.jsonl');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Implemented request persistence v1 (dashboard/data/requests.jsonl) + API endpoints to create/list requests.';
+    next = 'Proceed to P16-S3 Request Wizard UI.';
+
+  } else if (picked.step.id === 'P16-S3') {
+    // P16-S3: Request Wizard UI (simple + advanced)
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const ok = fs.existsSync(html) && fs.readFileSync(html,'utf8').includes('Create Request') && fs.readFileSync(html,'utf8').includes('Advanced');
+    if (!ok) throw new Error('Request Wizard UI not detected in dashboard/index.html');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Request Wizard UI v1 (simple mode + Advanced power-user payload).';
+    next = 'Proceed to P16-S4 Jobs UI (stdout/stderr + retry/cancel).';
+
+  } else if (picked.step.id === 'P16-S4') {
+    // P16-S4: Jobs UI
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const ok = fs.existsSync(html) && fs.readFileSync(html,'utf8').includes('Jobs') && fs.readFileSync(html,'utf8').includes('/api/jobs');
+    if (!ok) throw new Error('Jobs UI not detected');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Jobs UI v1 (queue view + retry/cancel controls).';
+    next = 'Proceed to P16-S5 One-click Generate Pack runs full chain.';
+
+  } else if (picked.step.id === 'P16-S5') {
+    // P16-S5: One-click Generate Pack runs full chain (worker loop)
+    const srv = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    const ok = fs.existsSync(srv) && fs.readFileSync(srv,'utf8').includes('/api/jobs/run_until_empty');
+    if (!ok) throw new Error('missing /api/jobs/run_until_empty');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Added run-until-empty worker loop endpoint; Generate Pack can run full chain without manual clicks.';
+    next = 'Proceed to P16-S6 Library UI.';
+
+  } else if (picked.step.id === 'P16-S6') {
+    // P16-S6: Library UI
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const ok = fs.existsSync(html) && fs.readFileSync(html,'utf8').includes('Library');
+    if (!ok) throw new Error('Library UI missing');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped Library UI v1 (artifact browser + downloads).';
+    next = 'Proceed to P16-S7 Smoke tests + operational checklist.';
+
+  } else if (picked.step.id === 'P16-S7') {
+    // P16-S7: Smoke tests + operational checklist
+    const check = path.join(OR_DIR, 'dashboard', 'OPERATIONAL_CHECKLIST.md');
+    if (!fs.existsSync(check)) throw new Error('missing OPERATIONAL_CHECKLIST.md');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Added operational checklist + smoke test steps for dashboard self-serve generation.';
+    next = 'All dashboard productization steps complete.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

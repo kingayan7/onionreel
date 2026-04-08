@@ -156,8 +156,46 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // Requests persistence (MVP): dashboard/data/requests.jsonl
+  const REQUESTS = path.join(ROOT, 'data', 'requests.jsonl');
+
+  if (req.url === '/api/requests' && req.method === 'GET') {
+    try {
+      if (!fs.existsSync(REQUESTS)) fs.writeFileSync(REQUESTS, '');
+      const lines = fs.readFileSync(REQUESTS, 'utf8').split('\n').filter(Boolean);
+      const reqs = lines.map(safeJson).filter(Boolean).slice(-200).reverse();
+      return json(res, 200, { requests: reqs });
+    } catch (e) {
+      return json(res, 500, { error: String(e) });
+    }
+  }
+
+  if (req.url === '/api/requests' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        if (!fs.existsSync(path.dirname(REQUESTS))) fs.mkdirSync(path.dirname(REQUESTS), { recursive: true });
+        if (!fs.existsSync(REQUESTS)) fs.writeFileSync(REQUESTS, '');
+        const b = safeJson(body) || {};
+        const request = {
+          requestId: b.requestId || ('req_' + Date.now()),
+          projectId: b.projectId || 'default',
+          createdAt: new Date().toISOString(),
+          mode: b.mode || 'simple',
+          bundle: b.bundle || ['sora_generate','remotion_render','qc_export'],
+          payload: b.payload || {},
+          note: b.note || ''
+        };
+        fs.appendFileSync(REQUESTS, JSON.stringify(request) + '\n');
+        appendActivity({ kind: 'request_create', message: `Request ${request.requestId} for ${request.projectId}`, projectId: request.projectId });
+        return json(res, 200, { ok: true, request });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
+
   // POST /api/jobs/enqueue
-  // body: { projectId, bundle?: ['sora_generate','remotion_render','qc_export'], maxAttempts?, note? }
+  // body: { projectId, bundle?: ['sora_generate','remotion_render','qc_export'], maxAttempts?, payload?, requestId? }
   if (req.url === '/api/jobs/enqueue' && req.method === 'POST') {
     return readBody(req).then((body) => {
       try {
@@ -169,7 +207,7 @@ const server = http.createServer((req, res) => {
         const created = [];
         for (const type of bundle) {
           const id = `job_${Date.now()}_${Math.random().toString(16).slice(2)}_${type}`;
-          enqueueJob(db, { id, type, projectId, maxAttempts, payload: b.payload || {} });
+          enqueueJob(db, { id, type, projectId, maxAttempts, payload: { ...(b.payload||{}), requestId: b.requestId } });
           created.push({ id, type, projectId });
         }
         appendActivity({ kind: 'jobs_enqueue', message: `Enqueued ${bundle.join(', ')} for ${projectId}`, projectId });
@@ -193,6 +231,33 @@ const server = http.createServer((req, res) => {
       return json(res, 200, { ok: code === 0, code, stdout: out.slice(-4000), stderr: err.slice(-4000) });
     });
     return;
+  }
+
+  // POST /api/jobs/run_until_empty
+  // body: { maxJobs?: number } (defaults 25)
+  if (req.url === '/api/jobs/run_until_empty' && req.method === 'POST') {
+    return readBody(req).then(async (body) => {
+      const b = safeJson(body) || {};
+      const maxJobs = Math.min(200, Math.max(1, Number(b.maxJobs || 25)));
+      const runner = path.resolve(ROOT, '..', 'brain', 'job_runner.mjs');
+
+      const results = [];
+      for (let i = 0; i < maxJobs; i++) {
+        const r = await new Promise((resolve) => {
+          const p = spawn(process.execPath, [runner], { cwd: path.resolve(ROOT, '..'), env: process.env });
+          let out='';
+          let err='';
+          p.stdout.on('data', d => out += d.toString());
+          p.stderr.on('data', d => err += d.toString());
+          p.on('close', (code) => resolve({ code, stdout: out, stderr: err }));
+        });
+        results.push({ i, code: r.code, stdout: r.stdout.slice(-2000), stderr: r.stderr.slice(-2000) });
+        if ((r.stdout || '').includes('no queued jobs')) break;
+      }
+
+      appendActivity({ kind: 'job_runner_loop', message: `run_until_empty ran ${results.length} times`, projectId: 'system' });
+      return json(res, 200, { ok: true, ran: results.length, results });
+    });
   }
 
   // POST /api/jobs/:id/retry — sets job back to queued (best-effort)

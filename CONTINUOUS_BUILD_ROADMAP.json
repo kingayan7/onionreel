@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-08T11:09:06-04:00",
+  "updated": "2026-04-08T11:12:28-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -10,13 +10,15 @@
         {
           "id": "P16-S1",
           "name": "Dashboard IA + PRODUCT_SPEC.md",
-          "status": "doing",
-          "doingAt": "2026-04-08T11:03:21-04:00"
+          "status": "done",
+          "doingAt": "2026-04-08T11:03:21-04:00",
+          "doneAt": "2026-04-08T11:12:28-04:00"
         },
         {
           "id": "P16-S2",
           "name": "Requests model + persistence",
-          "status": "todo"
+          "status": "doing",
+          "doingAt": "2026-04-08T11:12:28-04:00"
         },
         {
           "id": "P16-S3",

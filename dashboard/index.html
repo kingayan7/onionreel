@@ -45,6 +45,7 @@
     <div class="row" style="margin-top:10px">
       <input id="reqProjectId" placeholder="projectId (e.g. maxcontrax-reel-v1)" style="min-width:280px" />
       <button id="reqGenerate">Generate Pack</button>
+      <button class="secondary" id="reqRunAll">Run Full Chain</button>
       <button class="secondary" id="reqRunOne">Run Next Job</button>
       <button class="secondary" id="refresh">Refresh</button>
     </div>
@@ -245,6 +246,13 @@ document.getElementById('reqGenerate').onclick = async () => {
   await refresh();
   await refreshJobs();
   alert('Enqueued. Go to Jobs tab and click “Run Next Job” (or run multiple times).');
+};
+
+document.getElementById('reqRunAll').onclick = async () => {
+  const r = await jpost('/api/jobs/run_until_empty', { maxJobs: 50 });
+  await refresh();
+  await refreshJobs();
+  if (!r.ok) alert('run_until_empty returned non-zero. Check Jobs tab + Activity.');
 };
 
 document.getElementById('reqRunOne').onclick = async () => {

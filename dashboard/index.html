@@ -89,6 +89,12 @@
         <input id="iterClipId" placeholder="clipId (e.g. overwhelm_scroll)" style="min-width:260px" />
         <button class="secondary" id="iterRegenClip">Regenerate Clip</button>
       </div>
+
+      <div class="row" style="margin-top:10px">
+        <input id="qcScore" placeholder="QC score (0-100)" style="max-width:200px" />
+        <label class="muted"><input type="checkbox" id="qcPass" /> QC PASS</label>
+        <button class="secondary" id="qcSet">Set QC</button>
+      </div>
     </div>
 
     <div class="card" style="margin-top:12px">
@@ -428,6 +434,15 @@ if (document.getElementById('iterRegenClip')) document.getElementById('iterRegen
   if (!clipId) { alert('Enter clipId'); return; }
   await jpost('/api/iterate/regenerate_clip', { projectId, clipId });
   alert('Enqueued clip regen + rerender + export. Click Run Full Chain.');
+};
+
+// QC Gate controls (P18-S6)
+if (document.getElementById('qcSet')) document.getElementById('qcSet').onclick = async () => {
+  const projectId = await iterProjectId();
+  const score = Number(document.getElementById('qcScore').value || 0);
+  const pass = document.getElementById('qcPass').checked;
+  await jpost('/api/qc/set', { projectId, score, pass });
+  alert('QC updated. export_pack will be blocked unless QC PASS is set.');
 };
 
 document.getElementById('reqRunOne').onclick = async () => {

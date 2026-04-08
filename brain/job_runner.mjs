@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { openDb, claimNextJob, markDone, markFailed, requeue, acquireLock, releaseLock } from './queue.mjs';
 
@@ -81,6 +82,25 @@ async function runJob(job, db){
       job.outputs.master = `autoedit/renders/${projectId}/master_30s.mp4`;
 
     } else if (type === 'export_pack' || type === 'qc_render' || type === 'qc_export') {
+      // QC gate: block export_pack unless project QC is marked pass.
+      if (type === 'export_pack') {
+        try {
+          const qcFile = path.join(OR_DIR, 'dashboard', 'data', 'qc.jsonl');
+          if (fs.existsSync(qcFile)) {
+            const lines = fs.readFileSync(qcFile, 'utf8').split('\n').filter(Boolean);
+            const rows = lines.map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+            const latest = rows.reverse().find((r) => r.projectId === projectId) || null;
+            const pass = latest?.pass === true;
+            const force = payload?.force === true;
+            if (!pass && !force) {
+              throw new Error('QC_GATE_BLOCKED: set QC pass in dashboard before export_pack (or use force).');
+            }
+          }
+        } catch (e) {
+          throw e;
+        }
+      }
+
       const script = path.join(OR_DIR, 'autoedit', 'qc_export.mjs');
       await runNode(script, [projectId]);
       job.outputs.exportDir = `autoedit/exports/${projectId}`;

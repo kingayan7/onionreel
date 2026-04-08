@@ -1326,6 +1326,21 @@ refresh();
     shipped = 'Shipped Iteration actions v1 (rerender, hook alternates, regenerate clip) via dashboard.';
     next = 'Proceed to P18-S6 QC gate.';
 
+  } else if (picked.step.id === 'P18-S6') {
+    // P18-S6: QC gate
+    const srv = path.join(OR_DIR, 'dashboard', 'server.mjs');
+    const jr = path.join(OR_DIR, 'brain', 'job_runner.mjs');
+    const html = path.join(OR_DIR, 'dashboard', 'index.html');
+    const s = fs.readFileSync(srv,'utf8');
+    const j = fs.readFileSync(jr,'utf8');
+    const h = fs.readFileSync(html,'utf8');
+    const ok = s.includes('/api/qc/set') && s.includes('/api/qc') && j.includes('QC_GATE_BLOCKED') && h.includes('QC PASS');
+    if (!ok) throw new Error('QC gate not detected');
+    picked.step.status = 'done';
+    picked.step.doneAt = iso;
+    shipped = 'Shipped QC gate v1 (QC PASS required for export_pack; set via dashboard).';
+    next = 'Proceed to P18-S7 Export Center.';
+
   } else {
     // Generic improvement: add a short note file for the step
     const outPath = path.join(OR_DIR, `STEP_${picked.step.id}.md`);

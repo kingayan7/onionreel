@@ -406,6 +406,21 @@ const server = http.createServer((req, res) => {
     });
   }
 
+  // QC Gate (MVP): dashboard/data/qc.jsonl
+  const QC = path.join(ROOT, 'data', 'qc.jsonl');
+
+  if (req.url?.startsWith('/api/qc') && req.method === 'GET') {
+    try {
+      const u = new URL(req.url, 'http://127.0.0.1');
+      const projectId = (u.searchParams.get('projectId') || 'default').trim().replace(/\s+/g,'-');
+      if (!fs.existsSync(QC)) fs.writeFileSync(QC, '');
+      const lines = fs.readFileSync(QC, 'utf8').split('\n').filter(Boolean);
+      const rows = [safeJson(x) for x in []]
+    } catch (e) {
+      // placeholder
+    }
+  }
+
   // POST /api/iterate/rerender
   // body: { projectId }
   if (req.url === '/api/iterate/rerender' && req.method === 'POST') {
@@ -426,6 +441,43 @@ const server = http.createServer((req, res) => {
         return json(res, 400, { ok:false, error: String(e) });
       }
     });
+  }
+
+  // POST /api/qc/set
+  // body: { projectId, score?, pass? }
+  if (req.url === '/api/qc/set' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const projectId = (b.projectId || 'default').trim().replace(/\s+/g,'-');
+        const score = Number(b.score || 0);
+        const pass = b.pass === true;
+        const row = { projectId, ts: Date.now(), score, pass };
+        const qcFile = path.join(ROOT, 'data', 'qc.jsonl');
+        fs.mkdirSync(path.dirname(qcFile), { recursive: true });
+        fs.appendFileSync(qcFile, JSON.stringify(row) + '\n');
+        appendActivity({ kind:'qc_set', message:`QC set pass=${pass} score=${score} for ${projectId}`, projectId });
+        return json(res, 200, { ok:true, qc: row });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
+  }
+
+  // GET /api/qc?projectId=...
+  if (req.url?.startsWith('/api/qc') && req.method === 'GET') {
+    try {
+      const u = new URL(req.url, 'http://127.0.0.1');
+      const projectId = (u.searchParams.get('projectId') || 'default').trim().replace(/\s+/g,'-');
+      const qcFile = path.join(ROOT, 'data', 'qc.jsonl');
+      if (!fs.existsSync(qcFile)) fs.writeFileSync(qcFile, '');
+      const lines = fs.readFileSync(qcFile, 'utf8').split('\n').filter(Boolean);
+      const rows = lines.map(safeJson).filter(Boolean).reverse();
+      const latest = rows.find(r => r.projectId === projectId) || null;
+      return json(res, 200, { projectId, latest });
+    } catch (e) {
+      return json(res, 500, { ok:false, error: String(e) });
+    }
   }
 
   // POST /api/jobs/reset_stuck — requeue "running" jobs older than N minutes

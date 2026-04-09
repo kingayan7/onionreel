@@ -296,6 +296,29 @@ const server = http.createServer((req, res) => {
         };
         fs.appendFileSync(REQUESTS, JSON.stringify(request) + '\n');
         appendActivity({ kind: 'request_create', message: `Request ${request.requestId} for ${request.projectId}`, projectId: request.projectId });
+
+        // Optional: one-click submit = create request + enqueue bundle + kick background runner.
+        if (b.autoEnqueue === true) {
+          const db = openJobsDb();
+          const maxAttempts = Number(b.maxAttempts || 2);
+          const created = [];
+          for (const type of request.bundle) {
+            const id = `job_${Date.now()}_${Math.random().toString(16).slice(2)}_${type}`;
+            enqueueJob(db, { id, type, projectId: request.projectId, maxAttempts, payload: { ...(request.payload||{}), requestId: request.requestId } });
+            created.push({ id, type, projectId: request.projectId });
+          }
+          appendActivity({ kind: 'request_autoenqueue', message: `Auto-enqueued ${request.bundle.join(', ')} for ${request.projectId}`, projectId: request.projectId });
+
+          if (b.autoRun === true) {
+            const bg = path.resolve(ROOT, '..', 'brain', 'run_until_empty.mjs');
+            const p = spawn(process.execPath, [bg], { cwd: path.resolve(ROOT, '..'), env: process.env, detached: true, stdio: 'ignore' });
+            p.unref();
+            appendActivity({ kind: 'request_autorun', message: `Background run_until_empty started for ${request.projectId}`, projectId: request.projectId });
+          }
+
+          return json(res, 200, { ok: true, request, enqueued: created, autoRun: b.autoRun === true });
+        }
+
         return json(res, 200, { ok: true, request });
       } catch (e) {
         return json(res, 400, { ok:false, error: String(e) });

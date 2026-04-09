@@ -52,6 +52,7 @@
         <option value="promo_pack">Promo Pack</option>
       </select>
       <button id="reqGenerate">Generate Pack</button>
+      <button id="runMaxcontrax" style="background:#E17B3B;border-color:#E17B3B">Run MaxContrax Pack (1 click)</button>
       <button class="secondary" id="reqRunAll">Run Full Chain</button>
       <button class="secondary" id="reqRunOne">Run Next Job</button>
       <button class="secondary" id="refresh">Refresh</button>
@@ -419,6 +420,25 @@ document.getElementById('reqRunAll').onclick = async () => {
   await refresh();
   await refreshJobs();
   if (!r.ok) alert('run_until_empty returned non-zero. Check Jobs tab + Activity.');
+};
+
+// P19-S3: One-click MaxContrax full pack
+if (document.getElementById('runMaxcontrax')) document.getElementById('runMaxcontrax').onclick = async () => {
+  const projectId = document.getElementById('reqProjectId').value.trim() || 'maxcontrax-reel-v3';
+  const r = await jpost('/api/requests', {
+    projectId,
+    preset: 'maxcontrax_full_pack',
+    mode: 'maxcontrax_full_pack',
+    autoEnqueue: true,
+    autoRun: true,
+  });
+  await refresh();
+  await refreshJobs();
+  if (!r.ok) {
+    alert('Run failed: ' + (r.error || 'unknown'));
+    return;
+  }
+  alert('MaxContrax pack started in background. Check Jobs + Activity; then use Export Center to download final_pack.zip.');
 };
 
 // Iteration actions (P18-S5)

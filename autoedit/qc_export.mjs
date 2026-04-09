@@ -37,6 +37,7 @@ const report = {
   ts: new Date().toISOString(),
   files: {},
   checks: [],
+  issues: [],
   ok: true
 };
 
@@ -45,16 +46,52 @@ function statFile(p){
   return { bytes: st.size, mb: +(st.size/1024/1024).toFixed(2) };
 }
 
-// 1) Basic file metadata
-report.files.master_30s = { path: master, ...statFile(master) };
+function fail(code, detail){
+  report.ok = false;
+  report.issues.push({ level: 'fail', code, detail });
+}
 
-// Bonus: if film look / posters exist, capture them too (for dashboard + final pack coherence)
+function warn(code, detail){
+  report.issues.push({ level: 'warn', code, detail });
+}
+
+function reqFile(label, p, { minBytes = 10_000 } = {}){
+  if (!fs.existsSync(p)) {
+    fail('missing_required_file', `${label}: ${p}`);
+    return null;
+  }
+  const st = fs.statSync(p);
+  if (st.size < minBytes) {
+    fail('file_too_small', `${label}: ${p} bytes=${st.size}`);
+  }
+  report.files[label] = { path: p, ...statFile(p) };
+  return p;
+}
+
+// 1) Required deliverables (MaxContrax production defaults)
+// These are the things we expect for a "top quality" pack.
+reqFile('master_30s', master, { minBytes: 200_000 });
+
+const mastered = path.join(rendersDir, 'remotion_master_30s_mastered.mp4');
+if (!fs.existsSync(mastered)) {
+  warn('missing_mastered', mastered);
+} else {
+  reqFile('mastered_30s', mastered, { minBytes: 200_000 });
+}
+
 const film = path.join(rendersDir, 'remotion_master_30s_film.mp4');
-if (fs.existsSync(film)) report.files.film_30s = { path: film, ...statFile(film) };
-const poster = path.join(AUTO_DIR, 'exports', projectId, 'poster_1080x1920.png');
-const thumb = path.join(AUTO_DIR, 'exports', projectId, 'thumb_1280x720.jpg');
-if (fs.existsSync(poster)) report.files.poster = { path: poster, ...statFile(poster) };
-if (fs.existsSync(thumb)) report.files.thumb = { path: thumb, ...statFile(thumb) };
+if (!fs.existsSync(film)) {
+  warn('missing_film_look', film);
+} else {
+  reqFile('film_30s', film, { minBytes: 200_000 });
+}
+
+const exportDir = path.join(AUTO_DIR, 'exports', projectId);
+const poster = path.join(exportDir, 'poster_1080x1920.png');
+const thumb = path.join(exportDir, 'thumb_1280x720.jpg');
+// Posters are required for the ad pack.
+reqFile('poster', poster, { minBytes: 20_000 });
+reqFile('thumb', thumb, { minBytes: 10_000 });
 
 // 2) ffprobe duration/resolution
 {
@@ -95,22 +132,22 @@ const v6 = fs.existsSync(remV6) ? remV6 : path.join(rendersDir, 'variant_6s.mp4'
 
 for (const [out, seconds] of [[v15,15],[v6,6]]) {
   if (fs.existsSync(out)) {
-    report.files[path.basename(out)] = { path: out, ...statFile(out) };
+    // Required output: variants must exist and be non-trivial size.
+    reqFile(`variant_${seconds}s`, out, { minBytes: 80_000 });
     report.checks.push({ kind:'variant_present', ok:true, seconds, path: out });
     continue;
   }
   const r = run('ffmpeg', ['-hide_banner','-loglevel','error','-y','-i', master, '-t', String(seconds), '-c:v', 'libx264', '-pix_fmt','yuv420p','-movflags','+faststart', out]);
   if (r.status !== 0) {
-    report.ok = false;
+    fail('variant_render_failed', `seconds=${seconds} ${(r.stderr||'').trim().slice(0,800)}`);
     report.checks.push({ kind:'variant_render', ok:false, seconds, detail:(r.stderr||'').trim().slice(0,800) });
   } else {
-    report.files[path.basename(out)] = { path: out, ...statFile(out) };
+    reqFile(`variant_${seconds}s`, out, { minBytes: 80_000 });
     report.checks.push({ kind:'variant_render', ok:true, seconds });
   }
 }
 
 // 5) Export pack manifest
-const exportDir = path.join(AUTO_DIR, 'exports', projectId);
 fs.mkdirSync(exportDir, { recursive: true });
 
 const outputs = {
@@ -119,12 +156,10 @@ const outputs = {
   variant_6s: path.relative(AUTO_DIR, v6),
 };
 
-const filmOut = path.join(rendersDir, 'remotion_master_30s_film.mp4');
-if (fs.existsSync(filmOut)) outputs.film_30s = path.relative(AUTO_DIR, filmOut);
-const posterOut = path.join(exportDir, 'poster_1080x1920.png');
-const thumbOut = path.join(exportDir, 'thumb_1280x720.jpg');
-if (fs.existsSync(posterOut)) outputs.poster = path.relative(AUTO_DIR, posterOut);
-if (fs.existsSync(thumbOut)) outputs.thumb = path.relative(AUTO_DIR, thumbOut);
+if (fs.existsSync(mastered)) outputs.mastered_30s = path.relative(AUTO_DIR, mastered);
+if (fs.existsSync(film)) outputs.film_30s = path.relative(AUTO_DIR, film);
+if (fs.existsSync(poster)) outputs.poster = path.relative(AUTO_DIR, poster);
+if (fs.existsSync(thumb)) outputs.thumb = path.relative(AUTO_DIR, thumb);
 
 const pack = {
   projectId,

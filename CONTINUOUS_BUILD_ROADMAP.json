@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-09T18:03:30-04:00",
+  "updated": "2026-04-09T18:05:00-04:00",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -22,7 +22,8 @@
         {
           "id": "P19-S2",
           "name": "QC v2 for MaxContrax: validate mastered+film+variants+poster+thumb + clear fail reasons",
-          "status": "todo"
+          "status": "done",
+          "doneAt": "2026-04-09T18:05:00-04:00"
         },
         {
           "id": "P19-S3",

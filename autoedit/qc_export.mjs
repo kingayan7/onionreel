@@ -17,7 +17,16 @@ if (!projectId) {
 }
 
 const rendersDir = path.join(AUTO_DIR, 'renders', projectId);
-const master = path.join(rendersDir, 'master_30s.mp4');
+
+// Prefer Remotion outputs (dashboard product path), fall back to legacy autoedit master.
+const remotionMaster = path.join(rendersDir, 'remotion_master_30s_mastered.mp4');
+const remotionMasterRaw = path.join(rendersDir, 'remotion_master_30s.mp4');
+const legacyMaster = path.join(rendersDir, 'master_30s.mp4');
+
+const master = fs.existsSync(remotionMaster)
+  ? remotionMaster
+  : (fs.existsSync(remotionMasterRaw) ? remotionMasterRaw : legacyMaster);
+
 if (!fs.existsSync(master)) {
   console.error('missing master:', master);
   process.exit(2);
@@ -38,6 +47,14 @@ function statFile(p){
 
 // 1) Basic file metadata
 report.files.master_30s = { path: master, ...statFile(master) };
+
+// Bonus: if film look / posters exist, capture them too (for dashboard + final pack coherence)
+const film = path.join(rendersDir, 'remotion_master_30s_film.mp4');
+if (fs.existsSync(film)) report.files.film_30s = { path: film, ...statFile(film) };
+const poster = path.join(AUTO_DIR, 'exports', projectId, 'poster_1080x1920.png');
+const thumb = path.join(AUTO_DIR, 'exports', projectId, 'thumb_1280x720.jpg');
+if (fs.existsSync(poster)) report.files.poster = { path: poster, ...statFile(poster) };
+if (fs.existsSync(thumb)) report.files.thumb = { path: thumb, ...statFile(thumb) };
 
 // 2) ffprobe duration/resolution
 {
@@ -69,16 +86,25 @@ report.files.master_30s = { path: master, ...statFile(master) };
   if (hasBlack) report.ok = false;
 }
 
-// 4) Create variants (15s + 6s)
-const v15 = path.join(rendersDir, 'variant_15s.mp4');
-const v6 = path.join(rendersDir, 'variant_6s.mp4');
+// 4) Variants (15s + 6s)
+// Prefer existing Remotion variants; otherwise generate quick trims from the chosen master.
+const remV15 = path.join(rendersDir, 'remotion_variant_15s.mp4');
+const remV6 = path.join(rendersDir, 'remotion_variant_6s.mp4');
+const v15 = fs.existsSync(remV15) ? remV15 : path.join(rendersDir, 'variant_15s.mp4');
+const v6 = fs.existsSync(remV6) ? remV6 : path.join(rendersDir, 'variant_6s.mp4');
+
 for (const [out, seconds] of [[v15,15],[v6,6]]) {
-  const r = run('ffmpeg', ['-y','-i', master, '-t', String(seconds), '-c:v', 'libx264', '-pix_fmt','yuv420p','-movflags','+faststart', out]);
+  if (fs.existsSync(out)) {
+    report.files[path.basename(out)] = { path: out, ...statFile(out) };
+    report.checks.push({ kind:'variant_present', ok:true, seconds, path: out });
+    continue;
+  }
+  const r = run('ffmpeg', ['-hide_banner','-loglevel','error','-y','-i', master, '-t', String(seconds), '-c:v', 'libx264', '-pix_fmt','yuv420p','-movflags','+faststart', out]);
   if (r.status !== 0) {
     report.ok = false;
-    report.checks.push({ kind:'variant_render', ok:false, seconds, detail:r.stderr.trim().slice(0,800) });
+    report.checks.push({ kind:'variant_render', ok:false, seconds, detail:(r.stderr||'').trim().slice(0,800) });
   } else {
-    report.files[`variant_${seconds}s`] = { path: out, ...statFile(out) };
+    report.files[path.basename(out)] = { path: out, ...statFile(out) };
     report.checks.push({ kind:'variant_render', ok:true, seconds });
   }
 }
@@ -86,16 +112,27 @@ for (const [out, seconds] of [[v15,15],[v6,6]]) {
 // 5) Export pack manifest
 const exportDir = path.join(AUTO_DIR, 'exports', projectId);
 fs.mkdirSync(exportDir, { recursive: true });
+
+const outputs = {
+  master_30s: path.relative(AUTO_DIR, master),
+  variant_15s: path.relative(AUTO_DIR, v15),
+  variant_6s: path.relative(AUTO_DIR, v6),
+};
+
+const filmOut = path.join(rendersDir, 'remotion_master_30s_film.mp4');
+if (fs.existsSync(filmOut)) outputs.film_30s = path.relative(AUTO_DIR, filmOut);
+const posterOut = path.join(exportDir, 'poster_1080x1920.png');
+const thumbOut = path.join(exportDir, 'thumb_1280x720.jpg');
+if (fs.existsSync(posterOut)) outputs.poster = path.relative(AUTO_DIR, posterOut);
+if (fs.existsSync(thumbOut)) outputs.thumb = path.relative(AUTO_DIR, thumbOut);
+
 const pack = {
   projectId,
   createdAt: report.ts,
-  outputs: {
-    master_30s: path.relative(AUTO_DIR, master),
-    variant_15s: path.relative(AUTO_DIR, v15),
-    variant_6s: path.relative(AUTO_DIR, v6)
-  },
+  outputs,
   qcReport: 'qc_report.json'
 };
+
 fs.writeFileSync(path.join(exportDir, 'export_pack.json'), JSON.stringify(pack, null, 2) + '\n');
 fs.writeFileSync(path.join(exportDir, 'qc_report.json'), JSON.stringify(report, null, 2) + '\n');
 

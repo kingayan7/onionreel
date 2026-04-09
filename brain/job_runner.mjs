@@ -59,7 +59,49 @@ async function runJob(job, db){
       return stdout.trim();
     }
 
-    if (type === 'sora_generate') {
+    if (type === 'maxcontrax_full_pack') {
+      // One job that runs the FULL MaxContrax production pipeline end-to-end.
+      // Intended for one-click runs from the dashboard.
+      const scripts = {
+        sora: path.join(OR_DIR, 'autoedit', 'sora_generate.mjs'),
+        sync: path.join(OR_DIR, 'autoedit', 'sync_remotion_assets_v1.mjs'),
+        remotion: path.join(OR_DIR, 'remotion', 'render_variants.mjs'),
+        vo: path.join(OR_DIR, 'autoedit', 'gen_vo_music_v1.mjs'),
+        master: path.join(OR_DIR, 'autoedit', 'master_audio_v2.mjs'),
+        film: path.join(OR_DIR, 'autoedit', 'film_look_v1.mjs'),
+        markers: path.join(OR_DIR, 'autoedit', 'cut_points_v1.mjs'),
+        posters: path.join(OR_DIR, 'autoedit', 'posters_v1.mjs'),
+        qc: path.join(OR_DIR, 'autoedit', 'qc_export.mjs'),
+        final: path.join(OR_DIR, 'autoedit', 'export_final_pack_v1.mjs'),
+      };
+
+      // 1) Clips (Sora)
+      await runNode(scripts.sora, [projectId], { OPENAI_API_KEY: process.env.OPENAI_API_KEY });
+      // 2) Sync clips + captions into Remotion public folder
+      await runNode(scripts.sync, [projectId]);
+      // 3) Render master + variants
+      await runNode(scripts.remotion, [projectId]);
+      // 4) VO + music bed
+      await runNode(scripts.vo, [projectId]);
+      // 5) Mastering
+      await runNode(scripts.master, [projectId]);
+      // 6) Film look
+      await runNode(scripts.film, [projectId]);
+      // 7) Markers (cut points)
+      await runNode(scripts.markers, [projectId]);
+      // 8) Posters
+      await runNode(scripts.posters, [projectId]);
+      // 9) QC + export pack
+      await runNode(scripts.qc, [projectId]);
+      // 10) Final zip
+      await runNode(scripts.final, [projectId]);
+
+      job.outputs.master = `autoedit/renders/${projectId}/remotion_master_30s.mp4`;
+      job.outputs.mastered = `autoedit/renders/${projectId}/remotion_master_30s_mastered.mp4`;
+      job.outputs.film = `autoedit/renders/${projectId}/remotion_master_30s_film.mp4`;
+      job.outputs.exportDir = `autoedit/exports/${projectId}`;
+
+    } else if (type === 'sora_generate') {
       const script = path.join(OR_DIR, 'autoedit', 'sora_generate.mjs');
       await runNode(script, [projectId], { OPENAI_API_KEY: process.env.OPENAI_API_KEY });
       job.outputs.clipDir = `autoedit/cache/${projectId}`;

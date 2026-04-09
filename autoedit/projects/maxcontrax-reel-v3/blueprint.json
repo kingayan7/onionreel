@@ -1,0 +1,39 @@
+{
+  "projectId": "maxcontrax-reel-v3",
+  "durationSec": 30,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "beats": [
+    {"t0": 0, "t1": 3, "text": "YOU'RE NOT UNQUALIFIED"},
+    {"t0": 3, "t1": 6, "text": "YOU'RE BURIED IN LISTINGS"},
+    {"t0": 6, "t1": 10, "text": "AI MATCHES CONTRACTS TO YOU"},
+    {"t0": 10, "t1": 14, "text": "ONLY WHAT FITS"},
+    {"t0": 14, "t1": 18, "text": "DAILY ALERTS - CLEAN SHORTLIST"},
+    {"t0": 18, "t1": 22, "text": "LESS SCROLLING. MORE BIDDING."},
+    {"t0": 22, "t1": 25, "text": "FREE 7-DAY TRIAL"},
+    {"t0": 25, "t1": 30, "text": "MaxContrax.com"}
+  ],
+  "soraPrompts": [
+    {
+      "id": "overwhelm_scroll",
+      "seconds": 4,
+      "prompt": "Vertical 9:16, bright modern office daylight, close shot of hands scrolling a laptop with many browser tabs open, fast scrolling, subtle frustration, clean minimal desk, premium commercial cinematography, shallow depth of field, natural skin tones, no readable real website text, no logos."
+    },
+    {
+      "id": "ai_matching",
+      "seconds": 4,
+      "prompt": "Vertical 9:16, bright clean motion-graphics UI: generic opportunity match cards smoothly appearing with subtle checkmarks, white/gray dashboard aesthetic, orange accent, minimal premium SaaS style, crisp typography, no brand names, no claims, no real-world site text."
+    },
+    {
+      "id": "email_alert",
+      "seconds": 4,
+      "prompt": "Vertical 9:16, bright desk scene, phone close-up receiving a generic notification that says 'New Match' (no logos), tasteful modern UI, shallow depth of field, premium product ad look."
+    },
+    {
+      "id": "shortlist_focus",
+      "seconds": 4,
+      "prompt": "Vertical 9:16, bright modern office, confident business owner reviewing a clean shortlist on a laptop (generic cards, no logos, no readable real website text), calm focused expression, premium commercial cinematography, shallow depth of field."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "projectId": "maxcontrax-reel-v3",
+  "source": "sora",
+  "assets": [
+    {
+      "id": "overwhelm_scroll",
+      "type": "video",
+      "notes": "buried in listings / fast scrolling",
+      "source": "sora",
+      "localPath": "cache/maxcontrax-reel-v3/overwhelm_scroll__635c2d6b5e39.mp4",
+      "promptHash": "635c2d6b5e39"
+    },
+    {
+      "id": "ai_matching",
+      "type": "video",
+      "notes": "generic matching UI cards",
+      "source": "sora",
+      "localPath": "cache/maxcontrax-reel-v3/ai_matching__0f1ea07e2253.mp4",
+      "promptHash": "0f1ea07e2253"
+    },
+    {
+      "id": "email_alert",
+      "type": "video",
+      "notes": "new match notification",
+      "source": "sora",
+      "localPath": "cache/maxcontrax-reel-v3/email_alert__0b30786b8181.mp4",
+      "promptHash": "0b30786b8181"
+    },
+    {
+      "id": "shortlist_focus",
+      "type": "video",
+      "notes": "calm review of clean shortlist",
+      "source": "sora",
+      "localPath": "cache/maxcontrax-reel-v3/shortlist_focus__bc3912e85687.mp4",
+      "promptHash": "bc3912e85687"
+    }
+  ],
+  "note": "v3 fresh ad: force regen"
+}

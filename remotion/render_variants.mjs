@@ -23,7 +23,31 @@ const v15 = path.join(outDir, 'remotion_variant_15s.mp4');
 const v6 = path.join(outDir, 'remotion_variant_6s.mp4');
 
 // Render 30s via Remotion.
-run('bash', ['-lc', `cd "${REM_DIR}" && npx remotion render src/index.ts Reel30 "${master}" --log=warn`]);
+// Pass props so we can render any projectId without editing Root.tsx.
+let props = null;
+try {
+  const bpPath = path.join(AUTO_DIR, 'projects', projectId, 'blueprint.json');
+  if (fs.existsSync(bpPath)) {
+    const bp = JSON.parse(fs.readFileSync(bpPath, 'utf8'));
+    props = {
+      title: 'MaxContrax',
+      cta: 'Start Free at MaxContrax.com',
+      accent: '#E17B3B',
+      bg: '#FFFFFF',
+      fg: '#0B0B0B',
+      projectId,
+      beats: bp.beats,
+      clips: {
+        overwhelm: 'overwhelm_scroll.mp4',
+        ai: 'ai_matching.mp4',
+        email: 'email_alert.mp4',
+        trust: 'shortlist_focus.mp4',
+      },
+    };
+  }
+} catch {}
+const propsArg = props ? ` --props='${JSON.stringify(props).replace(/'/g,"'\\''")}'` : '';
+run('bash', ['-lc', `cd "${REM_DIR}" && npx remotion render src/index.ts Reel30 "${master}" --log=warn${propsArg}`]);
 
 // Variants via ffmpeg trim (fast + deterministic)
 // If project has markers.json, snap cutpoints to the nearest prior marker so variants feel intentionally cut.

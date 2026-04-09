@@ -294,6 +294,11 @@ const server = http.createServer((req, res) => {
           payload: b.payload || {},
           note: b.note || ''
         };
+
+        // Preset: MaxContrax full production pack
+        if (b.preset === 'maxcontrax_full_pack' || b.mode === 'maxcontrax_full_pack') {
+          request.bundle = ['maxcontrax_full_pack'];
+        }
         fs.appendFileSync(REQUESTS, JSON.stringify(request) + '\n');
         appendActivity({ kind: 'request_create', message: `Request ${request.requestId} for ${request.projectId}`, projectId: request.projectId });
 

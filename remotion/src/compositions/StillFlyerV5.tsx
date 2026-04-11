@@ -33,10 +33,10 @@ export const StillFlyerV5: React.FC<StillFlyerV5Props> = (p) => {
       />
 
       {/* Header */}
-      <div style={{ position: 'absolute', left: 54, right: 54, top: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Img src={staticFile('assets/maxcontrax/logo_mark.png')} style={{ height: 52, width: 52, borderRadius: 14 }} />
-          <div style={{ fontSize: 26, fontWeight: 950, letterSpacing: -0.4, color: '#fff' }}>MaxContrax</div>
+      <div style={{ position: 'absolute', left: 54, right: 54, top: 36, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <Img src={staticFile('assets/maxcontrax/logo_mark.png')} style={{ height: 140, width: 140, borderRadius: 34, boxShadow: '0 24px 70px rgba(0,0,0,0.35)' }} />
+          <div style={{ fontSize: 44, fontWeight: 950, letterSpacing: -0.8, color: '#fff', textShadow: '0 18px 60px rgba(0,0,0,0.30)' }}>MaxContrax</div>
         </div>
         <div style={{
           fontSize: 13,
@@ -57,7 +57,7 @@ export const StillFlyerV5: React.FC<StillFlyerV5Props> = (p) => {
       </div>
 
       {/* Main CTA card centered */}
-      <div style={{ position: 'absolute', left: 60, right: 520, top: 170 }}>
+      <div style={{ position: 'absolute', left: 60, right: 520, top: 220 }}>
         <div style={{
           background: card,
           borderRadius: 34,

@@ -6,5 +6,5 @@ Use this CTA EXACTLY (case + wording):
 
 Do NOT use variants like:
 - Get Government Contracts Free
-- GOV Contracts free
-- Get GOV. Contracts
+- Any uppercase “GOV” version
+- Any line-broken version that drops words

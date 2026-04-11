@@ -99,7 +99,7 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
       </div>
 
       {/* Angled contract alerts card */}
-      <div style={{ position: 'absolute', left: 60, bottom: 90, width: 560, zIndex: 1 }}>
+      <div style={{ position: 'absolute', left: 60, bottom: 140, width: 560, zIndex: 1 }}>
         <div style={{ position: 'absolute', inset: -16, borderRadius: 40, background: 'linear-gradient(135deg, rgba(14,165,233,0.18), rgba(124,58,237,0.16), rgba(255,77,141,0.10))', filter: 'blur(14px)' }} />
         <div style={{
           position: 'relative',

@@ -27,11 +27,11 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
 
   return (
     <AbsoluteFill style={{ background: '#F6F9FF', fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system' }}>
-      {/* Brighter blobs */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 16% 16%, rgba(34,211,238,0.34), rgba(34,211,238,0.0) 55%)' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 76% 20%, rgba(99,102,241,0.26), rgba(99,102,241,0.0) 55%)' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 52% 82%, rgba(34,197,94,0.20), rgba(34,197,94,0.0) 60%)' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 82% 72%, rgba(255,77,141,0.18), rgba(255,77,141,0.0) 60%)' }} />
+      {/* Color play v1 (more vibrant + eye-catching) */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 14% 18%, rgba(0, 229, 255, 0.42), rgba(0, 229, 255, 0.0) 55%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 76% 18%, rgba(255, 0, 122, 0.28), rgba(255, 0, 122, 0.0) 55%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 54% 86%, rgba(255, 179, 0, 0.22), rgba(255, 179, 0, 0.0) 60%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 86% 72%, rgba(124, 58, 237, 0.18), rgba(124, 58, 237, 0.0) 60%)' }} />
 
       {/* Header */}
       <div style={{ position: 'absolute', left: 60, right: 60, top: 46, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

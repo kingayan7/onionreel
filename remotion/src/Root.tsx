@@ -5,6 +5,7 @@ import {StillAd} from './compositions/StillAd';
 import {StillFlyerV2} from './compositions/StillFlyerV2';
 import {StillFlyerV3} from './compositions/StillFlyerV3';
 import {StillFlyerV4} from './compositions/StillFlyerV4';
+import {StillFlyerV5} from './compositions/StillFlyerV5';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -127,6 +128,22 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="StillFlyerV4"
         component={StillFlyerV4}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        defaultProps={{
+          role: 'contractor',
+          ctaText: 'Get Gov Contracts Free (7 Days)',
+          subline: 'AI matches contracts to your business',
+          offerLine: 'Start Free • 7-day trial',
+          priceLine: '$19.99/mo after • cancel anytime',
+        }}
+      />
+
+      <Composition
+        id="StillFlyerV5"
+        component={StillFlyerV5}
         durationInFrames={1}
         fps={30}
         width={1080}

@@ -33,7 +33,7 @@ export const StillFlyerV10: React.FC<StillFlyerV10Props> = (p) => {
       {/* Header */}
       <div style={{ position: 'absolute', left: 56, right: 56, top: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <Img src={staticFile('assets/maxcontrax/logo_mark.png')} style={{ height: 130, width: 130, borderRadius: 36, boxShadow: '0 30px 90px rgba(0,0,0,0.22)' }} />
+          <Img src={staticFile('assets/maxcontrax/logo_mark_v2.png')} style={{ height: 130, width: 130, borderRadius: 36, boxShadow: '0 30px 90px rgba(0,0,0,0.22)' }} />
           <div>
             <div style={{ fontSize: 46, fontWeight: 950, letterSpacing: -0.9, color: ink, lineHeight: 1.0 }}>MaxContrax</div>
             <div style={{ marginTop: 6, fontSize: 18, fontWeight: 900, color: 'rgba(7,16,26,0.68)' }}>Contract Alerts</div>

@@ -1,12 +1,18 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-11T17:50:18.064Z",
+  "updated": "2026-04-11T20:34:32.347Z",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
       "id": "P20",
       "name": "Distribution & Publishing v1 (deliver & reuse outputs without chat)",
       "steps": [
+        {
+          "id": "P20-S4",
+          "name": "Branding: Update MaxContrax logo asset (logo_mark_v2 + logo_full_v2) and use for all creatives",
+          "status": "done",
+          "doneAt": "2026-04-11T20:34:32.347Z"
+        },
         {
           "id": "P20-S0",
           "name": "Dashboard: Template Gallery for approved still templates (MC1+) with previews",

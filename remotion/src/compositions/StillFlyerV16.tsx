@@ -19,7 +19,7 @@ export const StillFlyerV16: React.FC<StillFlyerV16Props> = (p) => {
       {/* Left vertical banner */}
       <div style={{position: 'absolute', left: 40, top: 40, bottom: 40, width: 420, borderRadius: 44, background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(16px)', boxShadow: '0 44px 160px rgba(0,0,0,0.55)'}}>
         <div style={{position: 'absolute', left: 26, top: 26, display: 'flex', alignItems: 'center', gap: 14}}>
-          <Img src={staticFile('assets/maxcontrax/logo_mark.png')} style={{height: 96, width: 96, borderRadius: 28, boxShadow: '0 20px 80px rgba(0,0,0,0.55)'}} />
+          <Img src={staticFile('assets/maxcontrax/logo_mark_v2.png')} style={{height: 96, width: 96, borderRadius: 28, boxShadow: '0 20px 80px rgba(0,0,0,0.55)'}} />
           <div>
             <div style={{fontSize: 32, fontWeight: 950, letterSpacing: -0.6, color: '#fff'}}>MaxContrax</div>
             <div style={{marginTop: 4, fontSize: 16, fontWeight: 900, color: 'rgba(255,255,255,0.82)'}}>Contract Alerts</div>

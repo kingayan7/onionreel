@@ -26,7 +26,7 @@ export const StillFlyerV6: React.FC<StillFlyerV6Props> = (p) => {
 
       {/* Big centered logo */}
       <div style={{ position: 'absolute', top: 42, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18 }}>
-        <Img src={staticFile('assets/maxcontrax/logo_mark.png')} style={{ height: 160, width: 160, borderRadius: 44, boxShadow: '0 40px 120px rgba(0,0,0,0.55)' }} />
+        <Img src={staticFile('assets/maxcontrax/logo_mark_v2.png')} style={{ height: 160, width: 160, borderRadius: 44, boxShadow: '0 40px 120px rgba(0,0,0,0.55)' }} />
         <div style={{ color: '#fff', fontSize: 56, fontWeight: 950, letterSpacing: -1.0, textShadow: '0 22px 80px rgba(0,0,0,0.60)' }}>MaxContrax</div>
       </div>
 

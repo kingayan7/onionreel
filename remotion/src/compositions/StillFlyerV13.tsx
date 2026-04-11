@@ -18,7 +18,7 @@ export const StillFlyerV13: React.FC<StillFlyerV13Props> = (p) => {
       {/* Brand bar */}
       <div style={{ position: 'absolute', left: 54, right: 54, top: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Img src={staticFile('assets/maxcontrax/logo_mark.png')} style={{ height: 120, width: 120, borderRadius: 34, boxShadow: '0 28px 90px rgba(0,0,0,0.18)' }} />
+          <Img src={staticFile('assets/maxcontrax/logo_mark_v2.png')} style={{ height: 120, width: 120, borderRadius: 34, boxShadow: '0 28px 90px rgba(0,0,0,0.18)' }} />
           <div>
             <div style={{ fontSize: 44, fontWeight: 950, letterSpacing: -0.9, color: ink, lineHeight: 1.0 }}>MaxContrax</div>
             <div style={{ marginTop: 6, fontSize: 18, fontWeight: 900, color: 'rgba(7,16,26,0.68)' }}>Contract Alerts</div>

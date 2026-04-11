@@ -20,8 +20,9 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
   const stroke = 'rgba(7,16,26,0.10)';
   const white = 'rgba(255,255,255,0.86)';
 
-  const m = (p.ctaText || '').match(/^(.*?)(\s*\(7\s*Days\)\s*)$/i);
-  const ctaMain = m ? m[1].trim() : p.ctaText;
+  const raw = (p.ctaText || '').replace(/\\n/g, '\n');
+  const m = raw.match(/^(.*?)(\s*\(7\s*Days\)\s*)$/i);
+  const ctaMain = (m ? m[1] : raw).trim();
   const ctaSmall = m ? m[2].trim() : '';
 
   return (

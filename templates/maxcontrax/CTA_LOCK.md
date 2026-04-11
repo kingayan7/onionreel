@@ -2,7 +2,7 @@
 
 Use this CTA EXACTLY (case + wording):
 
-**Get Gov Contracts Free**
+**Get Government Contracts Free**
 
 Do NOT use variants like:
 - Get Government Contracts Free

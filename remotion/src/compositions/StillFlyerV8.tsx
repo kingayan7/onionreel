@@ -9,7 +9,7 @@ export type StillFlyerV8Props = {
 };
 
 const ROLE_ASSET: Record<StillFlyerV8Props['role'], string> = {
-  contractor: 'assets/maxcontrax/people/contractor_v3.png',
+  contractor: 'assets/maxcontrax/people/contractor_v4.png',
   nurse: 'assets/maxcontrax/people/nurse_v3.png',
   security: 'assets/maxcontrax/people/security_v3.png',
 };
@@ -88,7 +88,7 @@ export const StillFlyerV8: React.FC<StillFlyerV8Props> = (p) => {
             border: `1px solid ${stroke}`,
             boxShadow: '0 34px 110px rgba(0,0,0,0.18)',
           }}>
-            <Img src={staticFile('assets/maxcontrax/ui_alerts_v1.png')} style={{ width: '100%', height: 'auto' }} />
+            <Img src={staticFile('assets/maxcontrax/ui_alerts_v2.png')} style={{ width: '100%', height: 'auto' }} />
           </div>
         </div>
       </div>

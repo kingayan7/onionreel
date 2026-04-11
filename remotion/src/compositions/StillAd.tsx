@@ -61,21 +61,53 @@ export const StillAd: React.FC<StillAdProps> = (p) => {
         <Img src={staticFile('assets/maxcontrax/logo.png')} style={{ height: 56, width: 'auto' }} />
       </div>
 
-      {/* Headline block */}
-      <div style={{ position: 'absolute', left: 70, top: topPad + 110, width: 560 }}>
-        <div style={{
-          color: t.headline,
-          fontSize: 92,
-          fontWeight: 900,
-          letterSpacing: -1.2,
-          lineHeight: 0.95,
-          textTransform: 'uppercase',
-          textShadow: p.theme === 'ice' ? 'none' : '0 16px 40px rgba(0,0,0,0.25)',
-        }}>
+      {/* Headline block (structured + glow) */}
+      <div style={{ position: 'absolute', left: 70, top: topPad + 110, width: 600 }}>
+        {/* glow blob behind headline */}
+        <div
+          style={{
+            position: 'absolute',
+            left: -40,
+            top: -30,
+            width: 520,
+            height: 260,
+            borderRadius: 999,
+            background:
+              p.theme === 'ice'
+                ? 'radial-gradient(circle at 30% 30%, rgba(37,99,235,0.25), rgba(37,99,235,0.0) 65%)'
+                : 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.22), rgba(255,255,255,0.0) 65%)',
+            filter: 'blur(10px)',
+          }}
+        />
+
+        <div
+          style={{
+            position: 'relative',
+            color: t.headline,
+            fontSize: 92,
+            fontWeight: 950,
+            letterSpacing: -1.4,
+            lineHeight: 0.92,
+            textTransform: 'uppercase',
+            textShadow:
+              p.theme === 'ice'
+                ? '0 10px 30px rgba(0,0,0,0.12)'
+                : '0 18px 50px rgba(0,0,0,0.32)',
+          }}
+        >
           {p.headline}
         </div>
+
         {p.subline ? (
-          <div style={{ marginTop: 18, color: t.body, fontSize: 34, fontWeight: 700 }}>
+          <div
+            style={{
+              marginTop: 18,
+              color: p.theme === 'ice' ? 'rgba(15,23,42,0.75)' : 'rgba(255,255,255,0.92)',
+              fontSize: 30,
+              fontWeight: 800,
+              letterSpacing: -0.2,
+            }}
+          >
             {p.subline}
           </div>
         ) : null}
@@ -98,54 +130,109 @@ export const StillAd: React.FC<StillAdProps> = (p) => {
         {p.offerLine}
       </div>
 
-      {/* CTA card */}
-      <div style={{
-        position: 'absolute',
-        left: 70,
-        top: topPad + 520,
-        width: 520,
-        borderRadius: 26,
-        background: 'rgba(255,255,255,0.92)',
-        border: '1px solid rgba(0,0,0,0.08)',
-        boxShadow: '0 22px 60px rgba(0,0,0,0.20)',
-        padding: 22,
-      }}>
-        <div style={{ fontSize: 64, fontWeight: 900, letterSpacing: -1.0, color: '#0B0B0B' }}>
-          START FREE
-        </div>
-        <div style={{ marginTop: 6, fontSize: 34, fontWeight: 800, color: '#0B0B0B' }}>
-          7-day trial
-        </div>
-        <div style={{ marginTop: 10, fontSize: 24, fontWeight: 700, color: 'rgba(15,23,42,0.7)' }}>
-          {p.priceLine}
+      {/* CTA card (structured + premium glow) */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 70,
+          top: topPad + 520,
+          width: 540,
+          borderRadius: 28,
+          background: 'rgba(255,255,255,0.94)',
+          border: '1px solid rgba(0,0,0,0.08)',
+          boxShadow: '0 26px 70px rgba(0,0,0,0.22)',
+          padding: 24,
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14 }}>
+          <div>
+            <div style={{ fontSize: 62, fontWeight: 950, letterSpacing: -1.2, color: '#0B0B0B', lineHeight: 0.95 }}>
+              START FREE
+            </div>
+            <div style={{ marginTop: 8, fontSize: 34, fontWeight: 850, color: '#0B0B0B' }}>7-day trial</div>
+            <div style={{ marginTop: 10, fontSize: 24, fontWeight: 750, color: 'rgba(15,23,42,0.68)' }}>{p.priceLine}</div>
+          </div>
+          <div
+            style={{
+              padding: '8px 12px',
+              borderRadius: 999,
+              background: 'rgba(0,0,0,0.06)',
+              fontSize: 14,
+              fontWeight: 900,
+              color: 'rgba(15,23,42,0.65)',
+            }}
+          >
+            PREMIUM MATCHES
+          </div>
         </div>
 
-        <div style={{
-          marginTop: 18,
-          background: t.cta,
-          color: '#fff',
-          borderRadius: 18,
-          padding: '16px 18px',
-          fontSize: 30,
-          fontWeight: 900,
-          textAlign: 'center',
-        }}>
-          {p.ctaText}
+        {/* CTA button with glow */}
+        <div style={{ marginTop: 18, position: 'relative' }}>
+          <div
+            style={{
+              position: 'absolute',
+              left: 20,
+              right: 20,
+              top: 10,
+              height: 60,
+              borderRadius: 18,
+              background: t.cta,
+              opacity: 0.35,
+              filter: 'blur(18px)',
+            }}
+          />
+          <div
+            style={{
+              position: 'relative',
+              background: t.cta,
+              color: '#fff',
+              borderRadius: 18,
+              padding: '16px 18px',
+              fontSize: 30,
+              fontWeight: 950,
+              textAlign: 'center',
+              letterSpacing: -0.2,
+              boxShadow: '0 14px 30px rgba(0,0,0,0.18)',
+            }}
+          >
+            {p.ctaText}
+          </div>
         </div>
       </div>
 
-      {/* UI card */}
-      <div style={{
-        position: 'absolute',
-        right: 60,
-        top: p.size === '1080x1080' ? 220 : (p.size === '1080x1350' ? 330 : 520),
-        width: 430,
-        borderRadius: 30,
-        overflow: 'hidden',
-        boxShadow: '0 30px 80px rgba(0,0,0,0.25)',
-        border: '1px solid rgba(0,0,0,0.10)',
-      }}>
-        <Img src={staticFile('assets/maxcontrax/ui_card.png')} style={{ width: '100%', height: 'auto' }} />
+      {/* UI card (with soft glow) */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 60,
+          top: p.size === '1080x1080' ? 220 : p.size === '1080x1350' ? 330 : 520,
+          width: 440,
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            inset: -18,
+            borderRadius: 42,
+            background:
+              p.theme === 'ice'
+                ? 'radial-gradient(circle at 30% 30%, rgba(37,99,235,0.18), rgba(37,99,235,0.0) 70%)'
+                : 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.16), rgba(255,255,255,0.0) 70%)',
+            filter: 'blur(14px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 32,
+            overflow: 'hidden',
+            boxShadow: '0 34px 90px rgba(0,0,0,0.26)',
+            border: '1px solid rgba(0,0,0,0.10)',
+            background: 'rgba(255,255,255,0.96)',
+          }}
+        >
+          <Img src={staticFile('assets/maxcontrax/ui_card.png')} style={{ width: '100%', height: 'auto' }} />
+        </div>
       </div>
 
       {/* Optional person cutout placeholder (v1): currently off unless we add cutout extraction) */}

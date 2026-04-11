@@ -1,6 +1,7 @@
 import React from 'react';
 import {Composition} from 'remotion';
 import {Reel30} from './compositions/Reel30';
+import {StillAd} from './compositions/StillAd';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -25,6 +26,63 @@ export const RemotionRoot: React.FC = () => {
             email: 'email_alert.mp4',
             trust: 'handshake_trust.mp4',
           },
+        }}
+      />
+
+      <Composition
+        id="StillAdSquare"
+        component={StillAd}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1080}
+        defaultProps={{
+          size: '1080x1080',
+          headline: 'GET GOV.\nCONTRACTS\nFREE',
+          subline: 'Government contracts • SAM.gov',
+          ctaText: 'Get Government Contracts Free',
+          offerLine: 'Government contracts • SAM.gov',
+          priceLine: '$19.99/mo after • cancel anytime',
+          theme: 'sunset',
+          showPerson: false,
+        }}
+      />
+
+      <Composition
+        id="StillAdPortrait"
+        component={StillAd}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{
+          size: '1080x1920',
+          headline: 'GET GOV.\nCONTRACTS\nFREE',
+          subline: 'Government contracts • SAM.gov',
+          ctaText: 'Get Government Contracts Free',
+          offerLine: 'Government contracts • SAM.gov',
+          priceLine: '$19.99/mo after • cancel anytime',
+          theme: 'violet',
+          showPerson: false,
+        }}
+      />
+
+      <Composition
+        id="StillAdFeed"
+        component={StillAd}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        defaultProps={{
+          size: '1080x1350',
+          headline: 'GET GOV.\nCONTRACTS\nFREE',
+          subline: 'Government contracts • SAM.gov',
+          ctaText: 'Get Government Contracts Free',
+          offerLine: 'Government contracts • SAM.gov',
+          priceLine: '$19.99/mo after • cancel anytime',
+          theme: 'ice',
+          showPerson: false,
         }}
       />
     </>

@@ -38,14 +38,15 @@ export const StillFlyerV8: React.FC<StillFlyerV8Props> = (p) => {
           </div>
         </div>
         <div style={{
-          padding: '12px 14px',
+          padding: '22px 26px',
           borderRadius: 999,
           background: white,
-          border: `1px solid ${stroke}`,
-          boxShadow: '0 18px 60px rgba(0,0,0,0.10)',
-          fontSize: 14,
+          border: `2px solid ${stroke}`,
+          boxShadow: '0 24px 80px rgba(0,0,0,0.14)',
+          fontSize: 22,
           fontWeight: 950,
-          color: 'rgba(7,16,26,0.70)',
+          letterSpacing: -0.2,
+          color: 'rgba(7,16,26,0.78)',
         }}>7-day trial</div>
       </div>
 
@@ -94,10 +95,29 @@ export const StillFlyerV8: React.FC<StillFlyerV8Props> = (p) => {
         </div>
       </div>
 
-      {/* Footer */}
-      <div style={{ position: 'absolute', left: 60, right: 60, bottom: 40, display: 'flex', justifyContent: 'space-between', color: 'rgba(7,16,26,0.55)', fontSize: 14, fontWeight: 850 }}>
-        <span>Cancel anytime</span>
-        <span>Made for busy owners</span>
+      {/* Corner buttons (bigger + bold) */}
+      <div style={{ position: 'absolute', left: 60, right: 60, bottom: 34, display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{
+          padding: '20px 26px',
+          borderRadius: 999,
+          background: white,
+          border: `2px solid ${stroke}`,
+          boxShadow: '0 22px 70px rgba(0,0,0,0.12)',
+          fontSize: 20,
+          fontWeight: 950,
+          color: 'rgba(7,16,26,0.72)',
+        }}>Cancel anytime</div>
+
+        <div style={{
+          padding: '20px 26px',
+          borderRadius: 999,
+          background: white,
+          border: `2px solid ${stroke}`,
+          boxShadow: '0 22px 70px rgba(0,0,0,0.12)',
+          fontSize: 20,
+          fontWeight: 950,
+          color: 'rgba(7,16,26,0.72)',
+        }}>Made for busy owners</div>
       </div>
     </AbsoluteFill>
   );

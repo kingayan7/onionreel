@@ -68,7 +68,7 @@ export const StillFlyerV10: React.FC<StillFlyerV10Props> = (p) => {
       <div style={{ position: 'absolute', left: 64, bottom: 88, width: 560 }}>
         <div style={{ position: 'absolute', inset: -16, borderRadius: 42, background: 'linear-gradient(135deg, rgba(0,229,255,0.22), rgba(255,0,122,0.14), rgba(0,0,0,0.0))', filter: 'blur(14px)' }} />
         <div style={{ position: 'relative', borderRadius: 34, overflow: 'hidden', background: '#fff', border: `1px solid ${stroke}`, boxShadow: '0 34px 110px rgba(0,0,0,0.18)' }}>
-          <Img src={staticFile('assets/maxcontrax/ui_matches_v1.png')} style={{ width: '100%', height: 'auto' }} />
+          <Img src={staticFile('assets/maxcontrax/ui_matches_dark_v1.png')} style={{ width: '100%', height: 'auto' }} />
         </div>
       </div>
 

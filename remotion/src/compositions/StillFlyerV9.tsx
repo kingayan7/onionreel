@@ -20,6 +20,10 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
   const stroke = 'rgba(7,16,26,0.10)';
   const white = 'rgba(255,255,255,0.86)';
 
+  const m = (p.ctaText || '').match(/^(.*?)(\s*\(7\s*Days\)\s*)$/i);
+  const ctaMain = m ? m[1].trim() : p.ctaText;
+  const ctaSmall = m ? m[2].trim() : '';
+
   return (
     <AbsoluteFill style={{ background: '#F6F9FF', fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system' }}>
       {/* Brighter blobs */}
@@ -57,7 +61,7 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
       </div>
 
       {/* CTA - standalone */}
-      <div style={{ position: 'absolute', left: 60, top: 240, width: 640 }}>
+      <div style={{ position: 'absolute', left: 60, top: 232, width: 640, zIndex: 3 }}>
         <div style={{
           fontSize: 86,
           fontWeight: 950,
@@ -65,24 +69,28 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
           lineHeight: 0.98,
           color: ink,
           textShadow: '0 22px 70px rgba(0,0,0,0.10)',
-        }}>{p.ctaText}</div>
+        }}>
+          {ctaMain}{' '}
+          {ctaSmall ? (
+            <span style={{ fontSize: 32, fontWeight: 950, letterSpacing: -0.4, color: 'rgba(7,16,26,0.68)' }}>{ctaSmall}</span>
+          ) : null}
+        </div>
 
-        <div style={{ marginTop: 14, fontSize: 22, fontWeight: 900, color: 'rgba(7,16,26,0.72)' }}>{p.subline}</div>
+        <div style={{ marginTop: 10, fontSize: 22, fontWeight: 900, color: 'rgba(7,16,26,0.72)' }}>{p.subline}</div>
+        <div style={{ marginTop: 10, fontSize: 20, fontWeight: 950, color: 'rgba(7,16,26,0.70)' }}>{p.offerLine}</div>
 
         {/* Feature chips (still ok to be pills) */}
-        <div style={{ marginTop: 16, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(14,165,233,0.14)', border: '1px solid rgba(14,165,233,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Janitorial</div>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(124,58,237,0.14)', border: '1px solid rgba(124,58,237,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Security</div>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(34,197,94,0.14)', border: '1px solid rgba(34,197,94,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Nurse</div>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(255,77,141,0.14)', border: '1px solid rgba(255,77,141,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Cybersecurity</div>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(99,102,241,0.14)', border: '1px solid rgba(99,102,241,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Contractor</div>
         </div>
-
-        <div style={{ marginTop: 18, fontSize: 18, fontWeight: 950, color: 'rgba(7,16,26,0.66)' }}>{p.offerLine}</div>
       </div>
 
       {/* Angled contract alerts card */}
-      <div style={{ position: 'absolute', left: 60, bottom: 170, width: 560 }}>
+      <div style={{ position: 'absolute', left: 60, bottom: 90, width: 560, zIndex: 1 }}>
         <div style={{ position: 'absolute', inset: -16, borderRadius: 40, background: 'linear-gradient(135deg, rgba(14,165,233,0.18), rgba(124,58,237,0.16), rgba(255,77,141,0.10))', filter: 'blur(14px)' }} />
         <div style={{
           position: 'relative',

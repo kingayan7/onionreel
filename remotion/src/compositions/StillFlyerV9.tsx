@@ -69,18 +69,24 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
           lineHeight: 0.98,
           color: ink,
           textShadow: '0 22px 70px rgba(0,0,0,0.10)',
-        }}>
-          {ctaMain}{' '}
-          {ctaSmall ? (
-            <span style={{ fontSize: 32, fontWeight: 950, letterSpacing: -0.4, color: 'rgba(7,16,26,0.68)' }}>{ctaSmall}</span>
-          ) : null}
-        </div>
+          whiteSpace: 'pre-wrap',
+        }}>{ctaMain}</div>
+
+        {ctaSmall ? (
+          <div style={{
+            marginTop: 6,
+            fontSize: 30,
+            fontWeight: 950,
+            letterSpacing: -0.4,
+            color: 'rgba(7,16,26,0.70)',
+          }}>{ctaSmall}</div>
+        ) : null}
 
         <div style={{ marginTop: 10, fontSize: 22, fontWeight: 900, color: 'rgba(7,16,26,0.72)' }}>{p.subline}</div>
-        <div style={{ marginTop: 10, fontSize: 20, fontWeight: 950, color: 'rgba(7,16,26,0.70)' }}>{p.offerLine}</div>
+        <div style={{ marginTop: 6, fontSize: 20, fontWeight: 950, color: 'rgba(7,16,26,0.70)' }}>{p.offerLine}</div>
 
         {/* Feature chips (still ok to be pills) */}
-        <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 10, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(14,165,233,0.14)', border: '1px solid rgba(14,165,233,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Janitorial</div>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(124,58,237,0.14)', border: '1px solid rgba(124,58,237,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Security</div>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(34,197,94,0.14)', border: '1px solid rgba(34,197,94,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Nurse</div>

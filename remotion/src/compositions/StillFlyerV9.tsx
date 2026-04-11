@@ -26,17 +26,17 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
   const ctaSmall = m ? m[2].trim() : '';
 
   return (
-    <AbsoluteFill style={{ background: '#F6F9FF', fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system' }}>
-      {/* Color play v1 (more vibrant + eye-catching) */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 14% 18%, rgba(0, 229, 255, 0.42), rgba(0, 229, 255, 0.0) 55%)' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 76% 18%, rgba(255, 0, 122, 0.28), rgba(255, 0, 122, 0.0) 55%)' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 54% 86%, rgba(255, 179, 0, 0.22), rgba(255, 179, 0, 0.0) 60%)' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 86% 72%, rgba(124, 58, 237, 0.18), rgba(124, 58, 237, 0.0) 60%)' }} />
+    <AbsoluteFill style={{ background: '#F8FAFF', fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system' }}>
+      {/* Red / white / blue theme */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 18% 18%, rgba(37, 99, 235, 0.26), rgba(37, 99, 235, 0.0) 60%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 78% 20%, rgba(220, 38, 38, 0.22), rgba(220, 38, 38, 0.0) 60%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 92%, rgba(15, 23, 42, 0.10), rgba(15, 23, 42, 0.0) 55%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 55%, rgba(15,23,42,0.06) 100%)' }} />
 
       {/* Header */}
-      <div style={{ position: 'absolute', left: 60, right: 60, top: 46, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18, transform: 'translateX(60px)' }}>
-          <Img src={staticFile('assets/maxcontrax/logo_transparent_v2.png')} style={{ height: 320, width: 'auto', filter: 'drop-shadow(0 26px 70px rgba(0,0,0,0.20))' }} />
+      <div style={{ position: 'absolute', left: 60, right: 60, top: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, transform: 'translateX(90px)' }}>
+          <Img src={staticFile('assets/maxcontrax/logo_transparent_v2.png')} style={{ height: 380, width: 'auto', filter: 'drop-shadow(0 26px 70px rgba(0,0,0,0.20))' }} />
         </div>
         <div style={{
           padding: '22px 26px',
@@ -58,7 +58,7 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
       </div>
 
       {/* CTA - standalone */}
-      <div style={{ position: 'absolute', left: 60, top: 232, width: 640, zIndex: 3 }}>
+      <div style={{ position: 'absolute', left: 60, top: 320, width: 640, zIndex: 3 }}>
         <div style={{
           fontSize: 86,
           fontWeight: 950,

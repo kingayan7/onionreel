@@ -12,6 +12,7 @@ import {StillFlyerV8} from './compositions/StillFlyerV8';
 import {StillFlyerV9} from './compositions/StillFlyerV9';
 import {StillFlyerV10} from './compositions/StillFlyerV10';
 import {StillFlyerV11} from './compositions/StillFlyerV11';
+import {StillFlyerV12} from './compositions/StillFlyerV12';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -249,6 +250,20 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           role: 'nurse',
           cta: 'Get Government Contracts Free',
+          trialLine: '( 7 Day free Trial • $19.99/mo after)',
+          subline: 'AI matches contracts to your business',
+        }}
+      />
+
+      <Composition
+        id="StillFlyerV12"
+        component={StillFlyerV12}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        defaultProps={{
+          cta: 'Get Government\nContracts Free',
           trialLine: '( 7 Day free Trial • $19.99/mo after)',
           subline: 'AI matches contracts to your business',
         }}

@@ -35,8 +35,8 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
 
       {/* Header */}
       <div style={{ position: 'absolute', left: 60, right: 60, top: 46, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <Img src={staticFile('assets/maxcontrax/logo_transparent_v2.png')} style={{ height: 200, width: 'auto', filter: 'drop-shadow(0 26px 70px rgba(0,0,0,0.20))' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, transform: 'translateX(60px)' }}>
+          <Img src={staticFile('assets/maxcontrax/logo_transparent_v2.png')} style={{ height: 320, width: 'auto', filter: 'drop-shadow(0 26px 70px rgba(0,0,0,0.20))' }} />
         </div>
         <div style={{
           padding: '22px 26px',

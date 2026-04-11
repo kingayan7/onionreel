@@ -14,6 +14,7 @@ import {StillFlyerV10} from './compositions/StillFlyerV10';
 import {StillFlyerV11} from './compositions/StillFlyerV11';
 import {StillFlyerV12} from './compositions/StillFlyerV12';
 import {StillFlyerV13} from './compositions/StillFlyerV13';
+import {StillFlyerV14} from './compositions/StillFlyerV14';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -278,7 +279,21 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1350}
         defaultProps={{
-          cta: 'Get Gov Contracts Free',
+          cta: 'Get Government Contracts Free',
+          trialLine: '( 7 Day free Trial • $19.99/mo after)',
+          subline: 'AI matches contracts to your business',
+        }}
+      />
+
+      <Composition
+        id="StillFlyerV14"
+        component={StillFlyerV14}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        defaultProps={{
+          cta: 'Get Government Contracts Free',
           trialLine: '( 7 Day free Trial • $19.99/mo after)',
           subline: 'AI matches contracts to your business',
         }}

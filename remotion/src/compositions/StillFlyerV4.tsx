@@ -17,15 +17,16 @@ const ROLE_ASSET: Record<StillFlyerV4Props['role'], string> = {
 
 export const StillFlyerV4: React.FC<StillFlyerV4Props> = (p) => {
   // New template: CTA is the headline. No repeated GET GOV CONTRACTS typography.
-  const bg = 'linear-gradient(135deg, #f7fbff 0%, #eaf3ff 55%, #ffffff 100%)';
+  // Brighter palette + modern font stack.
+  const bg = 'linear-gradient(135deg, #08AEEA 0%, #2AF598 45%, #FDFBFB 100%)';
   const blue = '#2563EB';
-  const orange = '#F97316';
+  const orange = '#FF4D8D';
 
   return (
-    <AbsoluteFill style={{ background: bg, fontFamily: 'ui-sans-serif, system-ui, -apple-system' }}>
+    <AbsoluteFill style={{ background: bg, fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system' }}>
       {/* soft gradients */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 25% 15%, rgba(37,99,235,0.18), rgba(37,99,235,0.0) 55%)' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 30%, rgba(249,115,22,0.12), rgba(249,115,22,0.0) 55%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 22% 14%, rgba(255,255,255,0.38), rgba(255,255,255,0.0) 58%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 30%, rgba(255,77,141,0.20), rgba(255,77,141,0.0) 55%)' }} />
 
       {/* Header */}
       <div style={{ position: 'absolute', left: 60, right: 60, top: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -52,19 +53,26 @@ export const StillFlyerV4: React.FC<StillFlyerV4Props> = (p) => {
       </div>
 
       {/* Right column */}
-      <div style={{ position: 'absolute', right: 60, top: 170, width: 600 }}>
-        {/* CTA headline */}
+      <div style={{ position: 'absolute', left: 420, right: 60, top: 150 }}>
+        {/* CTA headline (MUCH larger + centered) */}
         <div style={{
-          fontSize: 58,
+          textAlign: 'center',
+          fontSize: 78,
           fontWeight: 950,
-          letterSpacing: -1.0,
+          letterSpacing: -1.2,
           lineHeight: 1.02,
-          color: '#0B0B0B',
+          color: '#07101A',
           textTransform: 'none',
-          textShadow: '0 16px 44px rgba(0,0,0,0.10)',
+          textShadow: '0 18px 60px rgba(0,0,0,0.18)',
+          padding: '18px 18px',
+          borderRadius: 26,
+          background: 'rgba(255,255,255,0.70)',
+          border: '1px solid rgba(0,0,0,0.06)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 22px 70px rgba(0,0,0,0.16)',
         }}>{p.ctaText}</div>
 
-        <div style={{ marginTop: 12, fontSize: 24, fontWeight: 900, color: 'rgba(15,23,42,0.70)' }}>{p.subline}</div>
+        <div style={{ marginTop: 14, textAlign: 'center', fontSize: 24, fontWeight: 900, color: 'rgba(7,16,26,0.78)' }}>{p.subline}</div>
 
         {/* Offer pill */}
         <div style={{ marginTop: 18, display: 'flex', gap: 10, flexWrap: 'wrap' }}>

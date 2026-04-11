@@ -248,7 +248,7 @@ export const RemotionRoot: React.FC = () => {
         height={1350}
         defaultProps={{
           role: 'nurse',
-          cta: 'Get Government\nContracts Free',
+          cta: 'Get Government Contracts Free',
           trialLine: '( 7 Day free Trial • $19.99/mo after)',
           subline: 'AI matches contracts to your business',
         }}

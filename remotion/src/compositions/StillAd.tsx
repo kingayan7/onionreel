@@ -9,6 +9,8 @@ export type StillAdProps = {
   offerLine: string;
   priceLine: string;
   theme: 'sunset' | 'violet' | 'ice' | 'night';
+  // 1: classic (like your blue/white samples), 2: split-panel, 3: stacked UI with bullets
+  layoutVariant: 1 | 2 | 3;
   showPerson: boolean;
 };
 
@@ -54,15 +56,48 @@ export const StillAd: React.FC<StillAdProps> = (p) => {
   const { h } = dims(p.size);
   const topPad = p.size === '1080x1920' ? 90 : 70;
 
+  const isClean = p.theme === 'ice';
+
+  // Layout coordinates per variant (keeps things structured; no scattered words)
+  const L = {
+    leftX: 70,
+    rightX: 60,
+    headlineTop: topPad + 110,
+    offerTop: topPad + 430,
+    ctaTop: topPad + 520,
+    uiTop: p.size === '1080x1080' ? 220 : p.size === '1080x1350' ? 330 : 520,
+  };
+
+  // Variant-specific overrides
+  const V = (() => {
+    if (p.layoutVariant === 2) {
+      return {
+        // split-panel: left copy, right UI in a white panel
+        uiTop: p.size === '1080x1080' ? 200 : p.size === '1080x1350' ? 300 : 430,
+        uiW: 460,
+      };
+    }
+    if (p.layoutVariant === 3) {
+      return {
+        // stacked UI with bullets
+        offerTop: topPad + 400,
+        ctaTop: topPad + 500,
+        uiTop: p.size === '1080x1080' ? 210 : p.size === '1080x1350' ? 300 : 470,
+        uiW: 420,
+      };
+    }
+    return { uiW: 440 };
+  })();
+
   return (
     <AbsoluteFill style={{ background: t.bg, fontFamily: 'ui-sans-serif, system-ui, -apple-system' }}>
       {/* Logo */}
-      <div style={{ position: 'absolute', left: 70, top: topPad, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ position: 'absolute', left: L.leftX, top: topPad, display: 'flex', alignItems: 'center', gap: 14 }}>
         <Img src={staticFile('assets/maxcontrax/logo.png')} style={{ height: 56, width: 'auto' }} />
       </div>
 
       {/* Headline block (structured + glow) */}
-      <div style={{ position: 'absolute', left: 70, top: topPad + 110, width: 600 }}>
+      <div style={{ position: 'absolute', left: L.leftX, top: L.headlineTop, width: p.layoutVariant === 2 ? 520 : 600 }}>
         {/* glow blob behind headline */}
         <div
           style={{
@@ -102,7 +137,7 @@ export const StillAd: React.FC<StillAdProps> = (p) => {
           <div
             style={{
               marginTop: 18,
-              color: p.theme === 'ice' ? 'rgba(15,23,42,0.75)' : 'rgba(255,255,255,0.92)',
+              color: isClean ? 'rgba(15,23,42,0.75)' : 'rgba(255,255,255,0.92)',
               fontSize: 30,
               fontWeight: 800,
               letterSpacing: -0.2,
@@ -114,19 +149,21 @@ export const StillAd: React.FC<StillAdProps> = (p) => {
       </div>
 
       {/* Offer pill */}
-      <div style={{
-        position: 'absolute',
-        left: 70,
-        top: topPad + 430,
-        padding: '14px 18px',
-        borderRadius: 18,
-        background: 'rgba(255,255,255,0.22)',
-        border: '1px solid rgba(255,255,255,0.28)',
-        color: p.theme === 'ice' ? 'rgba(15,23,42,0.9)' : 'rgba(255,255,255,0.92)',
-        fontSize: 24,
-        fontWeight: 800,
-        backdropFilter: 'blur(10px)',
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          left: L.leftX,
+          top: V.offerTop ?? L.offerTop,
+          padding: '14px 18px',
+          borderRadius: 18,
+          background: isClean ? 'rgba(37,99,235,0.10)' : 'rgba(255,255,255,0.22)',
+          border: isClean ? '1px solid rgba(37,99,235,0.18)' : '1px solid rgba(255,255,255,0.28)',
+          color: isClean ? 'rgba(15,23,42,0.82)' : 'rgba(255,255,255,0.92)',
+          fontSize: 24,
+          fontWeight: 900,
+          backdropFilter: 'blur(10px)',
+        }}
+      >
         {p.offerLine}
       </div>
 
@@ -134,8 +171,8 @@ export const StillAd: React.FC<StillAdProps> = (p) => {
       <div
         style={{
           position: 'absolute',
-          left: 70,
-          top: topPad + 520,
+          left: L.leftX,
+          top: V.ctaTop ?? L.ctaTop,
           width: 540,
           borderRadius: 28,
           background: 'rgba(255,255,255,0.94)',
@@ -204,9 +241,9 @@ export const StillAd: React.FC<StillAdProps> = (p) => {
       <div
         style={{
           position: 'absolute',
-          right: 60,
-          top: p.size === '1080x1080' ? 220 : p.size === '1080x1350' ? 330 : 520,
-          width: 440,
+          right: L.rightX,
+          top: V.uiTop ?? L.uiTop,
+          width: V.uiW ?? 440,
         }}
       >
         <div

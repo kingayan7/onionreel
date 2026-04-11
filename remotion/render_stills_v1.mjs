@@ -15,14 +15,16 @@ function run(cmd, args){
 
 const packId = process.argv[2] || ('stillpack_' + Date.now());
 const headline = process.env.HEADLINE || 'GET GOV.\nCONTRACTS\nFREE';
-const ctaText = process.env.CTA || 'Get Government Contracts Free';
+const ctaText = process.env.CTA || 'Get Matches';
 const offerLine = process.env.OFFER || 'Government contracts • SAM.gov';
 const priceLine = process.env.PRICE || '$19.99/mo after • cancel anytime';
+const layoutVariant = (Number(process.env.LAYOUT || 1) === 2 ? 2 : (Number(process.env.LAYOUT || 1) === 3 ? 3 : 1));
+const theme = (process.env.THEME || 'ice');
 
 const variants = [
-  { comp: 'StillAdSquare', size: '1080x1080', theme: 'sunset' },
-  { comp: 'StillAdFeed', size: '1080x1350', theme: 'ice' },
-  { comp: 'StillAdPortrait', size: '1080x1920', theme: 'violet' },
+  { comp: 'StillAdSquare', size: '1080x1080', theme },
+  { comp: 'StillAdFeed', size: '1080x1350', theme },
+  { comp: 'StillAdPortrait', size: '1080x1920', theme },
 ];
 
 const files = [];
@@ -36,6 +38,7 @@ for (const v of variants) {
     offerLine,
     priceLine,
     theme: v.theme,
+    layoutVariant,
     showPerson: false,
   };
   run('bash', ['-lc', `cd "${REM_DIR}" && npx remotion still src/index.ts ${v.comp} "${out}" --props='${JSON.stringify(props).replace(/'/g, "'\\''")}' --log=warn`]);

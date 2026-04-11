@@ -40,8 +40,8 @@ export const StillFlyerV16: React.FC<StillFlyerV16Props> = (p) => {
         </div>
       </div>
 
-      {/* Dark-mode UI card (moved LEFT of person; nothing overlaps) */}
-      <div style={{position: 'absolute', left: 500, top: 230, width: 540}}>
+      {/* Dark-mode UI card (placed in open space above/left of person; no overlap) */}
+      <div style={{position: 'absolute', left: 460, top: 110, width: 520}}>
         <div style={{position: 'absolute', inset: -18, borderRadius: 54, background: 'radial-gradient(circle at 30% 30%, rgba(0,229,255,0.22), rgba(0,229,255,0.0) 70%)', filter: 'blur(16px)'}} />
         <div style={{position: 'relative', borderRadius: 44, overflow: 'hidden', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.18)', boxShadow: '0 44px 160px rgba(0,0,0,0.55)'}}>
           <Img src={staticFile('assets/maxcontrax/ui_contract_alerts_dark_v1.png')} style={{width: '100%', height: 'auto'}} />

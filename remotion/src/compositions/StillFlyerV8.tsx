@@ -88,7 +88,7 @@ export const StillFlyerV8: React.FC<StillFlyerV8Props> = (p) => {
             border: `1px solid ${stroke}`,
             boxShadow: '0 34px 110px rgba(0,0,0,0.18)',
           }}>
-            <Img src={staticFile('assets/maxcontrax/ui_alerts_v2.png')} style={{ width: '100%', height: 'auto' }} />
+            <Img src={staticFile('assets/maxcontrax/ui_contract_alerts_v1.png')} style={{ width: '100%', height: 'auto' }} />
           </div>
         </div>
       </div>

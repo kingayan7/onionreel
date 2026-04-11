@@ -35,7 +35,7 @@ node remotion/render_flyer_v9.mjs contractor autoedit/exports/still_packs/MC1/co
 ```
 
 ## Assets used
-- `remotion/public/assets/maxcontrax/logo_mark_v2.png` (current user-provided logo)
+- `remotion/public/assets/maxcontrax/logo_transparent_v2.png` (current transparent logo)
 - `remotion/public/assets/maxcontrax/people/contractor_v5.png`
 - `remotion/public/assets/maxcontrax/ui_contract_alerts_v1.png`
 

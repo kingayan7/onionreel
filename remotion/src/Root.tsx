@@ -3,6 +3,7 @@ import {Composition} from 'remotion';
 import {Reel30} from './compositions/Reel30';
 import {StillAd} from './compositions/StillAd';
 import {StillFlyerV2} from './compositions/StillFlyerV2';
+import {StillFlyerV3} from './compositions/StillFlyerV3';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -101,6 +102,23 @@ export const RemotionRoot: React.FC = () => {
           subline: 'Government contracts • SAM.gov',
           ctaText: 'Get Matches',
           offerLine: 'Government contracts • SAM.gov',
+          priceLine: '$19.99/mo after • cancel anytime',
+        }}
+      />
+
+      <Composition
+        id="StillFlyerV3"
+        component={StillFlyerV3}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        defaultProps={{
+          role: 'contractor',
+          headline: 'GET GOV.\nCONTRACTS\nFREE',
+          subline: 'Government contracts • SAM.gov',
+          ctaText: 'Get Gov Contracts Free (7 Days)',
+          offerLine: 'Start Free • 7-day trial',
           priceLine: '$19.99/mo after • cancel anytime',
         }}
       />

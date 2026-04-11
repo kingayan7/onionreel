@@ -231,6 +231,35 @@ const server = http.createServer((req, res) => {
   // Requests persistence (MVP): dashboard/data/requests.jsonl
   const REQUESTS = path.join(ROOT, 'data', 'requests.jsonl');
   const TEMPLATES = path.join(ROOT, 'data', 'templates.jsonl');
+  const APPROVED_TEMPLATES_DIR = path.join(ROOT, '..', 'templates', 'maxcontrax');
+
+  // Approved templates (filesystem): /templates/maxcontrax/MC1+ (preview png)
+  // GET /api/templates/approved
+  if (req.url === '/api/templates/approved' && req.method === 'GET') {
+    try {
+      const out = [];
+      if (fs.existsSync(APPROVED_TEMPLATES_DIR)) {
+        const ids = fs.readdirSync(APPROVED_TEMPLATES_DIR).filter(x => !x.startsWith('.'));
+        for (const id of ids) {
+          const dir = path.join(APPROVED_TEMPLATES_DIR, id);
+          if (!fs.statSync(dir).isDirectory()) continue;
+          const preview = ['preview_contractor.png','preview.png'].find(f => fs.existsSync(path.join(dir, f)));
+          out.push({
+            templateId: id,
+            name: id,
+            kind: 'approved',
+            previewFile: preview || null,
+            previewUrl: preview ? `/dl/templates/maxcontrax/${encodeURIComponent(id)}/${encodeURIComponent(preview)}` : null,
+            readmeUrl: fs.existsSync(path.join(dir, 'README.md')) ? `/dl/templates/maxcontrax/${encodeURIComponent(id)}/README.md` : null,
+          });
+        }
+      }
+      out.sort((a,b) => String(a.templateId).localeCompare(String(b.templateId)));
+      return json(res, 200, { templates: out });
+    } catch (e) {
+      return json(res, 500, { error: String(e) });
+    }
+  }
 
   // Templates (MVP): dashboard/data/templates.jsonl
   if (req.url === '/api/templates' && req.method === 'GET') {
@@ -622,6 +651,23 @@ const server = http.createServer((req, res) => {
         return json(res, 400, { ok:false, error: String(e) });
       }
     });
+  }
+
+  // /dl/templates/maxcontrax/<templateId>/<file>
+  if (req.url?.startsWith('/dl/templates/maxcontrax/')) {
+    const parts = req.url.split('/').filter(Boolean); // dl templates maxcontrax <tplId> <file...>
+    const templateId = parts[3];
+    const file = parts.slice(4).join('/');
+    if (!templateId || !file) return json(res, 400, { error: 'bad_request' });
+    const base = path.join(APPROVED_TEMPLATES_DIR, templateId);
+    const abs = path.join(base, file);
+    if (!abs.startsWith(base)) return json(res, 400, { error: 'bad_path' });
+    if (!fs.existsSync(abs)) return json(res, 404, { error: 'not_found' });
+    const ext = path.extname(abs).toLowerCase();
+    const ct = ext === '.png' ? 'image/png' : (ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : (ext === '.md' ? 'text/markdown' : 'application/octet-stream'));
+    res.writeHead(200, { 'content-type': ct });
+    fs.createReadStream(abs).pipe(res);
+    return;
   }
 
   // /dl/autoedit/<projectId>/<kind>/<filename>

@@ -1,8 +1,36 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-09T18:08:30-04:00",
+  "updated": "2026-04-11T17:50:18.064Z",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
+    {
+      "id": "P20",
+      "name": "Distribution & Publishing v1 (deliver & reuse outputs without chat)",
+      "steps": [
+        {
+          "id": "P20-S0",
+          "name": "Dashboard: Template Gallery for approved still templates (MC1+) with previews",
+          "status": "done",
+          "doingAt": "2026-04-11T17:47:22.604Z",
+          "doneAt": "2026-04-11T17:50:18.062Z"
+        },
+        {
+          "id": "P20-S1",
+          "name": "Dashboard: Pin + “Use this template” action on requests (still packs)",
+          "status": "todo"
+        },
+        {
+          "id": "P20-S2",
+          "name": "Export: Still pack zip + direct-post PNGs option (per request)",
+          "status": "todo"
+        },
+        {
+          "id": "P20-S3",
+          "name": "Audit log: template approvals (MC#) recorded with commit hash + preview artifact",
+          "status": "todo"
+        }
+      ]
+    },
     {
       "id": "P19",
       "name": "MaxContrax Production OS v1 (one-click runs, quality gates, repeatability)",

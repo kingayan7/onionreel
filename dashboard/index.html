@@ -231,8 +231,23 @@ async function loadProjectPanel(pid){
 }
 
 async function refreshTemplates(){
+  const approved = await jget('/api/templates/approved');
+  const approvedTpls = (approved.templates||[]);
+
   const data = await jget('/api/templates');
   const tpls = (data.templates||[]);
+
+  function approvedRow(t){
+    const preview = t.previewUrl ? `<img src="${esc(t.previewUrl)}" style="width:160px;height:auto;border-radius:12px;border:1px solid #e5e7eb" />` : '<div class="pill">no preview</div>';
+    const readme = t.readmeUrl ? `<a href="${esc(t.readmeUrl)}" target="_blank">README</a>` : '';
+    return `<li class="card"><div class="grid" style="grid-template-columns: 180px 1fr; gap:12px">
+      <div>${preview}</div>
+      <div>
+        <div><span class="pill">approved</span> <b>${esc(t.templateId)}</b> <span class="muted" style="font-size:12px">(locked)</span></div>
+        <div class="muted" style="margin-top:6px">${readme}</div>
+      </div>
+    </div></li>`;
+  }
 
   function tplRow(t){
     const btn = '<button class="secondary" data-use="' + esc(t.templateId) + '">Use</button>';
@@ -242,9 +257,15 @@ async function refreshTemplates(){
       + '</div></li>';
   }
 
-  document.getElementById('templates').innerHTML = tpls.length
-    ? '<ul>' + tpls.slice(0,100).map(tplRow).join('') + '</ul>'
-    : '<div class="muted">No templates yet.</div>';
+  const approvedHtml = approvedTpls.length
+    ? '<div style="margin-bottom:10px"><b>Approved (locked)</b></div><ul style="list-style:none;padding-left:0">' + approvedTpls.map(approvedRow).join('') + '</ul>'
+    : '<div class="muted">No approved templates found yet.</div>';
+
+  const draftHtml = tpls.length
+    ? '<div style="margin-top:18px"><b>Draft templates (JSON)</b></div><ul>' + tpls.slice(0,100).map(tplRow).join('') + '</ul>'
+    : '<div class="muted" style="margin-top:18px">No draft templates yet.</div>';
+
+  document.getElementById('templates').innerHTML = approvedHtml + draftHtml;
 
   Array.from(document.querySelectorAll('[data-use]')).forEach(b => {
     b.onclick = async () => {

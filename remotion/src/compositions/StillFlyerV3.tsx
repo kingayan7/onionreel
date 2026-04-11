@@ -20,6 +20,7 @@ export const StillFlyerV3: React.FC<StillFlyerV3Props> = (p) => {
   // Fresh IG-ad colors: electric blue + aqua + orange button.
   const bg = 'linear-gradient(135deg, #0b5cff 0%, #3aa3ff 35%, #e8f6ff 100%)';
   const orange = '#F97316';
+  const ctaFont = (p.ctaText || '').length > 24 ? 26 : 30;
 
   return (
     <AbsoluteFill style={{ background: bg, fontFamily: 'ui-sans-serif, system-ui, -apple-system' }}>
@@ -44,22 +45,22 @@ export const StillFlyerV3: React.FC<StillFlyerV3Props> = (p) => {
         }}>AI Contract Matches</div>
       </div>
 
-      {/* Person LEFT */}
-      <div style={{ position: 'absolute', left: 0, bottom: -10, width: 520, height: 1040 }}>
+      {/* Person LEFT (larger) */}
+      <div style={{ position: 'absolute', left: -40, bottom: -30, width: 620, height: 1180 }}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.16)', filter: 'blur(18px)', transform: 'translateY(22px)', opacity: 0.28, borderRadius: 999 }} />
         <Img src={staticFile(ROLE_ASSET[p.role])} style={{ position: 'relative', width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 26px 60px rgba(0,0,0,0.22))' }} />
       </div>
 
-      {/* UI card RIGHT */}
-      <div style={{ position: 'absolute', right: 70, top: 250, width: 440 }}>
+      {/* Alerts UI card RIGHT (bigger, fills space) */}
+      <div style={{ position: 'absolute', right: 50, top: 210, width: 520 }}>
         <div style={{ position: 'absolute', inset: -18, borderRadius: 42, background: 'radial-gradient(circle at 30% 30%, rgba(249,115,22,0.20), rgba(255,255,255,0.0) 70%)', filter: 'blur(14px)' }} />
         <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', background: '#fff', border: '1px solid rgba(0,0,0,0.10)', boxShadow: '0 34px 90px rgba(0,0,0,0.28)' }}>
-          <Img src={staticFile('assets/maxcontrax/ui_card_v3.png')} style={{ width: '100%', height: 'auto' }} />
+          <Img src={staticFile('assets/maxcontrax/ui_alerts_v1.png')} style={{ width: '100%', height: 'auto' }} />
         </div>
       </div>
 
       {/* Copy + CTA RIGHT BOTTOM (no overlap with UI) */}
-      <div style={{ position: 'absolute', right: 70, bottom: 90, width: 560 }}>
+      <div style={{ position: 'absolute', right: 50, bottom: 70, width: 600 }}>
         <div style={{
           fontSize: 86,
           fontWeight: 950,
@@ -81,7 +82,7 @@ export const StillFlyerV3: React.FC<StillFlyerV3Props> = (p) => {
         {/* CTA Button */}
         <div style={{ marginTop: 18, position: 'relative' }}>
           <div style={{ position: 'absolute', left: 18, right: 18, top: 10, height: 72, borderRadius: 20, background: orange, opacity: 0.34, filter: 'blur(18px)' }} />
-          <div style={{ position: 'relative', background: orange, borderRadius: 20, padding: '18px 18px', textAlign: 'center', color: '#fff', fontSize: 30, fontWeight: 950, letterSpacing: -0.2, boxShadow: '0 16px 34px rgba(0,0,0,0.22)' }}>
+          <div style={{ position: 'relative', background: orange, borderRadius: 20, padding: '18px 18px', textAlign: 'center', color: '#fff', fontSize: ctaFont, fontWeight: 950, letterSpacing: -0.2, boxShadow: '0 16px 34px rgba(0,0,0,0.22)' }}>
             {p.ctaText}
           </div>
         </div>

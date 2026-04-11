@@ -26,23 +26,23 @@ export const StillFlyerV14: React.FC<StillFlyerV14Props> = (p) => {
         </div>
       </div>
 
-      {/* CTA center (standalone, no bubble) */}
-      <div style={{position: 'absolute', left: 80, right: 80, top: 210, textAlign: 'center'}}>
-        <div style={{fontSize: 82, fontWeight: 950, letterSpacing: -1.6, lineHeight: 0.96, color: ink, textShadow: '0 22px 70px rgba(0,0,0,0.10)'}}>
-          {p.cta}
-        </div>
-        <div style={{marginTop: 10, fontSize: 16, fontWeight: 900, color: 'rgba(7,16,26,0.62)'}}>{p.trialLine}</div>
-        <div style={{marginTop: 10, fontSize: 22, fontWeight: 900, color: 'rgba(7,16,26,0.74)'}}>{p.subline}</div>
-      </div>
-
-      {/* Hero person (behind alerts) */}
-      <div style={{position: 'absolute', right: -140, bottom: -70, width: 820, height: 1440, opacity: 0.95}}>
+      {/* Hero person (right, behind everything) */}
+      <div style={{position: 'absolute', right: -140, bottom: -70, width: 820, height: 1440, opacity: 0.95, zIndex: 1}}>
         <div style={{position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.16)', filter: 'blur(26px)', transform: 'translateY(30px)', opacity: 0.18, borderRadius: 999}} />
         <Img src={staticFile('assets/maxcontrax/people/security_v5.png')} style={{position: 'relative', width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 40px 120px rgba(0,0,0,0.28))'}} />
       </div>
 
-      {/* Alerts card big center-bottom */}
-      <div style={{position: 'absolute', left: 80, right: 520, bottom: 120}}>
+      {/* CTA moved left so nothing sits under the person */}
+      <div style={{position: 'absolute', left: 70, right: 520, top: 210, textAlign: 'left', zIndex: 3}}>
+        <div style={{fontSize: 82, fontWeight: 950, letterSpacing: -1.6, lineHeight: 0.96, color: ink, textShadow: '0 22px 70px rgba(0,0,0,0.10)'}}>
+          {p.cta}
+        </div>
+        <div style={{marginTop: 14, fontSize: 16, fontWeight: 900, color: 'rgba(7,16,26,0.62)'}}>{p.trialLine}</div>
+        <div style={{marginTop: 12, fontSize: 24, fontWeight: 900, color: 'rgba(7,16,26,0.74)', lineHeight: 1.15}}>{p.subline}</div>
+      </div>
+
+      {/* Alerts card moved up + larger to fill space, kept fully clear of person */}
+      <div style={{position: 'absolute', left: 70, right: 520, bottom: 150, zIndex: 2}}>
         <div style={{position: 'absolute', inset: -18, borderRadius: 46, background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.40), rgba(255,255,255,0.0) 70%)', filter: 'blur(14px)'}} />
         <div style={{position: 'relative', borderRadius: 38, overflow: 'hidden', background: '#fff', border: `2px solid ${stroke}`, boxShadow: '0 40px 140px rgba(0,0,0,0.22)'}}>
           <Img src={staticFile('assets/maxcontrax/ui_contract_alerts_v2.png')} style={{width: '100%', height: 'auto'}} />

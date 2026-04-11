@@ -14,10 +14,10 @@
   "type": "module",
   "dependencies": {
     "@remotion/animation-utils": "^4.0.447",
-    "remotion": "^4.0.0"
+    "remotion": "^4.0.447"
   },
   "devDependencies": {
-    "@remotion/cli": "^4.0.0",
+    "@remotion/cli": "^4.0.447",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.0",
     "react": "^18.2.0",

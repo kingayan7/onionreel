@@ -12,6 +12,7 @@ export type StillAdProps = {
   // 1: classic (like your blue/white samples), 2: split-panel, 3: stacked UI with bullets
   layoutVariant: 1 | 2 | 3;
   showPerson: boolean;
+  personAsset?: string; // e.g. 'assets/maxcontrax/people/security.png'
 };
 
 const THEMES: Record<StillAdProps['theme'], { bg: string; accent: string; cta: string; headline: string; body: string }> = {
@@ -272,16 +273,41 @@ export const StillAd: React.FC<StillAdProps> = (p) => {
         </div>
       </div>
 
-      {/* Optional person cutout placeholder (v1): currently off unless we add cutout extraction) */}
-      {p.showPerson ? (
-        <div style={{
-          position: 'absolute',
-          right: 40,
-          bottom: 0,
-          width: 520,
-          height: Math.min(820, h * 0.5),
-          background: 'rgba(255,255,255,0.0)',
-        }} />
+      {/* Person cutout (required for this pack) */}
+      {p.showPerson && p.personAsset ? (
+        <div
+          style={{
+            position: 'absolute',
+            right: p.layoutVariant === 2 ? 40 : 10,
+            bottom: -10,
+            width: p.size === '1080x1080' ? 460 : 540,
+            height: Math.min(900, h * 0.62),
+            pointerEvents: 'none',
+          }}
+        >
+          {/* shadow */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(0,0,0,0.18)',
+              filter: 'blur(18px)',
+              transform: 'translateY(22px)',
+              opacity: 0.35,
+              borderRadius: 999,
+            }}
+          />
+          <Img
+            src={staticFile(p.personAsset)}
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 26px 60px rgba(0,0,0,0.22))',
+            }}
+          />
+        </div>
       ) : null}
 
       {/* Safe margins */}

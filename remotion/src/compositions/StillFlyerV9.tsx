@@ -84,10 +84,12 @@ export const StillFlyerV9: React.FC<StillFlyerV9Props> = (p) => {
         ) : null}
 
         <div style={{ marginTop: 10, fontSize: 22, fontWeight: 900, color: 'rgba(7,16,26,0.72)' }}>{p.subline}</div>
-        <div style={{ marginTop: 6, fontSize: 20, fontWeight: 950, color: 'rgba(7,16,26,0.70)' }}>{p.offerLine}</div>
+
+        {/* Trial/pricing line (small, NOT part of CTA) */}
+        <div style={{ marginTop: 6, fontSize: 16, fontWeight: 900, color: 'rgba(7,16,26,0.62)' }}>{p.offerLine}</div>
 
         {/* Feature chips (still ok to be pills) */}
-        <div style={{ marginTop: 10, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(14,165,233,0.14)', border: '1px solid rgba(14,165,233,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Janitorial</div>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(124,58,237,0.14)', border: '1px solid rgba(124,58,237,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Security</div>
           <div style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(34,197,94,0.14)', border: '1px solid rgba(34,197,94,0.22)', fontSize: 16, fontWeight: 950, color: 'rgba(7,16,26,0.78)' }}>Nurse</div>

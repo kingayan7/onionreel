@@ -40,18 +40,18 @@ export const StillFlyerV16: React.FC<StillFlyerV16Props> = (p) => {
         </div>
       </div>
 
-      {/* Contractor hero right */}
-      <div style={{position: 'absolute', right: -90, bottom: -80, width: 860, height: 1500}}>
-        <div style={{position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.40)', filter: 'blur(26px)', transform: 'translateY(32px)', opacity: 0.22, borderRadius: 999}} />
-        <Img src={staticFile('assets/maxcontrax/people/contractor_v6.png')} style={{position: 'relative', width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 44px 140px rgba(0,0,0,0.60))'}} />
-      </div>
-
-      {/* Dark-mode UI card */}
-      <div style={{position: 'absolute', right: 60, top: 210, width: 520}}>
+      {/* Dark-mode UI card (moved LEFT of person; nothing overlaps) */}
+      <div style={{position: 'absolute', left: 500, top: 230, width: 540}}>
         <div style={{position: 'absolute', inset: -18, borderRadius: 54, background: 'radial-gradient(circle at 30% 30%, rgba(0,229,255,0.22), rgba(0,229,255,0.0) 70%)', filter: 'blur(16px)'}} />
         <div style={{position: 'relative', borderRadius: 44, overflow: 'hidden', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.18)', boxShadow: '0 44px 160px rgba(0,0,0,0.55)'}}>
           <Img src={staticFile('assets/maxcontrax/ui_contract_alerts_dark_v1.png')} style={{width: '100%', height: 'auto'}} />
         </div>
+      </div>
+
+      {/* Contractor hero right (kept clear of UI) */}
+      <div style={{position: 'absolute', right: -90, bottom: -80, width: 860, height: 1500}}>
+        <div style={{position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.40)', filter: 'blur(26px)', transform: 'translateY(32px)', opacity: 0.22, borderRadius: 999}} />
+        <Img src={staticFile('assets/maxcontrax/people/contractor_v6.png')} style={{position: 'relative', width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 44px 140px rgba(0,0,0,0.60))'}} />
       </div>
 
       {/* Bottom right tag */}

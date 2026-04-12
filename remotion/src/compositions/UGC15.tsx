@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Audio, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, Img, Video, interpolate, staticFile, useCurrentFrame} from 'remotion';
 
 export type UGC15Props = {
   ctaExact: string;
@@ -50,7 +50,7 @@ export const UGC15: React.FC<UGC15Props> = (p) => {
 
       {/* Selfie video background */}
       <AbsoluteFill>
-        <video
+        <Video
           src={staticFile(selfie)}
           style={{width:'100%', height:'100%', objectFit:'cover'}}
           muted

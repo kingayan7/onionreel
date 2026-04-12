@@ -72,20 +72,18 @@ export const UGC15: React.FC<UGC15Props> = (p) => {
         </div>
       </div>
 
-      {/* CTA (top-center) */}
-      <div style={{position:'absolute', left:0, right:0, top:88, display:'flex', justifyContent:'center', transform:`scale(${pop(10)})`, opacity: fade(10)}}>
+      {/* CTA text (top, next to logo — no white box) */}
+      <div style={{position:'absolute', left:44 + 360, top:34, right:44, transform:`scale(${pop(10)})`, opacity: fade(10)}}>
         <div style={{
-          maxWidth:980,
-          margin:'0 60px',
-          padding:'18px 26px',
-          borderRadius:28,
-          background:'rgba(255,255,255,0.90)',
-          border:'2px solid rgba(255,255,255,0.16)',
-          boxShadow:'0 40px 140px rgba(0,0,0,0.45)'
-        }}>
-          <div style={{fontSize:70, fontWeight:980, letterSpacing:-1.6, lineHeight:0.95, color:'#07101A', textAlign:'center', whiteSpace:'pre-wrap'}}>{topText}</div>
-          <div style={{marginTop:12, fontSize:24, fontWeight:950, color:'rgba(7,16,26,0.70)', textAlign:'center'}}>{p.url}</div>
-        </div>
+          fontSize:54,
+          fontWeight:980,
+          letterSpacing:-1.2,
+          lineHeight:0.95,
+          color:'#FFFFFF',
+          textShadow:'0 14px 60px rgba(0,0,0,0.60)',
+          whiteSpace:'pre-wrap'
+        }}>{topText}</div>
+        <div style={{marginTop:10, fontSize:22, fontWeight:950, color:'rgba(255,255,255,0.88)', textShadow:'0 12px 50px rgba(0,0,0,0.55)'}}>{p.url}</div>
       </div>
 
       {/* Footer micro */}

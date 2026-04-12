@@ -34,7 +34,7 @@ export const UGC15: React.FC<UGC15Props> = (p) => {
   const active = beats.find(b => f>=b.start && f<b.end) || beats[0];
 
   const selfie = p.selfieVideo || 'assets/maxcontrax/ugc/selfie_talk_v1.mp4';
-  const vo = p.voAudio || 'assets/maxcontrax/ugc/vo_ugc15_v3.wav';
+  const vo = p.voAudio || 'assets/maxcontrax/ugc/vo_ugc15_v4.wav';
 
   return (
     <AbsoluteFill style={{fontFamily:'Inter, ui-sans-serif, system-ui, -apple-system', background:'#000'}}>

@@ -50,11 +50,20 @@ export const UGC15: React.FC<UGC15Props> = (p) => {
 
       {/* Selfie video background */}
       <AbsoluteFill>
+        {/* Full-screen blurred fill (so if we zoom the hero out, we never reveal black borders) */}
         <Video
           src={staticFile(selfie)}
-          style={{width:'100%', height:'100%', objectFit:'cover'}}
+          style={{width:'100%', height:'100%', objectFit:'cover', filter:'blur(18px) brightness(0.80)', transform:'scale(1.08)'}}
           muted
         />
+
+        {/* Centered hero talking-head, slightly zoomed OUT */}
+        <Video
+          src={staticFile(selfie)}
+          style={{width:'100%', height:'100%', objectFit:'contain', transform:'scale(0.90)'}}
+          muted
+        />
+
         {/* Darken for legibility */}
         <div style={{position:'absolute', inset:0, background:'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.55) 100%)'}} />
       </AbsoluteFill>

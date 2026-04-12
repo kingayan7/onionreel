@@ -25,10 +25,10 @@ export const UGC15: React.FC<UGC15Props> = (p) => {
 
   // 15s @30fps = 450 frames
   const beats = [
-    {start:0, end:60, line:'Stop searching SAM.gov\nall day.'},
-    {start:60, end:180, line:'Get daily contract alerts\n(Janitorial • Security • Nurse • Cyber • Contractor).'},
-    {start:180, end:330, line:'Respond faster.\nWin more.'},
-    {start:330, end:450, line:p.ctaExact},
+    {start:0, end:90, line:'Stop searching for\ngovernment contracts\nall day.'},
+    {start:90, end:255, line:'MaxContrax sends\ndaily contract alerts\nso you can move fast\nand respond first.'},
+    {start:255, end:360, line:'Start your 7-day\nfree trial —\nzero risk.'},
+    {start:360, end:450, line:p.ctaExact},
   ];
 
   const active = beats.find(b => f>=b.start && f<b.end) || beats[0];
@@ -58,22 +58,36 @@ export const UGC15: React.FC<UGC15Props> = (p) => {
         <Img src={staticFile('assets/maxcontrax/logo_transparent_v2.png')} style={{height:160, width:'auto', filter:'drop-shadow(0 20px 70px rgba(0,0,0,0.45))'}} />
       </div>
 
-      {/* UI card */}
-      <div style={{position:'absolute', right:44, top:170, transform:`scale(${pop(20)})`, opacity: fade(20)}}>
+      {/* Alerts UI card (bottom-left) */}
+      <div style={{position:'absolute', left:44, bottom:52, transform:`scale(${pop(20)})`, opacity: fade(20)}}>
         <div style={{position:'absolute', inset:-18, borderRadius:46, background:'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.40), rgba(255,255,255,0.0) 70%)', filter:'blur(14px)'}} />
-        <div style={{position:'relative', width:440, borderRadius:34, overflow:'hidden', background:'#fff', border:'2px solid rgba(255,255,255,0.16)', boxShadow:'0 40px 140px rgba(0,0,0,0.45)'}}>
+        <div style={{position:'relative', width:420, borderRadius:34, overflow:'hidden', background:'#fff', border:'2px solid rgba(255,255,255,0.16)', boxShadow:'0 40px 140px rgba(0,0,0,0.45)'}}>
           <Img src={staticFile('assets/maxcontrax/ui_contract_alerts_v2.png')} style={{width:'100%', height:'auto'}} />
         </div>
       </div>
 
+      {/* CTA (top-center) */}
+      <div style={{position:'absolute', left:0, right:0, top:190, display:'flex', justifyContent:'center', transform:`scale(${pop(10)})`, opacity: fade(10)}}>
+        <div style={{
+          maxWidth:980,
+          margin:'0 60px',
+          padding:'18px 26px',
+          borderRadius:28,
+          background:'rgba(255,255,255,0.90)',
+          border:'2px solid rgba(255,255,255,0.16)',
+          boxShadow:'0 40px 140px rgba(0,0,0,0.45)'
+        }}>
+          <div style={{fontSize:70, fontWeight:980, letterSpacing:-1.6, lineHeight:0.95, color:'#07101A', textAlign:'center', whiteSpace:'pre-wrap'}}>{p.ctaExact}</div>
+          <div style={{marginTop:12, fontSize:24, fontWeight:950, color:'rgba(7,16,26,0.70)', textAlign:'center'}}>{p.url}</div>
+        </div>
+      </div>
+
       {/* Caption card */}
-      <Card x={44} y={270} w={620} bg={'rgba(255,255,255,0.90)'}>
+      <Card x={44} y={410} w={620} bg={'rgba(255,255,255,0.90)'}>
         <div style={{fontSize:58, fontWeight:950, letterSpacing:-1.2, lineHeight:0.98, color:'#07101A', whiteSpace:'pre-wrap'}}>{active.line}</div>
-        {f>=330 ? (
-          <div style={{marginTop:14, fontSize:22, fontWeight:950, color:'rgba(7,16,26,0.72)'}}>{p.url}</div>
-        ) : (
+        {f<330 ? (
           <div style={{marginTop:14, fontSize:18, fontWeight:900, color:'rgba(7,16,26,0.62)'}}>Daily Contract Alerts • Match Scores • Due Dates</div>
-        )}
+        ) : null}
       </Card>
 
       {/* Footer micro */}

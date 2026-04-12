@@ -38,16 +38,20 @@ if [ ! -d "$ST_DIR/checkpoints" ] || [ -z "$(ls -A "$ST_DIR/checkpoints" 2>/dev/
 fi
 
 # Run inference
+# IMPORTANT: use absolute paths because SadTalker runs with cwd=$ST_DIR.
+ABS_SRC_IMG="$(cd "$(dirname "$SRC_IMG")" && pwd)/$(basename "$SRC_IMG")"
+ABS_AUDIO="$(cd "$(dirname "$AUDIO")" && pwd)/$(basename "$AUDIO")"
+ABS_OUT_DIR="$(cd "$(dirname "$OUT")" && pwd)"
+
 cd "$ST_DIR"
 "$VENV/bin/python" inference.py \
-  --driven_audio "$AUDIO" \
-  --source_image "$SRC_IMG" \
-  --result_dir "$(dirname "$OUT")" \
+  --driven_audio "$ABS_AUDIO" \
+  --source_image "$ABS_SRC_IMG" \
+  --result_dir "$ABS_OUT_DIR" \
   --pose_style 0 \
   --preprocess full \
   --enhancer gfpgan \
-  --still \
-  --face3dvis
+  --still
 
 # SadTalker writes into result_dir with a generated name. Pick newest mp4.
 LATEST=$(ls -1t "$(dirname "$OUT")"/*.mp4 2>/dev/null | head -n 1 || true)

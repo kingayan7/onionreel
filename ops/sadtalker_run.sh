@@ -53,10 +53,12 @@ cd "$ST_DIR"
   --enhancer gfpgan \
   --still
 
-# SadTalker writes into result_dir with a generated name. Pick newest mp4.
-LATEST=$(ls -1t "$(dirname "$OUT")"/*.mp4 2>/dev/null | head -n 1 || true)
+# SadTalker writes into result_dir with a generated name (sometimes nested).
+# Pick newest mp4 anywhere under the result dir.
+OUT_DIR="$(dirname "$OUT")"
+LATEST=$(find "$OUT_DIR" -type f -name "*.mp4" -print0 2>/dev/null | xargs -0 ls -1t 2>/dev/null | head -n 1 || true)
 if [ -z "$LATEST" ]; then
-  echo "[SadTalker] did not produce an mp4 in $(dirname "$OUT")"
+  echo "[SadTalker] did not produce an mp4 under $OUT_DIR"
   exit 3
 fi
 

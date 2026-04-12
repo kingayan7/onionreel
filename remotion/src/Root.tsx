@@ -17,6 +17,7 @@ import {StillFlyerV13} from './compositions/StillFlyerV13';
 import {StillFlyerV14} from './compositions/StillFlyerV14';
 import {StillFlyerV15} from './compositions/StillFlyerV15';
 import {StillFlyerV16} from './compositions/StillFlyerV16';
+import {UGC15} from './compositions/UGC15';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -326,6 +327,19 @@ export const RemotionRoot: React.FC = () => {
           cta: 'Get Government Contracts Free',
           trialLine: '( 7 Day free Trial • $19.99/mo after)',
           subline: 'Contract alerts tailored to your business',
+        }}
+      />
+
+      <Composition
+        id="UGC15"
+        component={UGC15}
+        durationInFrames={15 * 30}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{
+          ctaExact: "Get Government Contracts Free",
+          url: "https://maxcontrax.com"
         }}
       />
     </>

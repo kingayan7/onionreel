@@ -13,6 +13,8 @@ if (!out) {
 const props = {
   ctaExact: process.env.CTA || 'Get Government Contracts Free',
   url: process.env.URL || 'https://maxcontrax.com',
+  selfieVideo: process.env.SELFIE || undefined,
+  voAudio: process.env.VO || undefined,
 };
 
 const cmd = `cd "${REM_DIR}" && npx remotion render src/index.ts UGC15 "${out}" --props='${JSON.stringify(props).replace(/'/g, "'\\''")}' --log=warn`;

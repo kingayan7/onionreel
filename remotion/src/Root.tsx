@@ -339,7 +339,9 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
         defaultProps={{
           ctaExact: "Get Government Contracts Free",
-          url: "https://maxcontrax.com"
+          url: "https://maxcontrax.com",
+          selfieVideo: "assets/maxcontrax/ugc/selfie_talk_v1.mp4",
+          voAudio: "assets/maxcontrax/ugc/vo_ugc15_v2.wav"
         }}
       />
     </>

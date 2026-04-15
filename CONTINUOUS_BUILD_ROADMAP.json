@@ -1,6 +1,6 @@
 {
   "project": "OnionReel",
-  "updated": "2026-04-11T20:34:32.347Z",
+  "updated": "2026-04-15T03:04:07.160Z",
   "principle": "Ship one concrete improvement every loop run; log it; never stop.",
   "phases": [
     {
@@ -22,8 +22,9 @@
         },
         {
           "id": "P20-S1",
-          "name": "Dashboard: Pin + “Use this template” action on requests (still packs)",
-          "status": "todo"
+          "name": "Dashboard: Pin + \u201cUse this template\u201d action on requests (still packs)",
+          "status": "done",
+          "doneAt": "2026-04-15T03:04:07.160Z"
         },
         {
           "id": "P20-S2",
@@ -49,7 +50,7 @@
         },
         {
           "id": "P19-S1",
-          "name": "MaxContrax preset: FULL pipeline bundle (sora→sync→remotion→master→film→markers→posters→qc→final_pack)",
+          "name": "MaxContrax preset: FULL pipeline bundle (sora\u2192sync\u2192remotion\u2192master\u2192film\u2192markers\u2192posters\u2192qc\u2192final_pack)",
           "status": "done",
           "doneAt": "2026-04-09T18:03:30-04:00"
         },
@@ -61,7 +62,7 @@
         },
         {
           "id": "P19-S3",
-          "name": "Dashboard UX: single “Run MaxContrax Pack” button + progress view",
+          "name": "Dashboard UX: single \u201cRun MaxContrax Pack\u201d button + progress view",
           "status": "done",
           "doneAt": "2026-04-09T18:08:30-04:00"
         }
@@ -73,7 +74,7 @@
       "steps": [
         {
           "id": "P18-S0",
-          "name": "OSS Scout (GitHub search + license filter) — shortlist best repos to import",
+          "name": "OSS Scout (GitHub search + license filter) \u2014 shortlist best repos to import",
           "status": "done",
           "doneAt": "2026-04-08T15:19:01-04:00"
         },
@@ -163,7 +164,7 @@
         },
         {
           "id": "P18-S13",
-          "name": "Cinematic Premium: Beat-driven cut engine (music/VO markers) – variants feel edited, not trimmed",
+          "name": "Cinematic Premium: Beat-driven cut engine (music/VO markers) \u2013 variants feel edited, not trimmed",
           "status": "done",
           "doingAt": "2026-04-08T19:03:51-04:00",
           "doneAt": "2026-04-08T19:21:19-04:00"
@@ -314,7 +315,7 @@
       "steps": [
         {
           "id": "P2-S1",
-          "text": "Canonical 30–60s ad pipeline doc (brief→final)",
+          "text": "Canonical 30\u201360s ad pipeline doc (brief\u2192final)",
           "status": "done",
           "doingAt": "2026-04-06T09:43:43-04:00",
           "doneAt": "2026-04-06T11:03:29-04:00"
@@ -504,14 +505,14 @@
       "steps": [
         {
           "id": "P8-S1",
-          "text": "Wire Dashboard ↔ Artifact Store (API + UI list)",
+          "text": "Wire Dashboard \u2194 Artifact Store (API + UI list)",
           "status": "done",
           "doingAt": "2026-04-07T17:56:00-04:00",
           "doneAt": "2026-04-07T17:58:04-04:00"
         },
         {
           "id": "P8-S2",
-          "text": "Wire Dashboard ↔ Brain (enqueue + list jobs)",
+          "text": "Wire Dashboard \u2194 Brain (enqueue + list jobs)",
           "status": "done",
           "doingAt": "2026-04-07T18:00:18-04:00",
           "doneAt": "2026-04-07T18:05:18-04:00"
@@ -532,7 +533,7 @@
         },
         {
           "id": "P8-S5",
-          "text": "GitHub auto-ship (commit + push per build tick) — optional",
+          "text": "GitHub auto-ship (commit + push per build tick) \u2014 optional",
           "status": "done",
           "doingAt": "2026-04-07T18:30:18-04:00",
           "doneAt": "2026-04-07T18:35:18-04:00"
@@ -579,7 +580,7 @@
         },
         {
           "id": "P9-S6",
-          "text": "Sora clip generation integration (4–6 clips per reel blueprint)",
+          "text": "Sora clip generation integration (4\u20136 clips per reel blueprint)",
           "status": "done",
           "doingAt": "2026-04-07T19:18:23-04:00",
           "doneAt": "2026-04-07T20:11:11-04:00"
@@ -728,7 +729,7 @@
         },
         {
           "id": "P13-S2",
-          "text": "Implement Reel composition v1 (beats → text cards + end card)",
+          "text": "Implement Reel composition v1 (beats \u2192 text cards + end card)",
           "status": "done",
           "doingAt": "2026-04-08T00:58:30-04:00",
           "doneAt": "2026-04-08T01:00:39-04:00"
@@ -796,7 +797,7 @@
         },
         {
           "id": "P15-S2",
-          "text": "SRT → styled captions render (Remotion preferred; ffmpeg ASS fallback)",
+          "text": "SRT \u2192 styled captions render (Remotion preferred; ffmpeg ASS fallback)",
           "status": "done",
           "doingAt": "2026-04-08T03:28:34-04:00",
           "doneAt": "2026-04-08T03:28:34-04:00"

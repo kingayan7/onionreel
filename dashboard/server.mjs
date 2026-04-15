@@ -232,11 +232,15 @@ const server = http.createServer((req, res) => {
   const REQUESTS = path.join(ROOT, 'data', 'requests.jsonl');
   const TEMPLATES = path.join(ROOT, 'data', 'templates.jsonl');
   const APPROVED_TEMPLATES_DIR = path.join(ROOT, '..', 'templates', 'maxcontrax');
+  const TEMPLATE_PINS = path.join(ROOT, 'data', 'template_pins.json');
 
   // Approved templates (filesystem): /templates/maxcontrax/MC1+ (preview png)
   // GET /api/templates/approved
   if (req.url === '/api/templates/approved' && req.method === 'GET') {
     try {
+      const pins = fs.existsSync(TEMPLATE_PINS) ? safeJson(fs.readFileSync(TEMPLATE_PINS, 'utf8')) : null;
+      const pinned = Array.isArray(pins?.pinned) ? new Set(pins.pinned) : new Set();
+
       const out = [];
       if (fs.existsSync(APPROVED_TEMPLATES_DIR)) {
         const ids = fs.readdirSync(APPROVED_TEMPLATES_DIR).filter(x => !x.startsWith('.'));
@@ -248,17 +252,55 @@ const server = http.createServer((req, res) => {
             templateId: id,
             name: id,
             kind: 'approved',
+            pinned: pinned.has(id),
             previewFile: preview || null,
             previewUrl: preview ? `/dl/templates/maxcontrax/${encodeURIComponent(id)}/${encodeURIComponent(preview)}` : null,
             readmeUrl: fs.existsSync(path.join(dir, 'README.md')) ? `/dl/templates/maxcontrax/${encodeURIComponent(id)}/README.md` : null,
           });
         }
       }
-      out.sort((a,b) => String(a.templateId).localeCompare(String(b.templateId)));
+      // pinned first, then alphabetical
+      out.sort((a,b) => (b.pinned === true) - (a.pinned === true) || String(a.templateId).localeCompare(String(b.templateId)));
       return json(res, 200, { templates: out });
     } catch (e) {
       return json(res, 500, { error: String(e) });
     }
+  }
+
+  // Template pins (MVP): dashboard/data/template_pins.json
+  // GET /api/templates/approved/pins
+  if (req.url === '/api/templates/approved/pins' && req.method === 'GET') {
+    try {
+      const pins = fs.existsSync(TEMPLATE_PINS) ? safeJson(fs.readFileSync(TEMPLATE_PINS, 'utf8')) : null;
+      const pinned = Array.isArray(pins?.pinned) ? pins.pinned : [];
+      return json(res, 200, { pinned });
+    } catch (e) {
+      return json(res, 500, { error: String(e) });
+    }
+  }
+
+  // POST /api/templates/approved/pin
+  // body: { templateId, pinned: true|false }
+  if (req.url === '/api/templates/approved/pin' && req.method === 'POST') {
+    return readBody(req).then((body) => {
+      try {
+        const b = safeJson(body) || {};
+        const templateId = String(b.templateId || '').trim();
+        const setPinned = b.pinned !== false;
+        if (!templateId) return json(res, 400, { ok:false, error:'missing templateId' });
+
+        const pins = fs.existsSync(TEMPLATE_PINS) ? safeJson(fs.readFileSync(TEMPLATE_PINS, 'utf8')) : null;
+        const pinned = Array.isArray(pins?.pinned) ? pins.pinned : [];
+        const s = new Set(pinned.map(String));
+        if (setPinned) s.add(templateId); else s.delete(templateId);
+        const out = { pinned: Array.from(s).sort() };
+        fs.writeFileSync(TEMPLATE_PINS, JSON.stringify(out, null, 2) + '\n');
+        appendActivity({ kind: 'template_pin', message: `${setPinned ? 'Pinned' : 'Unpinned'} template ${templateId}` });
+        return json(res, 200, { ok:true, ...out });
+      } catch (e) {
+        return json(res, 400, { ok:false, error: String(e) });
+      }
+    });
   }
 
   // Templates (MVP): dashboard/data/templates.jsonl

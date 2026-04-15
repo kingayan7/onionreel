@@ -240,10 +240,15 @@ async function refreshTemplates(){
   function approvedRow(t){
     const preview = t.previewUrl ? `<img src="${esc(t.previewUrl)}" style="width:160px;height:auto;border-radius:12px;border:1px solid #e5e7eb" />` : '<div class="pill">no preview</div>';
     const readme = t.readmeUrl ? `<a href="${esc(t.readmeUrl)}" target="_blank">README</a>` : '';
+    const pinBtn = `<button class="secondary" data-tpl-pin="${esc(t.templateId)}" data-pinned="${t.pinned ? '1':'0'}">${t.pinned ? 'Unpin' : 'Pin'}</button>`;
+    const useBtn = `<button class="secondary" data-tpl-use-approved="${esc(t.templateId)}">Use this template</button>`;
     return `<li class="card"><div class="grid" style="grid-template-columns: 180px 1fr; gap:12px">
       <div>${preview}</div>
       <div>
-        <div><span class="pill">approved</span> <b>${esc(t.templateId)}</b> <span class="muted" style="font-size:12px">(locked)</span></div>
+        <div class="row" style="justify-content:space-between">
+          <div><span class="pill">approved</span> <b>${esc(t.templateId)}</b> ${t.pinned ? '<span class="pill" style="margin-left:6px">pinned</span>' : ''} <span class="muted" style="font-size:12px">(locked)</span></div>
+          <div class="row">${pinBtn}${useBtn}</div>
+        </div>
         <div class="muted" style="margin-top:6px">${readme}</div>
       </div>
     </div></li>`;
@@ -267,6 +272,7 @@ async function refreshTemplates(){
 
   document.getElementById('templates').innerHTML = approvedHtml + draftHtml;
 
+  // Draft template Use
   Array.from(document.querySelectorAll('[data-use]')).forEach(b => {
     b.onclick = async () => {
       const id = b.getAttribute('data-use');
@@ -279,6 +285,31 @@ async function refreshTemplates(){
       await refresh();
       await refreshJobs();
       alert('Template enqueued. Click “Run Full Chain”.');
+    };
+  });
+
+  // Approved template Pin/Unpin
+  Array.from(document.querySelectorAll('[data-tpl-pin]')).forEach(b => {
+    b.onclick = async () => {
+      const id = b.getAttribute('data-tpl-pin');
+      const pinned = b.getAttribute('data-pinned') === '1';
+      await jpost('/api/templates/approved/pin', { templateId: id, pinned: !pinned });
+      await refreshTemplates();
+    };
+  });
+
+  // Approved template Use (pre-fill request builder)
+  Array.from(document.querySelectorAll('[data-tpl-use-approved]')).forEach(b => {
+    b.onclick = async () => {
+      const id = b.getAttribute('data-tpl-use-approved');
+      // Pre-fill Advanced payload so the next step can wire a real still-pack job.
+      const base = {
+        packType: 'still_pack',
+        stillTemplateId: id,
+      };
+      document.getElementById('reqPayload').value = JSON.stringify(base, null, 2);
+      showTab('requests');
+      alert('Template selected. Next step (P20-S2) will wire this into an actual still-pack runner.');
     };
   });
 }
